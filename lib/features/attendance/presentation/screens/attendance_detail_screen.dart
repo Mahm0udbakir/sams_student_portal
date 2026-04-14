@@ -86,180 +86,195 @@ class AttendanceDetailScreen extends StatelessWidget {
                 onRefresh: () => _refreshAttendance(context),
                 color: SamsUiTokens.primary,
                 child: SafeArea(
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics(),
-                    ),
-                    padding: SamsUiTokens.pageInsets(
-                      context,
-                      top: 14,
-                      bottom: 20,
-                    ),
-                    children: [
-                      _OverallAttendanceCard(percentage: state.overallPercent!),
-                      const SizedBox(height: 12),
-                      const _AttendanceLegend(),
-                      const SizedBox(height: 14),
-                      const Text(
-                        'Class-wise Attendance',
-                        style: TextStyle(
-                          color: SamsUiTokens.textPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                        ),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: SamsUiTokens.contentMaxWidth,
                       ),
-                      const SizedBox(height: 10),
-                      ...state.classes.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final item = entry.value;
-                        final visual = _visualForPercentage(item.percentage);
-                        final isActionClass = index == 0;
-                        final isMarking =
-                            state.actionStatus ==
-                                AttendanceActionStatus.processing &&
-                            state.actionSubject == item.subject;
-
-                        return Padding(
-                          key: ValueKey(item.subject),
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: SamsPressable(
-                            borderRadius: BorderRadius.circular(
-                              SamsUiTokens.radiusLg,
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        padding: SamsUiTokens.pageInsets(
+                          context,
+                          top: 14,
+                          bottom: 20,
+                        ),
+                        children: [
+                          _OverallAttendanceCard(
+                            percentage: state.overallPercent!,
+                          ),
+                          const SizedBox(height: 12),
+                          const _AttendanceLegend(),
+                          const SizedBox(height: 14),
+                          const Text(
+                            'Class-wise Attendance',
+                            style: TextStyle(
+                              color: SamsUiTokens.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
                             ),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 13,
-                              ),
-                              decoration: BoxDecoration(
-                                color: visual.background,
+                          ),
+                          const SizedBox(height: 10),
+                          ...state.classes.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final item = entry.value;
+                            final visual = _visualForPercentage(
+                              item.percentage,
+                            );
+                            final isActionClass = index == 0;
+                            final isMarking =
+                                state.actionStatus ==
+                                    AttendanceActionStatus.processing &&
+                                state.actionSubject == item.subject;
+
+                            return Padding(
+                              key: ValueKey(item.subject),
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: SamsPressable(
                                 borderRadius: BorderRadius.circular(
                                   SamsUiTokens.radiusLg,
                                 ),
-                                boxShadow: SamsUiTokens.cardShadow,
-                                border: Border.all(
-                                  color: visual.accent.withValues(alpha: 0.30),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: 5,
-                                        height: 38,
-                                        decoration: BoxDecoration(
-                                          color: visual.accent,
-                                          borderRadius: BorderRadius.circular(
-                                            999,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          item.subject,
-                                          style: const TextStyle(
-                                            color: SamsUiTokens.textPrimary,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: visual.accent.withValues(
-                                            alpha: 0.14,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            999,
-                                          ),
-                                          border: Border.all(
-                                            color: visual.accent.withValues(
-                                              alpha: 0.32,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          '${item.percentage}%',
-                                          style: TextStyle(
-                                            color: visual.accent,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 13,
                                   ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    _bandLabel(item.percentage),
-                                    style: TextStyle(
-                                      color: visual.accent,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
+                                  decoration: BoxDecoration(
+                                    color: visual.background,
+                                    borderRadius: BorderRadius.circular(
+                                      SamsUiTokens.radiusLg,
+                                    ),
+                                    boxShadow: SamsUiTokens.cardShadow,
+                                    border: Border.all(
+                                      color: visual.accent.withValues(
+                                        alpha: 0.30,
+                                      ),
                                     ),
                                   ),
-                                  if (isActionClass) ...[
-                                    const SizedBox(height: 8),
-                                    SizedBox(
-                                      height: 30,
-                                      child: SamsTapScale(
-                                        enabled: !isMarking,
-                                        child: OutlinedButton(
-                                          onPressed: isMarking
-                                              ? null
-                                              : () => context
-                                                    .read<AttendanceBloc>()
-                                                    .add(
-                                                      AttendanceMarkRequested(
-                                                        subject: item.subject,
-                                                      ),
-                                                    ),
-                                          style: OutlinedButton.styleFrom(
-                                            side: BorderSide(
-                                              color: visual.accent.withValues(
-                                                alpha: 0.75,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 5,
+                                            height: 38,
+                                            decoration: BoxDecoration(
+                                              color: visual.accent,
+                                              borderRadius:
+                                                  BorderRadius.circular(999),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                              item.subject,
+                                              style: const TextStyle(
+                                                color: SamsUiTokens.textPrimary,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
                                               ),
                                             ),
-                                            foregroundColor: visual.accent,
+                                          ),
+                                          Container(
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
+                                              horizontal: 10,
+                                              vertical: 6,
                                             ),
-                                            textStyle: const TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 11.5,
+                                            decoration: BoxDecoration(
+                                              color: visual.accent.withValues(
+                                                alpha: 0.14,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(999),
+                                              border: Border.all(
+                                                color: visual.accent.withValues(
+                                                  alpha: 0.32,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              '${item.percentage}%',
+                                              style: TextStyle(
+                                                color: visual.accent,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w800,
+                                              ),
                                             ),
                                           ),
-                                          child: isMarking
-                                              ? SizedBox(
-                                                  height: 14,
-                                                  width: 14,
-                                                  child: CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                    valueColor:
-                                                        AlwaysStoppedAnimation<
-                                                          Color
-                                                        >(visual.accent),
-                                                  ),
-                                                )
-                                              : const Text('Mark Attendance'),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        _bandLabel(item.percentage),
+                                        style: TextStyle(
+                                          color: visual.accent,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ],
+                                      if (isActionClass) ...[
+                                        const SizedBox(height: 8),
+                                        SizedBox(
+                                          height: 38,
+                                          child: SamsTapScale(
+                                            enabled: !isMarking,
+                                            child: OutlinedButton(
+                                              onPressed: isMarking
+                                                  ? null
+                                                  : () => context
+                                                        .read<AttendanceBloc>()
+                                                        .add(
+                                                          AttendanceMarkRequested(
+                                                            subject:
+                                                                item.subject,
+                                                          ),
+                                                        ),
+                                              style: OutlinedButton.styleFrom(
+                                                side: BorderSide(
+                                                  color: visual.accent
+                                                      .withValues(alpha: 0.75),
+                                                ),
+                                                foregroundColor: visual.accent,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                    ),
+                                                textStyle: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                              child: isMarking
+                                                  ? SizedBox(
+                                                      height: 14,
+                                                      width: 14,
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        valueColor:
+                                                            AlwaysStoppedAnimation<
+                                                              Color
+                                                            >(visual.accent),
+                                                      ),
+                                                    )
+                                                  : const Text(
+                                                      'Mark Attendance',
+                                                    ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -318,6 +333,7 @@ class _OverallAttendanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 420;
     final visual = _visualForPercentage(percentage);
 
     return SamsPressable(
@@ -330,10 +346,8 @@ class _OverallAttendanceCard extends StatelessWidget {
           boxShadow: SamsUiTokens.cardShadow,
           border: Border.all(color: visual.accent.withValues(alpha: 0.26)),
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
+        child: compact
+            ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
@@ -344,53 +358,126 @@ class _OverallAttendanceCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    '$percentage%',
-                    style: TextStyle(
-                      color: visual.accent,
-                      fontSize: 38,
-                      height: 1,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
                   const SizedBox(height: 4),
-                  Text(
-                    _bandLabel(percentage),
-                    style: TextStyle(
-                      color: visual.accent,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12.5,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '$percentage%',
+                              style: TextStyle(
+                                color: visual.accent,
+                                fontSize: 34,
+                                height: 1,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _bandLabel(percentage),
+                              style: TextStyle(
+                                color: visual.accent,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        width: 68,
+                        height: 68,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CircularProgressIndicator(
+                              value: percentage / 100,
+                              strokeWidth: 8,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                visual.accent,
+                              ),
+                              backgroundColor: visual.background,
+                            ),
+                            Center(
+                              child: Icon(
+                                Icons.fact_check_rounded,
+                                color: visual.accent,
+                                size: 22,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 74,
-              height: 74,
-              child: Stack(
-                fit: StackFit.expand,
+              )
+            : Row(
                 children: [
-                  CircularProgressIndicator(
-                    value: percentage / 100,
-                    strokeWidth: 8,
-                    valueColor: AlwaysStoppedAnimation<Color>(visual.accent),
-                    backgroundColor: visual.background,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Overall Attendance',
+                          style: TextStyle(
+                            color: SamsUiTokens.textSecondary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          '$percentage%',
+                          style: TextStyle(
+                            color: visual.accent,
+                            fontSize: 38,
+                            height: 1,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _bandLabel(percentage),
+                          style: TextStyle(
+                            color: visual.accent,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12.5,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  Center(
-                    child: Icon(
-                      Icons.fact_check_rounded,
-                      color: visual.accent,
-                      size: 24,
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 74,
+                    height: 74,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CircularProgressIndicator(
+                          value: percentage / 100,
+                          strokeWidth: 8,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            visual.accent,
+                          ),
+                          backgroundColor: visual.background,
+                        ),
+                        Center(
+                          child: Icon(
+                            Icons.fact_check_rounded,
+                            color: visual.accent,
+                            size: 24,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

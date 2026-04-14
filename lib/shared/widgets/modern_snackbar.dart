@@ -14,6 +14,10 @@ class ModernSnackbars {
     IconData? icon,
     Duration duration = const Duration(milliseconds: 2500),
   }) {
+    final width = MediaQuery.sizeOf(context).width;
+    final horizontalMargin = width >= SamsUiTokens.desktopBreakpoint
+        ? (width * 0.2).clamp(24.0, 260.0)
+        : 14.0;
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
 
@@ -22,7 +26,7 @@ class ModernSnackbars {
         behavior: SnackBarBehavior.floating,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+        margin: EdgeInsets.fromLTRB(horizontalMargin, 0, horizontalMargin, 14),
         duration: duration,
         content: ModernSnackbar(message: message, type: type, icon: icon),
       ),

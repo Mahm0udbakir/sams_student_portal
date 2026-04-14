@@ -68,6 +68,7 @@ class HomeScreen extends StatelessWidget {
           }
 
           final screenWidth = MediaQuery.sizeOf(context).width;
+          final isDesktop = SamsUiTokens.isDesktopWidth(context);
           final horizontalPadding = screenWidth < 360
               ? 12.0
               : SamsUiTokens.pageHPadding;
@@ -82,130 +83,139 @@ class HomeScreen extends StatelessWidget {
               onRefresh: () => _refreshHome(context),
               color: SamsUiTokens.primary,
               child: SafeArea(
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics(),
-                  ),
-                  padding: EdgeInsets.fromLTRB(
-                    horizontalPadding,
-                    18,
-                    horizontalPadding,
-                    28,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Daily Essentials',
-                        style: TextStyle(
-                          color: SamsUiTokens.textPrimary,
-                          fontSize: 19,
-                          fontWeight: FontWeight.w800,
-                          height: 1.2,
-                        ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: SamsUiTokens.contentMaxWidth,
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
                       ),
-                      const SizedBox(height: 12),
-                      _InfoCard(
-                        backgroundColor: SamsUiTokens.primary,
-                        title: 'Attendance',
-                        subtitle: state.attendanceSubtitle!,
-                        trailing: _AttendanceProgress(value: attendanceValue),
-                        leadingIcon: Icons.fact_check_rounded,
-                        child: _AttendanceMetaSection(
-                          label: state.attendedClassesLabel!,
-                          onMarkToday: () {
-                            ModernSnackbars.show(
-                              context,
-                              message:
-                                  'Today\'s attendance marked successfully.',
-                              type: ModernSnackbarType.success,
-                            );
-                          },
-                        ),
-                        onTap: () {
-                          context.pushNamed(AppRouteNames.attendanceDetail);
-                        },
+                      padding: EdgeInsets.fromLTRB(
+                        horizontalPadding,
+                        18,
+                        horizontalPadding,
+                        28,
                       ),
-                      const SizedBox(height: 12),
-                      _InfoCard(
-                        backgroundColor: const Color(0xFF0A4A77),
-                        title: 'Track Your Bus',
-                        subtitle: state.busRouteLabel!,
-                        trailing: const Icon(
-                          Icons.location_on_rounded,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                        leadingIcon: Icons.directions_bus_filled_rounded,
-                        child: Text(
-                          state.busStatusLabel!,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.95),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        onTap: () {
-                          ModernSnackbars.show(
-                            context,
-                            message:
-                                'Bus details are available in Menu > SAMS Bus.',
-                            type: ModernSnackbarType.info,
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Announcements',
-                        style: TextStyle(
-                          color: SamsUiTokens.textPrimary,
-                          fontSize: 19,
-                          fontWeight: FontWeight.w800,
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const _DateSeparator(label: 'Aug 30, Saturday'),
-                      const SizedBox(height: 10),
-                      if (announcements.isEmpty)
-                        Padding(
-                          padding: EdgeInsets.only(top: 10),
-                          child: EmptyStateWidget(
-                            icon: Icons.notifications_off_rounded,
-                            title: 'No announcements yet',
-                            subtitle:
-                                'You are all caught up. New updates from SAMS will appear here.',
-                            actionLabel: 'Refresh Updates',
-                            onAction: () => context.read<HomeBloc>().add(
-                              const HomeRequested(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          Text(
+                            'Daily Essentials',
+                            style: TextStyle(
+                              color: SamsUiTokens.textPrimary,
+                              fontSize: isDesktop ? 21 : 19,
+                              fontWeight: FontWeight.w800,
+                              height: 1.2,
                             ),
                           ),
-                        )
-                      else
-                        ...announcements.asMap().entries.map(
-                          (entry) => Padding(
-                            padding: EdgeInsets.only(
-                              bottom: entry.key == announcements.length - 1
-                                  ? 0
-                                  : 10,
+                          const SizedBox(height: 12),
+                          _InfoCard(
+                            backgroundColor: SamsUiTokens.primary,
+                            title: 'Attendance',
+                            subtitle: state.attendanceSubtitle!,
+                            trailing: _AttendanceProgress(
+                              value: attendanceValue,
                             ),
-                            child: _AnnouncementCard(
-                              title: entry.value.title,
-                              subtitle: entry.value.subtitle,
-                              icon: _iconForBadge(entry.value.badge),
-                              badge: entry.value.badge,
-                              onTap: () {
+                            leadingIcon: Icons.fact_check_rounded,
+                            child: _AttendanceMetaSection(
+                              label: state.attendedClassesLabel!,
+                              onMarkToday: () {
                                 ModernSnackbars.show(
                                   context,
-                                  message: 'Opened: ${entry.value.title}',
-                                  type: ModernSnackbarType.info,
+                                  message:
+                                      'Today\'s attendance marked successfully.',
+                                  type: ModernSnackbarType.success,
                                 );
                               },
                             ),
+                            onTap: () {
+                              context.pushNamed(AppRouteNames.attendanceDetail);
+                            },
                           ),
-                        ),
-                    ],
+                          const SizedBox(height: 12),
+                          _InfoCard(
+                            backgroundColor: const Color(0xFF0A4A77),
+                            title: 'Track Your Bus',
+                            subtitle: state.busRouteLabel!,
+                            trailing: const Icon(
+                              Icons.location_on_rounded,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                            leadingIcon: Icons.directions_bus_filled_rounded,
+                            child: Text(
+                              state.busStatusLabel!,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.95),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            onTap: () {
+                              ModernSnackbars.show(
+                                context,
+                                message:
+                                    'Bus details are available in Menu > SAMS Bus.',
+                                type: ModernSnackbarType.info,
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Announcements',
+                            style: TextStyle(
+                              color: SamsUiTokens.textPrimary,
+                              fontSize: isDesktop ? 21 : 19,
+                              fontWeight: FontWeight.w800,
+                              height: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          const _DateSeparator(label: 'Aug 30, Saturday'),
+                          const SizedBox(height: 10),
+                          if (announcements.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.only(top: 10),
+                              child: EmptyStateWidget(
+                                icon: Icons.notifications_off_rounded,
+                                title: 'No announcements yet',
+                                subtitle:
+                                    'You are all caught up. New updates from SAMS will appear here.',
+                                actionLabel: 'Refresh Updates',
+                                onAction: () => context.read<HomeBloc>().add(
+                                  const HomeRequested(),
+                                ),
+                              ),
+                            )
+                          else
+                            ...announcements.asMap().entries.map(
+                              (entry) => Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: entry.key == announcements.length - 1
+                                      ? 0
+                                      : 10,
+                                ),
+                                child: _AnnouncementCard(
+                                  title: entry.value.title,
+                                  subtitle: entry.value.subtitle,
+                                  icon: _iconForBadge(entry.value.badge),
+                                  badge: entry.value.badge,
+                                  onTap: () {
+                                    ModernSnackbars.show(
+                                      context,
+                                      message: 'Opened: ${entry.value.title}',
+                                      type: ModernSnackbarType.info,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -298,6 +308,10 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final compact = width < 420;
+    final titleFont = SamsUiTokens.isDesktopWidth(context) ? 19.5 : 17.5;
+
     return SamsPressable(
       onTap: onTap,
       borderRadius: BorderRadius.circular(SamsUiTokens.radiusXl),
@@ -322,6 +336,7 @@ class _InfoCard extends StatelessWidget {
         child: Column(
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: 46,
@@ -339,9 +354,9 @@ class _InfoCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 17.5,
+                          fontSize: titleFont,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -350,7 +365,7 @@ class _InfoCard extends StatelessWidget {
                         subtitle,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.95),
-                          fontSize: 13.2,
+                          fontSize: compact ? 12.8 : 13.4,
                           fontWeight: FontWeight.w600,
                           height: 1.3,
                         ),
@@ -358,8 +373,10 @@ class _InfoCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 10),
-                trailing,
+                SizedBox(width: compact ? 8 : 10),
+                Flexible(
+                  child: Align(alignment: Alignment.topRight, child: trailing),
+                ),
               ],
             ),
             if (child != null) ...[const SizedBox(height: 12), child!],
@@ -538,12 +555,42 @@ class _AttendanceMetaSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 410;
+
+    if (compact) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _AttendanceMeta(label: label),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            height: 40,
+            child: OutlinedButton.icon(
+              onPressed: onMarkToday,
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: Colors.white.withValues(alpha: 0.76)),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12.4,
+                ),
+              ),
+              icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
+              label: const Text('Mark Today\'s Attendance'),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Row(
       children: [
         Expanded(child: _AttendanceMeta(label: label)),
         const SizedBox(width: 12),
         SizedBox(
-          height: 34,
+          height: 38,
           child: OutlinedButton.icon(
             onPressed: onMarkToday,
             style: OutlinedButton.styleFrom(
@@ -552,10 +599,10 @@ class _AttendanceMetaSection extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               textStyle: const TextStyle(
                 fontWeight: FontWeight.w700,
-                fontSize: 11.8,
+                fontSize: 12.2,
               ),
             ),
-            icon: const Icon(Icons.check_circle_outline_rounded, size: 14),
+            icon: const Icon(Icons.check_circle_outline_rounded, size: 15),
             label: const Text('Mark Today\'s Attendance'),
           ),
         ),

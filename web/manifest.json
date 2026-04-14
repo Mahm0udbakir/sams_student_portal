@@ -1,11 +1,11 @@
 {
-    "name": "SAMS Student Portal",
-    "short_name": "SAMS",
+    "name": "SAMS - Sadat Academy Student Portal",
+    "short_name": "SAMS Portal",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#063454",
     "theme_color": "#063454",
-    "description": "A new Flutter project.",
+    "description": "Official SAMS student portal for attendance, messages, QR scan, help desk, bus tracking, hostel services, and profile.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

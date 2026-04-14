@@ -13,6 +13,7 @@ class SamsPressable extends StatefulWidget {
     this.hoverShadow,
     this.pressedShadow,
     this.enableLift = true,
+    this.ensureMinTouchTarget = true,
   });
 
   final Widget child;
@@ -23,6 +24,7 @@ class SamsPressable extends StatefulWidget {
   final List<BoxShadow>? hoverShadow;
   final List<BoxShadow>? pressedShadow;
   final bool enableLift;
+  final bool ensureMinTouchTarget;
 
   @override
   State<SamsPressable> createState() => _SamsPressableState();
@@ -71,6 +73,12 @@ class _SamsPressableState extends State<SamsPressable> {
         : _hovered
         ? -0.6
         : 0.0;
+    final content = widget.ensureMinTouchTarget
+        ? ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+            child: widget.child,
+          )
+        : widget.child;
 
     return MouseRegion(
       onEnter: (_) => _setHovered(true),
@@ -105,7 +113,7 @@ class _SamsPressableState extends State<SamsPressable> {
                   child: child,
                 );
               },
-              child: ClipRRect(borderRadius: radius, child: widget.child),
+              child: ClipRRect(borderRadius: radius, child: content),
             ),
           ),
         ),

@@ -1,20 +1,28 @@
 # SAMS Student Portal
 
-A new Flutter project.
+Student app for Sadat Academy for Management Sciences (SAMS), built with Flutter using Clean Architecture + BLoC.
+
+## Highlights
+
+- Feature modules: Home, Attendance, Messages, Scan, Help Desk, Bus, Hostel, Profile.
+- Architecture: layered feature-first structure with domain/data/presentation separation.
+- UI: modern SAMS-styled AppBar, Bottom Navigation, Snackbar feedback, and Lottie splash.
+- Platforms: Android (APK) + Web.
 
 ## Tester Guide
 
-- See `TESTING_CHECKLIST.md` for the final QA checklist (Android + iOS install, login, and feature validation).
+- Use `TESTING_CHECKLIST.md` for final QA scenarios.
 
-## Getting Started
+## Run locally (Web)
 
-This project is a starting point for a Flutter application.
+- Development run:
+	- `flutter run -d chrome`
+- Optional local release preview:
+	- Build with `flutter build web --release`
+	- Serve the `build/web` folder using any static server.
 
-A few resources to get you started if this is your first Flutter project:
+## Build (Web Release)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- `flutter build web --release --source-maps`
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Build output will be generated under `build/web/`.

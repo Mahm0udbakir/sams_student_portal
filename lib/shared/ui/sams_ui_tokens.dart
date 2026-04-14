@@ -30,6 +30,9 @@ class SamsUiTokens {
   static const double navBarHeight = 68;
   static const double navBarCompactHeight = 64;
   static const double navTopRadius = 22;
+  static const double tabletBreakpoint = 768;
+  static const double desktopBreakpoint = 1024;
+  static const double contentMaxWidth = 1180;
 
   static const Duration fastAnimation = Duration(milliseconds: 180);
   static const Duration pageAnimation = Duration(milliseconds: 280);
@@ -40,6 +43,15 @@ class SamsUiTokens {
 
   static bool isCompactWidth(BuildContext context) {
     return MediaQuery.sizeOf(context).width < 360;
+  }
+
+  static bool isDesktopWidth(BuildContext context) {
+    return MediaQuery.sizeOf(context).width >= desktopBreakpoint;
+  }
+
+  static bool isTabletWidth(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    return width >= tabletBreakpoint && width < desktopBreakpoint;
   }
 
   static double horizontalPagePadding(

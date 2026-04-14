@@ -65,7 +65,12 @@ class BusScreen extends StatelessWidget {
           final liveInfo = state.liveInfo!;
           final routeStops = state.routeStops;
           final screenWidth = MediaQuery.sizeOf(context).width;
-          final mapHeight = screenWidth < 360 ? 250.0 : 300.0;
+          final isDesktop = SamsUiTokens.isDesktopWidth(context);
+          final mapHeight = screenWidth < 360
+              ? 250.0
+              : isDesktop
+              ? 340.0
+              : 300.0;
           final statusColor = state.isInCampus
               ? SamsUiTokens.success
               : const Color(0xFFCC2D2D);
@@ -77,400 +82,418 @@ class BusScreen extends StatelessWidget {
               onRefresh: () => _refreshBus(context),
               color: SamsUiTokens.primary,
               child: SafeArea(
-                child: ListView(
-                  physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics(),
-                  ),
-                  padding: SamsUiTokens.pageInsets(
-                    context,
-                    top: 10,
-                    bottom: 22,
-                    regularHorizontal: 12,
-                    compactHorizontal: 10,
-                  ),
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 2, bottom: 8),
-                      child: Text(
-                        'Live Route',
-                        style: TextStyle(
-                          color: SamsUiTokens.primary,
-                          fontSize: 21,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: SamsUiTokens.contentMaxWidth,
                     ),
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: SamsUiTokens.primary.withValues(alpha: 0.18),
-                        ),
+                      padding: SamsUiTokens.pageInsets(
+                        context,
+                        top: 10,
+                        bottom: 22,
+                        regularHorizontal: 12,
+                        compactHorizontal: 10,
                       ),
-                      child: const Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.route_rounded,
-                            color: SamsUiTokens.primary,
-                            size: 18,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 2, bottom: 8),
+                          child: Text(
+                            'Live Route',
+                            style: TextStyle(
+                              color: SamsUiTokens.primary,
+                              fontSize: 21,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                          SizedBox(width: 7),
-                          Expanded(
-                            child: Text(
-                              _cairoRouteLabel,
-                              style: TextStyle(
-                                color: SamsUiTokens.textSecondary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                height: 1.25,
+                        ),
+                        Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: SamsUiTokens.primary.withValues(
+                                alpha: 0.18,
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      height: mapHeight,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-                        gradient: const LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0xFFE6F0F8), Color(0xFFDDEAF5)],
-                        ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x14000000),
-                            blurRadius: 16,
-                            offset: Offset(0, 7),
-                          ),
-                        ],
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(22),
-                              child: CustomPaint(
-                                painter: _MapPlaceholderPainter(),
-                              ),
-                            ),
-                          ),
-                          const Positioned(
-                            left: 12,
-                            top: 12,
-                            child: CircleAvatar(
-                              radius: 16,
-                              backgroundColor: Colors.white,
-                              child: Icon(
-                                Icons.menu,
+                          child: const Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.route_rounded,
+                                color: SamsUiTokens.primary,
                                 size: 18,
-                                color: Color(0xFF4B5563),
                               ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                              width: 58,
-                              height: 58,
-                              decoration: const BoxDecoration(
-                                color: Color(0x1AFF3B30),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.location_on_rounded,
-                                color: Color(0xFFEF3D3D),
-                                size: 38,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 16,
-                            top: 52,
-                            child: _MapPointChip(label: 'Maadi Corniche'),
-                          ),
-                          Positioned(
-                            left: 26,
-                            top: 102,
-                            child: _MapPointChip(label: 'Tahrir Square'),
-                          ),
-                          Positioned(
-                            left: 126,
-                            top: 72,
-                            child: _MapPointChip(label: 'Giza Square'),
-                          ),
-                          Positioned(
-                            right: 18,
-                            top: 92,
-                            child: _MapPointChip(
-                              label: 'Cairo University',
-                              highlighted: true,
-                            ),
-                          ),
-                          Positioned(
-                            right: 24,
-                            bottom: 60,
-                            child: _MapPointChip(label: 'Ramses Station'),
-                          ),
-                          Positioned(
-                            left: 40,
-                            bottom: 54,
-                            child: _MapPointChip(label: 'Helwan'),
-                          ),
-                          Positioned(
-                            left: 12,
-                            right: 12,
-                            bottom: 12,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 7,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.88),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.map_outlined,
-                                    size: 16,
-                                    color: SamsUiTokens.primary,
+                              SizedBox(width: 7),
+                              Expanded(
+                                child: Text(
+                                  _cairoRouteLabel,
+                                  style: TextStyle(
+                                    color: SamsUiTokens.textSecondary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.25,
                                   ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      'Next stop: ${liveInfo.nextStop} • ETA ${liveInfo.eta}',
-                                      style: const TextStyle(
-                                        fontSize: 12.2,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(0, -20),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(24),
-                          ),
-                          boxShadow: SamsUiTokens.cardShadow,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Monday, Sept 1',
-                              style: TextStyle(
-                                fontSize: 15.5,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF111827),
-                              ),
+                        Container(
+                          height: mapHeight,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Color(0xFFE6F0F8), Color(0xFFDDEAF5)],
                             ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.timer_outlined,
-                                  size: 18,
-                                  color: Color(0xFF6B7280),
-                                ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    liveInfo.routeSummary,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Colors.blueGrey.shade700,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x14000000),
+                                blurRadius: 16,
+                                offset: Offset(0, 7),
+                              ),
+                            ],
+                          ),
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(22),
+                                  child: CustomPaint(
+                                    painter: _MapPlaceholderPainter(),
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 9),
-                            Row(
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.only(right: 6),
+                              ),
+                              const Positioned(
+                                left: 12,
+                                top: 12,
+                                child: CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: Colors.white,
+                                  child: Icon(
+                                    Icons.menu,
+                                    size: 18,
+                                    color: Color(0xFF4B5563),
+                                  ),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  width: 58,
+                                  height: 58,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0x1AFF3B30),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.location_on_rounded,
+                                    color: Color(0xFFEF3D3D),
+                                    size: 38,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                left: 16,
+                                top: 52,
+                                child: _MapPointChip(label: 'Maadi Corniche'),
+                              ),
+                              Positioned(
+                                left: 26,
+                                top: 102,
+                                child: _MapPointChip(label: 'Tahrir Square'),
+                              ),
+                              Positioned(
+                                left: 126,
+                                top: 72,
+                                child: _MapPointChip(label: 'Giza Square'),
+                              ),
+                              Positioned(
+                                right: 18,
+                                top: 92,
+                                child: _MapPointChip(
+                                  label: 'Cairo University',
+                                  highlighted: true,
+                                ),
+                              ),
+                              Positioned(
+                                right: 24,
+                                bottom: 60,
+                                child: _MapPointChip(label: 'Ramses Station'),
+                              ),
+                              Positioned(
+                                left: 40,
+                                bottom: 54,
+                                child: _MapPointChip(label: 'Helwan'),
+                              ),
+                              Positioned(
+                                left: 12,
+                                right: 12,
+                                bottom: 12,
+                                child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
+                                    horizontal: 10,
+                                    vertical: 7,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: SamsUiTokens.primary.withValues(
-                                      alpha: 0.1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(999),
+                                    color: Colors.white.withValues(alpha: 0.88),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Text(
-                                    'Maadi Campus (SAMS)',
-                                    style: TextStyle(
-                                      color: SamsUiTokens.primary,
-                                      fontSize: 10.6,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                                const Text(
-                                  'Current Status: ',
-                                  style: TextStyle(
-                                    color: Color(0xFF374151),
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                Text(
-                                  snapshot.currentStatus,
-                                  style: TextStyle(
-                                    color: statusColor,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Current stop: ${snapshot.currentStop} • ${liveInfo.lastUpdated}',
-                              style: const TextStyle(
-                                color: SamsUiTokens.textSecondary,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(0, -14),
-                      child: Column(
-                        children: List.generate(routeStops.length, (index) {
-                          final row = routeStops[index];
-                          final stopNumber = (index + 1).toString().padLeft(
-                            2,
-                            '0',
-                          );
-                          final isCurrent = row.status == 'Current';
-
-                          return Padding(
-                            key: ValueKey('${row.stop}-${row.time}'),
-                            padding: EdgeInsets.only(
-                              bottom: index == routeStops.length - 1 ? 0 : 8,
-                            ),
-                            child: SamsPressable(
-                              borderRadius: BorderRadius.circular(
-                                SamsUiTokens.radiusLg,
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(
-                                    SamsUiTokens.radiusLg,
-                                  ),
-                                  boxShadow: SamsUiTokens.cardShadow,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Container(
-                                          width: 22,
-                                          height: 22,
-                                          decoration: BoxDecoration(
-                                            color: isCurrent
-                                                ? statusColor
-                                                : SamsUiTokens.primary
-                                                      .withValues(alpha: 0.2),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            stopNumber,
-                                            style: TextStyle(
-                                              color: isCurrent
-                                                  ? Colors.white
-                                                  : SamsUiTokens.primary,
-                                              fontWeight: FontWeight.w800,
-                                              fontSize: 11,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          width: 2,
-                                          height: 32,
-                                          color: const Color(0xFFD6DFEA),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            row.stop,
-                                            style: const TextStyle(
-                                              color: Color(0xFF111827),
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            row.status,
-                                            style: TextStyle(
-                                              color: isCurrent
-                                                  ? statusColor
-                                                  : const Color(0xFF6B7280),
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 11.5,
-                                            ),
-                                          ),
-                                        ],
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.map_outlined,
+                                        size: 16,
+                                        color: SamsUiTokens.primary,
                                       ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          'Next stop: ${liveInfo.nextStop} • ETA ${liveInfo.eta}',
+                                          style: const TextStyle(
+                                            fontSize: 12.2,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Transform.translate(
+                          offset: const Offset(0, -20),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(24),
+                              ),
+                              boxShadow: SamsUiTokens.cardShadow,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Monday, Sept 1',
+                                  style: TextStyle(
+                                    fontSize: 15.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF111827),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.timer_outlined,
+                                      size: 18,
+                                      color: Color(0xFF6B7280),
                                     ),
-                                    Text(
-                                      row.time,
-                                      style: const TextStyle(
-                                        color: Color(0xFF6B7280),
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        liveInfo.routeSummary,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: Colors.blueGrey.shade700,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
+                                const SizedBox(height: 9),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 6,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: SamsUiTokens.primary.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                          999,
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Maadi Campus (SAMS)',
+                                        style: TextStyle(
+                                          color: SamsUiTokens.primary,
+                                          fontSize: 10.6,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ),
+                                    const Text(
+                                      'Current Status: ',
+                                      style: TextStyle(
+                                        color: Color(0xFF374151),
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    Text(
+                                      snapshot.currentStatus,
+                                      style: TextStyle(
+                                        color: statusColor,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Current stop: ${snapshot.currentStop} • ${liveInfo.lastUpdated}',
+                                  style: const TextStyle(
+                                    color: SamsUiTokens.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12.5,
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        }),
-                      ),
+                          ),
+                        ),
+                        Transform.translate(
+                          offset: const Offset(0, -14),
+                          child: Column(
+                            children: List.generate(routeStops.length, (index) {
+                              final row = routeStops[index];
+                              final stopNumber = (index + 1).toString().padLeft(
+                                2,
+                                '0',
+                              );
+                              final isCurrent = row.status == 'Current';
+
+                              return Padding(
+                                key: ValueKey('${row.stop}-${row.time}'),
+                                padding: EdgeInsets.only(
+                                  bottom: index == routeStops.length - 1
+                                      ? 0
+                                      : 8,
+                                ),
+                                child: SamsPressable(
+                                  borderRadius: BorderRadius.circular(
+                                    SamsUiTokens.radiusLg,
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(
+                                        SamsUiTokens.radiusLg,
+                                      ),
+                                      boxShadow: SamsUiTokens.cardShadow,
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
+                                          children: [
+                                            Container(
+                                              width: 22,
+                                              height: 22,
+                                              decoration: BoxDecoration(
+                                                color: isCurrent
+                                                    ? statusColor
+                                                    : SamsUiTokens.primary
+                                                          .withValues(
+                                                            alpha: 0.2,
+                                                          ),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                stopNumber,
+                                                style: TextStyle(
+                                                  color: isCurrent
+                                                      ? Colors.white
+                                                      : SamsUiTokens.primary,
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 11,
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 2,
+                                              height: 32,
+                                              color: const Color(0xFFD6DFEA),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                row.stop,
+                                                style: const TextStyle(
+                                                  color: Color(0xFF111827),
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 14.5,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                row.status,
+                                                style: TextStyle(
+                                                  color: isCurrent
+                                                      ? statusColor
+                                                      : const Color(0xFF6B7280),
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 11.5,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Text(
+                                          row.time,
+                                          style: const TextStyle(
+                                            color: Color(0xFF6B7280),
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 12.6,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
