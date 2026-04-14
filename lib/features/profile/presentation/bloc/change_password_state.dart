@@ -21,7 +21,9 @@ class ChangePasswordState extends Equatable {
   }) {
     return ChangePasswordState(
       status: status ?? this.status,
-      feedbackMessage: clearFeedback ? null : (feedbackMessage ?? this.feedbackMessage),
+      feedbackMessage: clearFeedback
+          ? null
+          : (feedbackMessage ?? this.feedbackMessage),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_app_bar.dart';
 
 class AttendanceDetailScreen extends StatelessWidget {
   const AttendanceDetailScreen({super.key});
@@ -10,22 +11,19 @@ class AttendanceDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const attendanceItems = [
-      (subject: 'Business Analytics', percentage: 92),
+      (subject: 'Accounting Principles', percentage: 92),
       (subject: 'Marketing Management', percentage: 84),
-      (subject: 'Financial Accounting', percentage: 78),
-      (subject: 'Operations Research', percentage: 74),
-      (subject: 'Organizational Behavior', percentage: 65),
+      (subject: 'Financial Management', percentage: 78),
+      (subject: 'Business Administration', percentage: 74),
+      (subject: 'Human Resources Management', percentage: 65),
       (subject: 'Business Law', percentage: 59),
-      (subject: 'Managerial Economics', percentage: 52),
-      (subject: 'Quantitative Techniques', percentage: 38),
+      (subject: 'Economics for Managers', percentage: 52),
+      (subject: 'Business Statistics', percentage: 38),
     ];
 
     return Scaffold(
       backgroundColor: SamsUiTokens.scaffoldBackground,
-      appBar: AppBar(
-        title: const Text('Attendance'),
-        centerTitle: true,
-      ),
+      appBar: const SamsAppBar(title: 'Attendance'),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
@@ -78,9 +76,14 @@ class AttendanceDetailScreen extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: _overallBadgeColor(_overallAttendance).withValues(alpha: 0.14),
+                      color: _overallBadgeColor(
+                        _overallAttendance,
+                      ).withValues(alpha: 0.14),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
@@ -105,58 +108,62 @@ class AttendanceDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            ...attendanceItems.map(
-              (item) {
-                final colors = _attendanceCardColors(item.percentage);
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: colors,
-                      ),
-                      borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-                      boxShadow: SamsUiTokens.cardShadow,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.subject,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.24),
-                            ),
-                          ),
-                          child: Text(
-                            '${item.percentage}%',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+            ...attendanceItems.map((item) {
+              final colors = _attendanceCardColors(item.percentage);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 13,
                   ),
-                );
-              },
-            ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: colors,
+                    ),
+                    borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+                    boxShadow: SamsUiTokens.cardShadow,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.subject,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.24),
+                          ),
+                        ),
+                        child: Text(
+                          '${item.percentage}%',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
           ],
         ),
       ),

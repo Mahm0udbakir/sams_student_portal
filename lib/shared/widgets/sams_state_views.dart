@@ -69,63 +69,6 @@ class SamsLoadingView extends StatelessWidget {
   }
 }
 
-class SamsEmptyState extends StatelessWidget {
-  const SamsEmptyState({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.message,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: SamsUiTokens.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: SamsUiTokens.primary, size: 34),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                color: SamsUiTokens.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              message,
-              style: const TextStyle(
-                color: SamsUiTokens.textSecondary,
-                fontSize: 12.8,
-                fontWeight: FontWeight.w600,
-                height: 1.35,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class SamsErrorState extends StatelessWidget {
   const SamsErrorState({
     super.key,

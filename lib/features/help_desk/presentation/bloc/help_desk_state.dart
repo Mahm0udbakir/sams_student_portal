@@ -1,6 +1,7 @@
 part of 'help_desk_bloc.dart';
 
 enum HelpDeskStatus { initial, loading, success, failure }
+
 enum HelpDeskSubmissionStatus { idle, submitting, success, failure }
 
 class HelpDeskState extends Equatable {
@@ -39,10 +40,10 @@ class HelpDeskState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        complaints,
-        submissionStatus,
-        submissionMessage,
-        errorMessage,
-      ];
+    status,
+    complaints,
+    submissionStatus,
+    submissionMessage,
+    errorMessage,
+  ];
 }

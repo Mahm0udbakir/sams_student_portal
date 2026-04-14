@@ -65,15 +65,15 @@ class HomeState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        studentName,
-        studentId,
-        overallAttendance,
-        attendanceSubtitle,
-        attendedClassesLabel,
-        busRouteLabel,
-        busStatusLabel,
-        announcements,
-        errorMessage,
-      ];
+    status,
+    studentName,
+    studentId,
+    overallAttendance,
+    attendanceSubtitle,
+    attendedClassesLabel,
+    busRouteLabel,
+    busStatusLabel,
+    announcements,
+    errorMessage,
+  ];
 }

@@ -88,7 +88,8 @@ class AppRouter {
 
       // Main app shell (persistent bottom navigation)
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) => MainShell(navigationShell: navigationShell),
+        builder: (context, state, navigationShell) =>
+            MainShell(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -228,15 +229,18 @@ CustomTransitionPage<void> _buildPrimaryTransitionPage({
     transitionDuration: _kRouteTransitionDuration,
     reverseTransitionDuration: _kRouteReverseTransitionDuration,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      final fade = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
-      final slide = Tween<Offset>(begin: const Offset(0.08, 0), end: Offset.zero).animate(fade);
+      final fade = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final slide = Tween<Offset>(
+        begin: const Offset(0.08, 0),
+        end: Offset.zero,
+      ).animate(fade);
 
       return FadeTransition(
         opacity: fade,
-        child: SlideTransition(
-          position: slide,
-          child: child,
-        ),
+        child: SlideTransition(position: slide, child: child),
       );
     },
   );
@@ -252,7 +256,10 @@ CustomTransitionPage<void> _buildDetailTransitionPage({
     transitionDuration: _kRouteTransitionDuration,
     reverseTransitionDuration: _kRouteReverseTransitionDuration,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
       final slide = Tween<Offset>(
         begin: const Offset(0, 0.03),
         end: Offset.zero,
@@ -263,10 +270,7 @@ CustomTransitionPage<void> _buildDetailTransitionPage({
         opacity: curved,
         child: SlideTransition(
           position: slide,
-          child: ScaleTransition(
-            scale: scale,
-            child: child,
-          ),
+          child: ScaleTransition(scale: scale, child: child),
         ),
       );
     },

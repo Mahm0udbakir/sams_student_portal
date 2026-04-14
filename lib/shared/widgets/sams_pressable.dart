@@ -44,42 +44,31 @@ class _SamsPressableState extends State<SamsPressable> {
 
   @override
   Widget build(BuildContext context) {
-    final radius = widget.borderRadius ?? BorderRadius.circular(SamsUiTokens.radiusLg);
+    final radius =
+        widget.borderRadius ?? BorderRadius.circular(SamsUiTokens.radiusLg);
     const defaultBaseShadow = [
-      BoxShadow(
-        color: Color(0x12091C2B),
-        blurRadius: 10,
-        offset: Offset(0, 4),
-      ),
+      BoxShadow(color: Color(0x12091C2B), blurRadius: 10, offset: Offset(0, 4)),
     ];
     const defaultHoverShadow = [
-      BoxShadow(
-        color: Color(0x1A091C2B),
-        blurRadius: 16,
-        offset: Offset(0, 7),
-      ),
+      BoxShadow(color: Color(0x1A091C2B), blurRadius: 16, offset: Offset(0, 7)),
     ];
     const defaultPressedShadow = [
-      BoxShadow(
-        color: Color(0x22091C2B),
-        blurRadius: 20,
-        offset: Offset(0, 9),
-      ),
+      BoxShadow(color: Color(0x22091C2B), blurRadius: 20, offset: Offset(0, 9)),
     ];
 
     final activeShadow = !widget.enableLift
         ? const <BoxShadow>[]
         : _pressed
-            ? (widget.pressedShadow ?? defaultPressedShadow)
-            : _hovered
-                ? (widget.hoverShadow ?? defaultHoverShadow)
-                : (widget.baseShadow ?? defaultBaseShadow);
+        ? (widget.pressedShadow ?? defaultPressedShadow)
+        : _hovered
+        ? (widget.hoverShadow ?? defaultHoverShadow)
+        : (widget.baseShadow ?? defaultBaseShadow);
 
-  final liftY = !widget.enableLift
-    ? 0.0
-    : _pressed
-      ? -1.2
-      : _hovered
+    final liftY = !widget.enableLift
+        ? 0.0
+        : _pressed
+        ? -1.2
+        : _hovered
         ? -0.6
         : 0.0;
 
@@ -116,10 +105,7 @@ class _SamsPressableState extends State<SamsPressable> {
                   child: child,
                 );
               },
-              child: ClipRRect(
-                borderRadius: radius,
-                child: widget.child,
-              ),
+              child: ClipRRect(borderRadius: radius, child: widget.child),
             ),
           ),
         ),

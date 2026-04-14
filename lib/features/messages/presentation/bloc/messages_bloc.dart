@@ -9,8 +9,8 @@ part 'messages_state.dart';
 
 class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
   MessagesBloc({required MessagesRepository repository})
-      : _repository = repository,
-        super(const MessagesState()) {
+    : _repository = repository,
+      super(const MessagesState()) {
     on<MessagesRequested>(_onMessagesRequested);
   }
 

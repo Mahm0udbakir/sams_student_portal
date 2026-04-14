@@ -27,8 +27,8 @@ class SamsUiTokens {
   static const double radiusXl = 22;
 
   static const double buttonHeight = 50;
-  static const double navBarHeight = 66;
-  static const double navBarCompactHeight = 62;
+  static const double navBarHeight = 68;
+  static const double navBarCompactHeight = 64;
   static const double navTopRadius = 22;
 
   static const Duration fastAnimation = Duration(milliseconds: 180);
@@ -36,10 +36,6 @@ class SamsUiTokens {
 
   static const List<BoxShadow> cardShadow = [
     BoxShadow(color: Color(0x14091C2B), blurRadius: 14, offset: Offset(0, 5)),
-  ];
-
-  static const List<BoxShadow> softTopShadow = [
-    BoxShadow(color: Color(0x14000000), blurRadius: 20, offset: Offset(0, -4)),
   ];
 
   static bool isCompactWidth(BuildContext context) {

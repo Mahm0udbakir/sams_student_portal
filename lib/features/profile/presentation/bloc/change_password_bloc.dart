@@ -15,43 +15,30 @@ class ChangePasswordBloc
     ChangePasswordSubmitted event,
     Emitter<ChangePasswordState> emit,
   ) async {
-    final current = event.currentPassword.trim();
-    final next = event.newPassword.trim();
-    final confirm = event.confirmPassword.trim();
+    final validationMessage = _validatePasswords(
+      currentPassword: event.currentPassword,
+      newPassword: event.newPassword,
+      confirmPassword: event.confirmPassword,
+    );
 
-    if (current.isEmpty || next.isEmpty || confirm.isEmpty) {
+    if (validationMessage != null) {
       emit(
         state.copyWith(
           status: ChangePasswordStatus.failure,
-          feedbackMessage: 'Please fill all password fields.',
+          feedbackMessage: validationMessage,
         ),
       );
       return;
     }
 
-    if (next.length < 8) {
-      emit(
-        state.copyWith(
-          status: ChangePasswordStatus.failure,
-          feedbackMessage: 'New password must be at least 8 characters.',
-        ),
-      );
-      return;
-    }
+    emit(
+      state.copyWith(
+        status: ChangePasswordStatus.submitting,
+        clearFeedback: true,
+      ),
+    );
 
-    if (next != confirm) {
-      emit(
-        state.copyWith(
-          status: ChangePasswordStatus.failure,
-          feedbackMessage: 'New password and confirm password do not match.',
-        ),
-      );
-      return;
-    }
-
-    emit(state.copyWith(status: ChangePasswordStatus.submitting, clearFeedback: true));
-
-  await Future<void>.delayed(const Duration(milliseconds: 1200));
+    await Future<void>.delayed(const Duration(milliseconds: 1200));
 
     emit(
       state.copyWith(
@@ -59,6 +46,30 @@ class ChangePasswordBloc
         feedbackMessage: 'Password updated successfully',
       ),
     );
+  }
+
+  String? _validatePasswords({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) {
+    final current = currentPassword.trim();
+    final next = newPassword.trim();
+    final confirm = confirmPassword.trim();
+
+    if (current.isEmpty || next.isEmpty || confirm.isEmpty) {
+      return 'Please fill all password fields.';
+    }
+
+    if (next.length < 8) {
+      return 'New password must be at least 8 characters.';
+    }
+
+    if (next != confirm) {
+      return 'New password and confirm password do not match.';
+    }
+
+    return null;
   }
 
   void _onChangePasswordFeedbackCleared(

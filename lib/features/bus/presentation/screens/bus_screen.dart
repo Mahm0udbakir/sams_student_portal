@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_app_bar.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
 import '../../../../shared/widgets/shimmer_widget.dart';
 import '../../../../shared/widgets/sams_state_views.dart';
@@ -10,6 +11,9 @@ import '../bloc/bus_bloc.dart';
 
 class BusScreen extends StatelessWidget {
   const BusScreen({super.key});
+
+  static const String _cairoRouteLabel =
+      'Maadi Corniche → Tahrir Square → Giza Square → Cairo University → Ramses Station → Helwan';
 
   Future<void> _refreshBus(BuildContext context) async {
     final bloc = context.read<BusBloc>();
@@ -44,10 +48,7 @@ class BusScreen extends StatelessWidget {
           if (state.status == BusStatus.failure || !state.hasData) {
             return Scaffold(
               backgroundColor: SamsUiTokens.scaffoldBackground,
-              appBar: AppBar(
-                title: const Text('Bus Tracking'),
-                centerTitle: true,
-              ),
+              appBar: const SamsAppBar(title: 'Bus Tracking'),
               body: SamsErrorState(
                 title: 'Couldn\'t load bus tracking',
                 message:
@@ -71,10 +72,7 @@ class BusScreen extends StatelessWidget {
 
           return Scaffold(
             backgroundColor: SamsUiTokens.scaffoldBackground,
-            appBar: AppBar(
-              title: const Text('Bus Tracking'),
-              centerTitle: true,
-            ),
+            appBar: const SamsAppBar(title: 'Bus Tracking'),
             body: RefreshIndicator(
               onRefresh: () => _refreshBus(context),
               color: SamsUiTokens.primary,
@@ -100,6 +98,43 @@ class BusScreen extends StatelessWidget {
                           fontSize: 21,
                           fontWeight: FontWeight.w700,
                         ),
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: SamsUiTokens.primary.withValues(alpha: 0.18),
+                        ),
+                      ),
+                      child: const Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.route_rounded,
+                            color: SamsUiTokens.primary,
+                            size: 18,
+                          ),
+                          SizedBox(width: 7),
+                          Expanded(
+                            child: Text(
+                              _cairoRouteLabel,
+                              style: TextStyle(
+                                color: SamsUiTokens.textSecondary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                height: 1.25,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Container(
@@ -157,6 +192,39 @@ class BusScreen extends StatelessWidget {
                                 size: 38,
                               ),
                             ),
+                          ),
+                          Positioned(
+                            left: 16,
+                            top: 52,
+                            child: _MapPointChip(label: 'Maadi Corniche'),
+                          ),
+                          Positioned(
+                            left: 26,
+                            top: 102,
+                            child: _MapPointChip(label: 'Tahrir Square'),
+                          ),
+                          Positioned(
+                            left: 126,
+                            top: 72,
+                            child: _MapPointChip(label: 'Giza Square'),
+                          ),
+                          Positioned(
+                            right: 18,
+                            top: 92,
+                            child: _MapPointChip(
+                              label: 'Cairo University',
+                              highlighted: true,
+                            ),
+                          ),
+                          Positioned(
+                            right: 24,
+                            bottom: 60,
+                            child: _MapPointChip(label: 'Ramses Station'),
+                          ),
+                          Positioned(
+                            left: 40,
+                            bottom: 54,
+                            child: _MapPointChip(label: 'Helwan'),
                           ),
                           Positioned(
                             left: 12,
@@ -226,11 +294,15 @@ class BusScreen extends StatelessWidget {
                                   color: Color(0xFF6B7280),
                                 ),
                                 const SizedBox(width: 6),
-                                Text(
-                                  liveInfo.routeSummary,
-                                  style: TextStyle(
-                                    color: Colors.blueGrey.shade700,
-                                    fontWeight: FontWeight.w600,
+                                Expanded(
+                                  child: Text(
+                                    liveInfo.routeSummary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.blueGrey.shade700,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -238,6 +310,27 @@ class BusScreen extends StatelessWidget {
                             const SizedBox(height: 9),
                             Row(
                               children: [
+                                Container(
+                                  margin: const EdgeInsets.only(right: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: SamsUiTokens.primary.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: const Text(
+                                    'Maadi Campus (SAMS)',
+                                    style: TextStyle(
+                                      color: SamsUiTokens.primary,
+                                      fontSize: 10.6,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
                                 const Text(
                                   'Current Status: ',
                                   style: TextStyle(
@@ -279,6 +372,7 @@ class BusScreen extends StatelessWidget {
                           final isCurrent = row.status == 'Current';
 
                           return Padding(
+                            key: ValueKey('${row.stop}-${row.time}'),
                             padding: EdgeInsets.only(
                               bottom: index == routeStops.length - 1 ? 0 : 8,
                             ),
@@ -466,6 +560,44 @@ class _MapPlaceholderPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+class _MapPointChip extends StatelessWidget {
+  const _MapPointChip({required this.label, this.highlighted = false});
+
+  final String label;
+  final bool highlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    final chipColor = highlighted
+        ? SamsUiTokens.primary.withValues(alpha: 0.93)
+        : Colors.white.withValues(alpha: 0.9);
+    final textColor = highlighted ? Colors.white : const Color(0xFF1F2937);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+      decoration: BoxDecoration(
+        color: chipColor,
+        borderRadius: BorderRadius.circular(999),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
 class _BusLoadingSkeleton extends StatelessWidget {
   const _BusLoadingSkeleton();
 
@@ -473,7 +605,7 @@ class _BusLoadingSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: SamsUiTokens.scaffoldBackground,
-      appBar: AppBar(title: const Text('Bus Tracking'), centerTitle: true),
+      appBar: const SamsAppBar(title: 'Bus Tracking'),
       body: ListView(
         padding: SamsUiTokens.pageInsets(
           context,

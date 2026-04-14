@@ -5,7 +5,7 @@ import '../models/message_thread_model.dart';
 
 class FakeMessagesRepository implements MessagesRepository {
   FakeMessagesRepository({FakeDataRepository? dataRepository})
-      : _dataRepository = dataRepository ?? const FakeDataRepository();
+    : _dataRepository = dataRepository ?? const FakeDataRepository();
 
   final FakeDataRepository _dataRepository;
 

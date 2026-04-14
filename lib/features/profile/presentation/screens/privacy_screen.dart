@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_app_bar.dart';
+import '../../../../shared/widgets/modern_snackbar.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
 
 class PrivacyScreen extends StatefulWidget {
@@ -45,10 +47,7 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
 
     return Scaffold(
       backgroundColor: SamsUiTokens.scaffoldBackground,
-      appBar: AppBar(
-        title: const Text('Privacy'),
-        centerTitle: true,
-      ),
+      appBar: const SamsAppBar(title: 'Privacy'),
       body: SafeArea(
         child: ListView(
           padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 20),
@@ -63,7 +62,11 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.verified_user_rounded, color: SamsUiTokens.primary, size: 20),
+                  Icon(
+                    Icons.verified_user_rounded,
+                    color: SamsUiTokens.primary,
+                    size: 20,
+                  ),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -85,15 +88,19 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
               children: [
                 _SettingTile(
                   title: 'Show profile photo to classmates',
-                  subtitle: 'Controls visibility of your avatar in student directory.',
+                  subtitle:
+                      'Controls visibility of your avatar in student directory.',
                   value: _showProfilePhoto,
-                  onChanged: (value) => setState(() => _showProfilePhoto = value),
+                  onChanged: (value) =>
+                      setState(() => _showProfilePhoto = value),
                 ),
                 _SettingTile(
                   title: 'Show contact information',
-                  subtitle: 'Allow classmates to see your registered contact details.',
+                  subtitle:
+                      'Allow classmates to see your registered contact details.',
                   value: _showContactInfo,
-                  onChanged: (value) => setState(() => _showContactInfo = value),
+                  onChanged: (value) =>
+                      setState(() => _showContactInfo = value),
                 ),
               ],
             ),
@@ -103,15 +110,21 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
               children: [
                 _SettingTile(
                   title: 'Share data with campus services',
-                  subtitle: 'Used to personalize student features and recommendations.',
+                  subtitle:
+                      'Used to personalize student features and recommendations.',
                   value: _allowDataSharing,
-                  onChanged: _isSaving ? null : (value) => setState(() => _allowDataSharing = value),
+                  onChanged: _isSaving
+                      ? null
+                      : (value) => setState(() => _allowDataSharing = value),
                 ),
                 _SettingTile(
                   title: 'Allow anonymous analytics',
-                  subtitle: 'Help improve the SAMS app experience and performance.',
+                  subtitle:
+                      'Help improve the SAMS app experience and performance.',
                   value: _allowAnalytics,
-                  onChanged: _isSaving ? null : (value) => setState(() => _allowAnalytics = value),
+                  onChanged: _isSaving
+                      ? null
+                      : (value) => setState(() => _allowAnalytics = value),
                 ),
               ],
             ),
@@ -121,15 +134,21 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
               children: [
                 _SettingTile(
                   title: 'Push alerts',
-                  subtitle: 'Receive instant notices for attendance and announcements.',
+                  subtitle:
+                      'Receive instant notices for attendance and announcements.',
                   value: _pushAlerts,
-                  onChanged: _isSaving ? null : (value) => setState(() => _pushAlerts = value),
+                  onChanged: _isSaving
+                      ? null
+                      : (value) => setState(() => _pushAlerts = value),
                 ),
                 _SettingTile(
                   title: 'Email updates',
-                  subtitle: 'Receive periodic summaries and account updates by email.',
+                  subtitle:
+                      'Receive periodic summaries and account updates by email.',
                   value: _emailUpdates,
-                  onChanged: _isSaving ? null : (value) => setState(() => _emailUpdates = value),
+                  onChanged: _isSaving
+                      ? null
+                      : (value) => setState(() => _emailUpdates = value),
                 ),
               ],
             ),
@@ -176,7 +195,9 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                       ? null
                       : () async {
                           setState(() => _isSaving = true);
-                          await Future<void>.delayed(const Duration(milliseconds: 550));
+                          await Future<void>.delayed(
+                            const Duration(milliseconds: 550),
+                          );
                           if (!mounted) {
                             return;
                           }
@@ -184,8 +205,10 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                           if (!context.mounted) {
                             return;
                           }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Privacy preferences saved successfully.')),
+                          ModernSnackbars.show(
+                            context,
+                            message: 'Privacy preferences saved successfully.',
+                            type: ModernSnackbarType.success,
                           );
                         },
                   style: ElevatedButton.styleFrom(
@@ -193,8 +216,13 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
                   ),
                   child: _isSaving
                       ? const SizedBox(
@@ -202,7 +230,9 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
                           width: 18,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : const Text('Save Preferences'),
@@ -260,7 +290,11 @@ class _SettingsSection extends StatelessWidget {
                 if (index != children.length - 1)
                   const Padding(
                     padding: EdgeInsets.only(left: 14, right: 14),
-                    child: Divider(height: 1, thickness: 1, color: Color(0xFFE7EDF5)),
+                    child: Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFE7EDF5),
+                    ),
                   ),
               ],
             );

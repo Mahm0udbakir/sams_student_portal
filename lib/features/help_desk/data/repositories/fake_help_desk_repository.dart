@@ -5,7 +5,7 @@ import '../models/complaint_model.dart';
 
 class FakeHelpDeskRepository implements HelpDeskRepository {
   FakeHelpDeskRepository({FakeDataRepository? dataRepository})
-      : _dataRepository = dataRepository ?? const FakeDataRepository();
+    : _dataRepository = dataRepository ?? const FakeDataRepository();
 
   final FakeDataRepository _dataRepository;
 

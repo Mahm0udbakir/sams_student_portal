@@ -25,13 +25,13 @@ class HomeDashboardEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        studentName,
-        studentId,
-        attendancePercent,
-        attendanceSubtitle,
-        attendedClassesLabel,
-        busRouteLabel,
-        busStatusLabel,
-        announcements,
-      ];
+    studentName,
+    studentId,
+    attendancePercent,
+    attendanceSubtitle,
+    attendedClassesLabel,
+    busRouteLabel,
+    busStatusLabel,
+    announcements,
+  ];
 }

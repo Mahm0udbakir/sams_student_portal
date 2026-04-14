@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -51,12 +50,14 @@ class AppTheme {
       fontFamily: null, // use system default font
       appBarTheme: AppBarTheme(
         centerTitle: true,
-        elevation: 1,
-        scrolledUnderElevation: 2,
-        shadowColor: const Color(0x22000000),
+        toolbarHeight: 68,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shadowColor: const Color(0x30000000),
         backgroundColor: primary,
         foregroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.white),
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.light,
@@ -65,8 +66,8 @@ class AppTheme {
         ),
         titleTextStyle: const TextStyle(
           color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

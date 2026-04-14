@@ -1,6 +1,7 @@
 part of 'attendance_bloc.dart';
 
 enum AttendanceStatus { initial, loading, success, failure }
+
 enum AttendanceActionStatus { idle, processing, success, failure }
 
 enum AttendanceBand {
@@ -73,19 +74,21 @@ class AttendanceState extends Equatable {
       classes: classes ?? this.classes,
       actionStatus: actionStatus ?? this.actionStatus,
       actionSubject: actionSubject ?? this.actionSubject,
-      feedbackMessage: clearFeedback ? null : (feedbackMessage ?? this.feedbackMessage),
+      feedbackMessage: clearFeedback
+          ? null
+          : (feedbackMessage ?? this.feedbackMessage),
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
-        status,
-        overallPercent,
-        classes,
-        actionStatus,
-        actionSubject,
-        feedbackMessage,
-        errorMessage,
-      ];
+    status,
+    overallPercent,
+    classes,
+    actionStatus,
+    actionSubject,
+    feedbackMessage,
+    errorMessage,
+  ];
 }

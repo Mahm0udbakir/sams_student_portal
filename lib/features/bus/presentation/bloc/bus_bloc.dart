@@ -11,24 +11,21 @@ part 'bus_state.dart';
 
 class BusBloc extends Bloc<BusEvent, BusState> {
   BusBloc({required BusRepository repository})
-      : _repository = repository,
-        super(const BusState()) {
+    : _repository = repository,
+      super(const BusState()) {
     on<BusRequested>(_onBusRequested);
   }
 
   final BusRepository _repository;
 
-  Future<void> _onBusRequested(BusRequested event, Emitter<BusState> emit) async {
+  Future<void> _onBusRequested(
+    BusRequested event,
+    Emitter<BusState> emit,
+  ) async {
     emit(state.copyWith(status: BusStatus.loading));
     try {
       await Future<void>.delayed(const Duration(milliseconds: 350));
-      final snapshotFuture = _repository.getSnapshot();
-      final stopsFuture = _repository.getRouteStops();
-      final liveInfoFuture = _repository.getLiveInfo();
-
-      final snapshot = await snapshotFuture;
-      final stops = await stopsFuture;
-      final liveInfo = await liveInfoFuture;
+      final (snapshot, stops, liveInfo) = await _loadBusData();
 
       emit(
         state.copyWith(
@@ -47,5 +44,24 @@ class BusBloc extends Bloc<BusEvent, BusState> {
         ),
       );
     }
+  }
+
+  Future<
+    (
+      BusSnapshotEntity snapshot,
+      List<BusRouteStopEntity> stops,
+      BusLiveInfoEntity liveInfo,
+    )
+  >
+  _loadBusData() async {
+    final snapshotFuture = _repository.getSnapshot();
+    final stopsFuture = _repository.getRouteStops();
+    final liveInfoFuture = _repository.getLiveInfo();
+
+    final snapshot = await snapshotFuture;
+    final stops = await stopsFuture;
+    final liveInfo = await liveInfoFuture;
+
+    return (snapshot, stops, liveInfo);
   }
 }

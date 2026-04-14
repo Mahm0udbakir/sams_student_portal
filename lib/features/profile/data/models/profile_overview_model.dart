@@ -11,7 +11,8 @@ class ProfileOverviewModel extends ProfileOverviewEntity {
     return const ProfileOverviewModel(
       name: 'Mahmoud Bakir',
       studentId: '11360',
-      sessionSubtitle: '2025 - 2026 • B.Des Semester 5',
+      sessionSubtitle:
+          '2025 - 2026 • Bachelor of Management Sciences – Semester 5',
     );
   }
 }

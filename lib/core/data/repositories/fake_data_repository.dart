@@ -8,7 +8,8 @@ class FakeDataRepository {
     return const {
       'name': studentName,
       'studentId': studentId,
-      'sessionSubtitle': '2025 - 2026 • B.Des Semester 5',
+      'sessionSubtitle':
+          '2025 - 2026 • Bachelor of Management Sciences – Semester 5',
     };
   }
 
@@ -17,10 +18,11 @@ class FakeDataRepository {
       'studentName': studentName,
       'studentId': studentId,
       'attendancePercent': 75,
-      'attendanceSubtitle': 'B.Des Semester 5 • Current term',
-      'attendedClassesLabel': '8/11 classes attended',
-      'busRouteLabel': 'Route 03 • North Loop',
-      'busStatusLabel': 'Status: Arriving at Main Gate',
+      'attendanceSubtitle':
+          'Bachelor of Management Sciences – Semester 5 • Current term',
+      'attendedClassesLabel': '8/11 lectures attended this week',
+      'busRouteLabel': 'SAMS Shuttle 03 • Maadi → Ramses',
+      'busStatusLabel': 'Status: Arriving at Gate 2 (Maadi Campus)',
       'announcements': getAnnouncements(),
     };
   }
@@ -28,70 +30,91 @@ class FakeDataRepository {
   List<Map<String, dynamic>> getAnnouncements() {
     return const [
       {
-        'title': 'Application Open for DEBSOC Core Team 2025',
+        'title': 'SAMS Midterm Schedule (Semester 5) Published',
         'subtitle':
-            'Last date to apply is Sept 18. Interviews start from Sept 22 in Block B Seminar Hall.',
+            'Please review your timetable on the SAMS portal. Any clash requests should be sent to Prof. Mohamed Salah before Wednesday 2:00 PM.',
         'badge': 'Important',
       },
       {
-        'title': 'Post Matric Scholarship Verification Window',
+        'title': 'Tuition Installment Window – Spring 2026',
         'subtitle':
-            'Document verification desk will remain open from 10:00 AM to 4:00 PM through Sept 12 at Block A Reception.',
+            'Student Affairs (Maadi Building A) will accept installment requests from 9:30 AM to 2:30 PM. Contact Dr. Fatima Ali for verification support.',
         'badge': 'Financial Aid',
       },
       {
-        'title': 'Mid-Semester Examination Schedule Released',
+        'title': 'Career Week: Banking & FMCG Talks',
         'subtitle':
-            'Please check your exam timetable on ERP and report conflicts to the exam cell within 48 hours.',
+            'Guest sessions start Sunday at the Main Auditorium. Opening talk moderated by Dr. Ahmed Hassan and Dr. Sara Ibrahim.',
         'badge': 'Academics',
       },
       {
-        'title': 'Hostel Night Entry Advisory',
+        'title': 'Library Extended Hours Before Midterms',
         'subtitle':
-            'Late entry after 9:30 PM requires prior approval from hostel office and wardens.',
-        'badge': 'Hostel',
+            'SAMS Central Library will be open until 9:00 PM (Sun–Thu). Floor supervisors include Dr. Nourhan Adel and Prof. Karim Abdelrahman.',
+        'badge': 'Campus',
       },
     ];
   }
 
   Map<String, dynamic> getAttendanceOverview() {
-    return {
-      'overallPercent': 75,
-      'subjects': getAttendanceSubjects(),
-    };
+    return {'overallPercent': 75, 'subjects': getAttendanceSubjects()};
   }
 
   List<Map<String, dynamic>> getAttendanceSubjects() {
     return const [
-      {'subject': 'Business Analytics', 'percentage': 92},
-      {'subject': 'Marketing Management', 'percentage': 84},
-      {'subject': 'Financial Accounting', 'percentage': 78},
-      {'subject': 'Operations Research', 'percentage': 74},
-      {'subject': 'Organizational Behavior', 'percentage': 65},
-      {'subject': 'Business Law', 'percentage': 59},
-      {'subject': 'Managerial Economics', 'percentage': 52},
-      {'subject': 'Quantitative Techniques', 'percentage': 38},
+      {'subject': 'Accounting Principles • Dr. Ahmed Hassan', 'percentage': 90},
+      {'subject': 'Business Administration • Dr. Fatima Ali', 'percentage': 86},
+      {
+        'subject': 'Marketing Management • Prof. Mohamed Salah',
+        'percentage': 81,
+      },
+      {'subject': 'Financial Management • Dr. Sara Ibrahim', 'percentage': 77},
+      {
+        'subject': 'Human Resources Management • Dr. Youssef Mahmoud',
+        'percentage': 69,
+      },
+      {
+        'subject': 'Management Information Systems • Dr. Nourhan Adel',
+        'percentage': 63,
+      },
+      {
+        'subject': 'Economics for Managers • Prof. Karim Abdelrahman',
+        'percentage': 58,
+      },
+      {'subject': 'Business Statistics • Dr. Mariam Mostafa', 'percentage': 44},
     ];
   }
 
   List<Map<String, dynamic>> getMessageThreads() {
     return const [
       {
-        'name': 'Gopal Meena',
-        'message': 'Sure, let\'s review the studio brief tomorrow at 10:30 AM.',
-      },
-      {
-        'name': 'Mandeep Kaur',
-        'message': 'Thanks! I uploaded the typography assignment files.',
-      },
-      {
-        'name': 'Class Rep - B.Des',
-        'message': 'Attendance notice shared for tomorrow. Bring your ID cards.',
-      },
-      {
-        'name': 'Placement Cell',
+        'name': 'Dr. Ahmed Hassan',
         'message':
-            'Portfolio review slot confirmed for Friday at 11:30 AM in Studio Lab 2.',
+            'Reminder: Accounting quiz starts 10:00 AM sharp in Hall M203. Bring your SAMS ID card.',
+      },
+      {
+        'name': 'Dr. Sara Ibrahim',
+        'message':
+            'Financial Management case study rubric is now available on Moodle.',
+      },
+      {
+        'name': 'Prof. Mohamed Salah (Class Advisor)',
+        'message':
+            'Attendance for Monday lecture will be taken in the first 15 minutes only.',
+      },
+      {
+        'name': 'Dr. Mariam Mostafa - Student Affairs',
+        'message':
+            'Your internship letter is ready for collection from Building B counter 4.',
+      },
+      {
+        'name': 'Dr. Nourhan Adel',
+        'message': 'MIS lab section has moved to Computer Lab 2 this Tuesday.',
+      },
+      {
+        'name': 'Prof. Karim Abdelrahman',
+        'message':
+            'Economics discussion section will focus on Egypt inflation trends for 2025.',
       },
     ];
   }
@@ -101,20 +124,20 @@ class FakeDataRepository {
       {
         'department': 'Transport Department',
         'message':
-            'I need to change my route number as I have shifted my house from sector 22 to sector 15 Chandigarh.',
-        'contact': 'Mr. Harsh\nCell C',
+            'I moved from Maadi to Nasr City. Please change my shuttle route from Line 03 to Line 06 starting next week.',
+        'contact': 'Mr. Hany Nabil\nTransport Office – Gate 1',
       },
       {
         'department': 'IT Support',
         'message':
-            'Student portal takes too long to load on hostel Wi-Fi during evening hours.',
-        'contact': 'helpdesk.it@sams.edu\nExt. 214',
+            'SAMS portal login keeps timing out on campus Wi-Fi between 8:00 PM and 10:00 PM in Building C.',
+        'contact': 'helpdesk.it@sams.edu.eg\nExt. 214',
       },
       {
         'department': 'Library Services',
         'message':
-            'My library card is not unlocking the digital journal portal from campus lab systems.',
-        'contact': 'library.support@sams.edu\nExt. 118',
+            'My student card is active for borrowing books but not for accessing EBSCO databases from the digital library lab.',
+        'contact': 'library.support@sams.edu.eg\nExt. 118',
       },
     ];
   }
@@ -122,54 +145,55 @@ class FakeDataRepository {
   Map<String, dynamic> getBusSnapshot() {
     return const {
       'currentStatus': 'In Campus',
-      'currentStop': 'SAMS University',
+      'currentStop': 'Maadi Campus (SAMS)',
     };
   }
 
   List<Map<String, dynamic>> getBusRouteStops() {
     return const [
-      {'stop': 'SAMS University', 'time': '9:15 AM', 'status': 'Current'},
-      {'stop': 'Zirakpur Lights', 'time': '8:45 AM', 'status': 'Passed'},
-      {'stop': 'Elante Lights', 'time': '8:30 AM', 'status': 'Passed'},
-      {'stop': 'Sector 17 Plaza', 'time': '8:26 AM', 'status': 'Upcoming'},
-      {'stop': 'Sector 28', 'time': '8:20 AM', 'status': 'Origin'},
+      {'stop': 'Maadi Corniche', 'time': '7:35 AM', 'status': 'Origin'},
+      {'stop': 'Tahrir Square', 'time': '8:00 AM', 'status': 'Passed'},
+      {'stop': 'Giza Square', 'time': '8:18 AM', 'status': 'Passed'},
+      {'stop': 'Cairo University', 'time': '8:32 AM', 'status': 'Current'},
+      {'stop': 'Ramses Station', 'time': '8:52 AM', 'status': 'Upcoming'},
+      {'stop': 'Helwan', 'time': '9:18 AM', 'status': 'Upcoming'},
     ];
   }
 
   Map<String, dynamic> getBusLiveInfo() {
     return const {
-      'nextStop': 'Sector 17 Plaza',
+      'nextStop': 'Ramses Station',
       'eta': '12 mins',
       'lastUpdated': 'Updated 2 mins ago',
-      'routeSummary': '12 stops • 29km • 1 hour 16 mins',
+      'routeSummary': 'Morning Shuttle • 6 major stops • 33km • 1 hour 40 mins',
     };
   }
 
   List<Map<String, dynamic>> getHostelMenuItems() {
     return const [
       {
-        'title': 'Gate pass',
-        'subtitle': 'Gate pass for Student Leave, In & Out Campus Requests',
+        'title': 'Leave Permission',
+        'subtitle': 'Request weekend leave and in/out movement approvals',
       },
       {
-        'title': 'Payment Receipt',
-        'subtitle': 'Payment Transaction Receipt',
+        'title': 'Fee Receipt',
+        'subtitle': 'View and download tuition and hostel payment receipts',
       },
       {
         'title': 'Mess Feedback',
-        'subtitle': 'Submit daily meal quality and hygiene feedback',
+        'subtitle': 'Submit daily meal quality, variety, and hygiene feedback',
       },
       {
-        'title': 'Room Maintenance',
-        'subtitle': 'Raise plumbing, electrical, or furniture maintenance requests',
+        'title': 'Maintenance Request',
+        'subtitle': 'Report AC, plumbing, electrical, or furniture issues',
       },
     ];
   }
 
   List<Map<String, dynamic>> getScanOptions() {
     return const [
-      {'label': 'Choose from gallery'},
-      {'label': 'Take a photo'},
+      {'label': 'Scan SAMS ID from gallery'},
+      {'label': 'Scan SAMS ID with camera'},
     ];
   }
 }

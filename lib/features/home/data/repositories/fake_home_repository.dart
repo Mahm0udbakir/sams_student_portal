@@ -6,7 +6,7 @@ import '../models/home_announcement_model.dart';
 
 class FakeHomeRepository implements HomeRepository {
   FakeHomeRepository({FakeDataRepository? dataRepository})
-      : _dataRepository = dataRepository ?? const FakeDataRepository();
+    : _dataRepository = dataRepository ?? const FakeDataRepository();
 
   final FakeDataRepository _dataRepository;
 
@@ -24,8 +24,9 @@ class FakeHomeRepository implements HomeRepository {
       attendedClassesLabel: dashboard['attendedClassesLabel'] as String,
       busRouteLabel: dashboard['busRouteLabel'] as String,
       busStatusLabel: dashboard['busStatusLabel'] as String,
-      announcements:
-          announcementMaps.map(HomeAnnouncementModel.fromMap).toList(growable: false),
+      announcements: announcementMaps
+          .map(HomeAnnouncementModel.fromMap)
+          .toList(growable: false),
     );
   }
 }

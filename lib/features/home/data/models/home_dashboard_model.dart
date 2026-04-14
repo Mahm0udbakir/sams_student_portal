@@ -18,30 +18,35 @@ class HomeDashboardModel extends HomeDashboardEntity {
       studentName: 'Mahmoud Bakir',
       studentId: '11360',
       attendancePercent: 75,
-      attendanceSubtitle: 'for omnichannel',
-      attendedClassesLabel: '8/11 classes attended',
-      busRouteLabel: 'route no. 3',
-      busStatusLabel: 'Status: In campus',
+      attendanceSubtitle:
+          'Bachelor of Management Sciences – Semester 5 • Current term',
+      attendedClassesLabel: '8/11 lectures attended this week',
+      busRouteLabel: 'SAMS Shuttle 03 • Maadi → Ramses',
+      busStatusLabel: 'Status: Arriving at Gate 2 (Maadi Campus)',
       announcements: const [
         HomeAnnouncementModel(
-          title: 'Application Open for DEBSOC Core Team 2025',
-          subtitle: 'Last date to apply is Sept 18. Interviews start from Sept 22 in Block B Seminar Hall.',
+          title: 'SAMS Midterm Schedule (Semester 5) Published',
+          subtitle:
+              'Please review your timetable on the SAMS portal. Any clash requests should be sent to Prof. Mohamed Salah before Wednesday 2:00 PM.',
           badge: 'Important',
         ),
         HomeAnnouncementModel(
-          title: 'Post Matric Scholarship Verification Window',
-          subtitle: 'Document verification desk will remain open from 10:00 AM to 4:00 PM till Sept 12.',
+          title: 'Tuition Installment Window – Spring 2026',
+          subtitle:
+              'Student Affairs (Maadi Building A) will accept installment requests from 9:30 AM to 2:30 PM. Contact Dr. Fatima Ali for verification support.',
           badge: 'Financial Aid',
         ),
         HomeAnnouncementModel(
-          title: 'Mid-Semester Examination Schedule Released',
-          subtitle: 'Please check your exam timetable on ERP and report conflicts to the exam cell immediately.',
+          title: 'Career Week: Banking & FMCG Talks',
+          subtitle:
+              'Guest sessions start Sunday at the Main Auditorium. Opening talk moderated by Dr. Ahmed Hassan and Dr. Sara Ibrahim.',
           badge: 'Academics',
         ),
         HomeAnnouncementModel(
-          title: 'Hostel Night Entry Advisory',
-          subtitle: 'Late entry after 9:30 PM requires prior approval from hostel office and wardens.',
-          badge: 'Hostel',
+          title: 'Library Extended Hours Before Midterms',
+          subtitle:
+              'SAMS Central Library will be open until 9:00 PM (Sun–Thu). Floor supervisors include Dr. Nourhan Adel and Prof. Karim Abdelrahman.',
+          badge: 'Campus',
         ),
       ],
     );

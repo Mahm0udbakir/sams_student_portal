@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_app_bar.dart';
+import '../../../../shared/widgets/modern_snackbar.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
 import '../bloc/change_password_bloc.dart';
 
@@ -36,9 +38,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       child: BlocListener<ChangePasswordBloc, ChangePasswordState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) async {
-          if (state.status == ChangePasswordStatus.failure && state.feedbackMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.feedbackMessage!)),
+          if (state.status == ChangePasswordStatus.failure &&
+              state.feedbackMessage != null) {
+            ModernSnackbars.show(
+              context,
+              message: state.feedbackMessage!,
+              type: ModernSnackbarType.error,
             );
           }
 
@@ -47,8 +52,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             _newController.clear();
             _confirmController.clear();
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Password updated successfully')),
+            ModernSnackbars.show(
+              context,
+              message: 'Password updated successfully',
+              type: ModernSnackbarType.success,
             );
 
             await Future<void>.delayed(const Duration(milliseconds: 900));
@@ -59,22 +66,28 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           }
         },
         child: BlocBuilder<ChangePasswordBloc, ChangePasswordState>(
+          buildWhen: (previous, current) {
+            return previous.status != current.status;
+          },
           builder: (context, state) {
             return Scaffold(
               backgroundColor: SamsUiTokens.scaffoldBackground,
-              appBar: AppBar(
-                title: const Text('Change Password'),
-                centerTitle: true,
-              ),
+              appBar: const SamsAppBar(title: 'Change Password'),
               body: SafeArea(
                 child: ListView(
-                  padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 20),
+                  padding: SamsUiTokens.pageInsets(
+                    context,
+                    top: 14,
+                    bottom: 20,
+                  ),
                   children: [
                     Container(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+                        borderRadius: BorderRadius.circular(
+                          SamsUiTokens.radiusLg,
+                        ),
                         boxShadow: SamsUiTokens.cardShadow,
                         border: Border.all(color: SamsUiTokens.divider),
                       ),
@@ -82,9 +95,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
                             decoration: BoxDecoration(
-                              color: SamsUiTokens.primary.withValues(alpha: 0.1),
+                              color: SamsUiTokens.primary.withValues(
+                                alpha: 0.1,
+                              ),
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: const Text(
@@ -123,11 +141,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             obscureText: _hideCurrent,
                             decoration: InputDecoration(
                               labelText: 'Current Password',
-                              prefixIcon: const Icon(Icons.lock_outline_rounded),
+                              prefixIcon: const Icon(
+                                Icons.lock_outline_rounded,
+                              ),
                               suffixIcon: IconButton(
-                                onPressed: () => setState(() => _hideCurrent = !_hideCurrent),
+                                onPressed: () => setState(
+                                  () => _hideCurrent = !_hideCurrent,
+                                ),
                                 icon: Icon(
-                                  _hideCurrent ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                  _hideCurrent
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
                                 ),
                               ),
                             ),
@@ -140,8 +164,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               labelText: 'New Password',
                               prefixIcon: const Icon(Icons.password_rounded),
                               suffixIcon: IconButton(
-                                onPressed: () => setState(() => _hideNew = !_hideNew),
-                                icon: Icon(_hideNew ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                                onPressed: () =>
+                                    setState(() => _hideNew = !_hideNew),
+                                icon: Icon(
+                                  _hideNew
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
                               ),
                             ),
                           ),
@@ -153,9 +182,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               labelText: 'Confirm New Password',
                               prefixIcon: const Icon(Icons.lock_reset_rounded),
                               suffixIcon: IconButton(
-                                onPressed: () => setState(() => _hideConfirm = !_hideConfirm),
+                                onPressed: () => setState(
+                                  () => _hideConfirm = !_hideConfirm,
+                                ),
                                 icon: Icon(
-                                  _hideConfirm ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                  _hideConfirm
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
                                 ),
                               ),
                             ),
@@ -172,18 +205,22 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                     ? null
                                     : () {
                                         context.read<ChangePasswordBloc>().add(
-                                              ChangePasswordSubmitted(
-                                                currentPassword: _currentController.text,
-                                                newPassword: _newController.text,
-                                                confirmPassword: _confirmController.text,
-                                              ),
-                                            );
+                                          ChangePasswordSubmitted(
+                                            currentPassword:
+                                                _currentController.text,
+                                            newPassword: _newController.text,
+                                            confirmPassword:
+                                                _confirmController.text,
+                                          ),
+                                        );
                                       },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: SamsUiTokens.primary,
                                   foregroundColor: Colors.white,
                                   elevation: 0,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -198,7 +235,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                         width: 18,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
                                         ),
                                       )
                                     : const Text('Update Password'),

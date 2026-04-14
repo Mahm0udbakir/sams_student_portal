@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 
+import '../../../../shared/ui/sams_lottie_assets.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_app_bar.dart';
+import '../../../../shared/widgets/modern_snackbar.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
 import '../../data/repositories/fake_scan_repository.dart';
 import '../../domain/entities/scan_option_entity.dart';
@@ -13,7 +17,11 @@ class ScanScreen extends StatelessWidget {
 
   static const Color _samsPrimary = SamsUiTokens.primary;
 
-  String _labelForKeyword(List<ScanOptionEntity> options, String keyword, String fallback) {
+  String _labelForKeyword(
+    List<ScanOptionEntity> options,
+    String keyword,
+    String fallback,
+  ) {
     for (final option in options) {
       if (option.label.toLowerCase().contains(keyword)) {
         return option.label;
@@ -25,7 +33,9 @@ class ScanScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ScanBloc(repository: FakeScanRepository())..add(const ScanRequested()),
+      create: (_) =>
+          ScanBloc(repository: FakeScanRepository())
+            ..add(const ScanRequested()),
       child: BlocListener<ScanBloc, ScanState>(
         listenWhen: (previous, current) =>
             previous.feedbackMessage != current.feedbackMessage &&
@@ -43,7 +53,9 @@ class ScanScreen extends StatelessWidget {
               builder: (dialogContext) {
                 return Dialog(
                   insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -61,7 +73,9 @@ class ScanScreen extends StatelessWidget {
                               width: 42,
                               height: 42,
                               decoration: BoxDecoration(
-                                color: SamsUiTokens.success.withValues(alpha: 0.12),
+                                color: SamsUiTokens.success.withValues(
+                                  alpha: 0.12,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -82,6 +96,29 @@ class ScanScreen extends StatelessWidget {
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 10),
+                        Center(
+                          child: SizedBox(
+                            width: 86,
+                            height: 86,
+                            child: RepaintBoundary(
+                              child: Lottie.asset(
+                                SamsLottieAssets.successCheckLight,
+                                repeat: false,
+                                animate: true,
+                                frameRate: FrameRate.composition,
+                                fit: BoxFit.contain,
+                                filterQuality: FilterQuality.low,
+                                addRepaintBoundary: true,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.verified_rounded,
+                                  color: SamsUiTokens.success,
+                                  size: 36,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 14),
                         Text(
@@ -108,11 +145,16 @@ class ScanScreen extends StatelessWidget {
                             Expanded(
                               child: SamsTapScale(
                                 child: OutlinedButton(
-                                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                                  onPressed: () =>
+                                      Navigator.of(dialogContext).pop(true),
                                   style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: SamsUiTokens.primary),
+                                    side: const BorderSide(
+                                      color: SamsUiTokens.primary,
+                                    ),
                                     foregroundColor: SamsUiTokens.primary,
-                                    padding: const EdgeInsets.symmetric(vertical: 11),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 11,
+                                    ),
                                     textStyle: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13,
@@ -126,12 +168,15 @@ class ScanScreen extends StatelessWidget {
                             Expanded(
                               child: SamsTapScale(
                                 child: ElevatedButton(
-                                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                                  onPressed: () =>
+                                      Navigator.of(dialogContext).pop(false),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: SamsUiTokens.primary,
                                     foregroundColor: Colors.white,
                                     elevation: 0,
-                                    padding: const EdgeInsets.symmetric(vertical: 11),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 11,
+                                    ),
                                     textStyle: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13,
@@ -162,22 +207,39 @@ class ScanScreen extends StatelessWidget {
               }
             }
           } else if (state.status == ScanStatus.failure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(message)),
+            ModernSnackbars.show(
+              context,
+              message: message,
+              type: ModernSnackbarType.error,
             );
           }
 
           context.read<ScanBloc>().add(const ScanFeedbackCleared());
         },
         child: BlocBuilder<ScanBloc, ScanState>(
+          buildWhen: (previous, current) {
+            return previous.status != current.status ||
+                previous.options != current.options ||
+                previous.activeAction != current.activeAction ||
+                previous.feedbackMessage != current.feedbackMessage;
+          },
           builder: (context, state) {
             final width = MediaQuery.sizeOf(context).width;
             final frameSize = (width - 68).clamp(230.0, 290.0);
             final options = state.options;
-      final galleryLabel = _labelForKeyword(options, 'gallery', 'Choose from gallery');
-      final cameraLabel = _labelForKeyword(options, 'photo', 'Take a photo');
+            final galleryLabel = _labelForKeyword(
+              options,
+              'gallery',
+              'Choose from gallery',
+            );
+            final cameraLabel = _labelForKeyword(
+              options,
+              'photo',
+              'Take a photo',
+            );
 
-            if (state.status == ScanStatus.initial || state.status == ScanStatus.loading) {
+            if (state.status == ScanStatus.initial ||
+                state.status == ScanStatus.loading) {
               return const Scaffold(
                 backgroundColor: SamsUiTokens.scaffoldBackground,
                 body: SamsLoadingView(
@@ -190,16 +252,15 @@ class ScanScreen extends StatelessWidget {
             if (state.status == ScanStatus.failure && state.options.isEmpty) {
               return Scaffold(
                 backgroundColor: SamsUiTokens.scaffoldBackground,
-                appBar: AppBar(
-                  title: const Text('Scan'),
-                  centerTitle: true,
-                ),
+                appBar: const SamsAppBar(title: 'Scan'),
                 body: SamsErrorState(
                   title: 'Couldn\'t open scanner',
                   message:
-                      state.feedbackMessage ?? 'Failed to load scan options. Please try again.',
+                      state.feedbackMessage ??
+                      'Failed to load scan options. Please try again.',
                   retryLabel: 'Retry',
-                  onRetry: () => context.read<ScanBloc>().add(const ScanRequested()),
+                  onRetry: () =>
+                      context.read<ScanBloc>().add(const ScanRequested()),
                 ),
               );
             }
@@ -208,10 +269,7 @@ class ScanScreen extends StatelessWidget {
 
             return Scaffold(
               backgroundColor: SamsUiTokens.scaffoldBackground,
-              appBar: AppBar(
-                title: const Text('Scan'),
-                centerTitle: true,
-              ),
+              appBar: const SamsAppBar(title: 'Scan'),
               body: Stack(
                 children: [
                   SafeArea(
@@ -256,13 +314,17 @@ class ScanScreen extends StatelessWidget {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
                                 color: Colors.white,
-                                border: Border.all(color: const Color(0xFFE3E8EF)),
+                                border: Border.all(
+                                  color: const Color(0xFFE3E8EF),
+                                ),
                                 boxShadow: SamsUiTokens.cardShadow,
                               ),
                               child: const DecoratedBox(
                                 decoration: BoxDecoration(
                                   color: Color(0xFFF8FAFD),
-                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
                                 ),
                                 child: Center(
                                   child: Icon(
@@ -282,10 +344,15 @@ class ScanScreen extends StatelessWidget {
                               child: TextButton(
                                 onPressed: isProcessing
                                     ? null
-                                    : () => context.read<ScanBloc>().add(const ScanGalleryPicked()),
+                                    : () => context.read<ScanBloc>().add(
+                                        const ScanGalleryPicked(),
+                                      ),
                                 style: TextButton.styleFrom(
                                   foregroundColor: SamsUiTokens.primary,
-                                  textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                                  textStyle: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                  ),
                                 ),
                                 child: Text(galleryLabel),
                               ),
@@ -299,12 +366,16 @@ class ScanScreen extends StatelessWidget {
                               child: ElevatedButton(
                                 onPressed: isProcessing
                                     ? null
-                                    : () => context.read<ScanBloc>().add(const ScanStarted()),
+                                    : () => context.read<ScanBloc>().add(
+                                        const ScanStarted(),
+                                      ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: _samsPrimary,
                                   foregroundColor: Colors.white,
                                   elevation: 0,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -326,17 +397,24 @@ class ScanScreen extends StatelessWidget {
                       child: IgnorePointer(
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: const Color(0xFF052941).withValues(alpha: 0.46),
+                            color: const Color(
+                              0xFF052941,
+                            ).withValues(alpha: 0.46),
                           ),
                           child: Center(
                             child: Container(
                               width: 240,
-                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 16,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(18),
                                 boxShadow: SamsUiTokens.cardShadow,
-                                border: Border.all(color: const Color(0xFFDCE5EF)),
+                                border: Border.all(
+                                  color: const Color(0xFFDCE5EF),
+                                ),
                               ),
                               child: const Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -346,8 +424,9 @@ class ScanScreen extends StatelessWidget {
                                     width: 28,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.8,
-                                      valueColor:
-                                          AlwaysStoppedAnimation<Color>(SamsUiTokens.primary),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        SamsUiTokens.primary,
+                                      ),
                                     ),
                                   ),
                                   SizedBox(height: 12),
@@ -386,4 +465,3 @@ class ScanScreen extends StatelessWidget {
     );
   }
 }
-

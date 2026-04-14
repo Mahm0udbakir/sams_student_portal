@@ -10,9 +10,7 @@ class LoginForm extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: const [
-          TextField(
-            decoration: InputDecoration(labelText: 'Email'),
-          ),
+          TextField(decoration: InputDecoration(labelText: 'Email')),
           SizedBox(height: 12),
           TextField(
             obscureText: true,

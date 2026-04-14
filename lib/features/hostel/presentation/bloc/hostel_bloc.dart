@@ -9,14 +9,17 @@ part 'hostel_state.dart';
 
 class HostelBloc extends Bloc<HostelEvent, HostelState> {
   HostelBloc({required HostelRepository repository})
-      : _repository = repository,
-        super(const HostelState()) {
+    : _repository = repository,
+      super(const HostelState()) {
     on<HostelRequested>(_onHostelRequested);
   }
 
   final HostelRepository _repository;
 
-  Future<void> _onHostelRequested(HostelRequested event, Emitter<HostelState> emit) async {
+  Future<void> _onHostelRequested(
+    HostelRequested event,
+    Emitter<HostelState> emit,
+  ) async {
     emit(state.copyWith(status: HostelStatus.loading));
     try {
       final menuItems = await _repository.getMenuItems();

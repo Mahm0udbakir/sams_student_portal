@@ -8,8 +8,8 @@ part 'attendance_state.dart';
 
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   AttendanceBloc({required AttendanceRepository repository})
-      : _repository = repository,
-        super(const AttendanceState()) {
+    : _repository = repository,
+      super(const AttendanceState()) {
     on<AttendanceRequested>(_onAttendanceRequested);
     on<AttendanceMarkRequested>(_onAttendanceMarkRequested);
     on<AttendanceFeedbackCleared>(_onAttendanceFeedbackCleared);
@@ -42,10 +42,12 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         ),
       );
     } catch (_) {
-      emit(state.copyWith(
-        status: AttendanceStatus.failure,
-        errorMessage: 'Failed to load attendance. Please try again.',
-      ));
+      emit(
+        state.copyWith(
+          status: AttendanceStatus.failure,
+          errorMessage: 'Failed to load attendance. Please try again.',
+        ),
+      );
     }
   }
 

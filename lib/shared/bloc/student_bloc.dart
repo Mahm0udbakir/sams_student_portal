@@ -8,8 +8,8 @@ part 'student_state.dart';
 
 class StudentBloc extends Bloc<StudentEvent, StudentState> {
   StudentBloc({FakeDataRepository? dataRepository})
-      : _dataRepository = dataRepository ?? const FakeDataRepository(),
-        super(const StudentState()) {
+    : _dataRepository = dataRepository ?? const FakeDataRepository(),
+      super(const StudentState()) {
     on<StudentRequested>(_onStudentRequested);
   }
 

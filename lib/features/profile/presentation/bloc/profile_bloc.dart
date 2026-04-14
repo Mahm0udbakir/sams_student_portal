@@ -9,8 +9,8 @@ part 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc({required ProfileRepository repository})
-      : _repository = repository,
-        super(const ProfileState()) {
+    : _repository = repository,
+      super(const ProfileState()) {
     on<ProfileRequested>(_onProfileRequested);
   }
 

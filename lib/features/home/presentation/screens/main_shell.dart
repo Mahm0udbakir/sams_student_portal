@@ -17,6 +17,25 @@ class _MainShellState extends State<MainShell>
     with SingleTickerProviderStateMixin {
   static const Color _samsPrimary = SamsUiTokens.primary;
   late final AnimationController _tabSwitchController;
+  static const _navItems = [
+    (label: 'Home', icon: Icons.home_outlined, activeIcon: Icons.home_rounded),
+    (
+      label: 'Messages',
+      icon: Icons.chat_bubble_outline_rounded,
+      activeIcon: Icons.chat_bubble_rounded,
+    ),
+    (
+      label: 'Scan',
+      icon: Icons.qr_code_scanner_outlined,
+      activeIcon: Icons.qr_code_scanner_rounded,
+    ),
+    (
+      label: 'Help Desk',
+      icon: Icons.headset_mic_outlined,
+      activeIcon: Icons.headset_mic_rounded,
+    ),
+    (label: 'Menu', icon: Icons.menu_outlined, activeIcon: Icons.menu_rounded),
+  ];
 
   @override
   void initState() {
@@ -45,6 +64,24 @@ class _MainShellState extends State<MainShell>
     if (switchingBranch) {
       _tabSwitchController.forward(from: 0);
     }
+  }
+
+  List<NavigationDestination> _buildDestinations(int selectedIndex) {
+    return _navItems
+        .asMap()
+        .entries
+        .map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+          final selected = selectedIndex == index;
+
+          return NavigationDestination(
+            icon: _NavItemIcon(icon: item.icon, selected: selected),
+            selectedIcon: _NavItemIcon(icon: item.activeIcon, selected: true),
+            label: item.label,
+          );
+        })
+        .toList(growable: false);
   }
 
   @override
@@ -86,62 +123,76 @@ class _MainShellState extends State<MainShell>
       ),
       bottomNavigationBar: Container(
         padding: EdgeInsets.only(bottom: bottomInset),
+        margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: SamsUiTokens.softTopShadow,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(SamsUiTokens.navTopRadius),
-          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x22001426),
+              blurRadius: 22,
+              offset: Offset(0, -4),
+            ),
+          ],
+          borderRadius: BorderRadius.circular(SamsUiTokens.navTopRadius),
+          border: Border.all(color: const Color(0xFFE0E7EF)),
         ),
         child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(SamsUiTokens.navTopRadius),
-          ),
+          borderRadius: BorderRadius.circular(SamsUiTokens.navTopRadius),
           child: NavigationBar(
             selectedIndex: widget.navigationShell.currentIndex,
             onDestinationSelected: _onTap,
             backgroundColor: Colors.white,
-            indicatorColor: _samsPrimary.withValues(alpha: 0.12),
+            indicatorColor: _samsPrimary.withValues(alpha: 0.13),
+            indicatorShape: const StadiumBorder(),
             surfaceTintColor: Colors.transparent,
             height: navBarHeight,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
             labelTextStyle: WidgetStateProperty.resolveWith((states) {
               final selected = states.contains(WidgetState.selected);
               return TextStyle(
-                fontSize: compact ? 11 : 11.5,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                fontSize: compact ? 11.2 : 12,
+                height: 1.1,
+                letterSpacing: 0.1,
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                 color: selected ? _samsPrimary : const Color(0xFF7E8794),
               );
             }),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home_rounded),
-                label: 'Home',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.chat_bubble_outline_rounded),
-                selectedIcon: Icon(Icons.chat_bubble_rounded),
-                label: 'Messages',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.qr_code_scanner_outlined),
-                selectedIcon: Icon(Icons.qr_code_scanner_rounded),
-                label: 'Scan',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.headset_mic_outlined),
-                selectedIcon: Icon(Icons.headset_mic_rounded),
-                label: 'Help Desk',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.menu_outlined),
-                selectedIcon: Icon(Icons.menu_rounded),
-                label: 'Menu',
-              ),
-            ],
+            destinations: _buildDestinations(
+              widget.navigationShell.currentIndex,
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _NavItemIcon extends StatelessWidget {
+  const _NavItemIcon({required this.icon, required this.selected});
+
+  final IconData icon;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = SamsUiTokens.primary;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 240),
+      curve: Curves.easeOutCubic,
+      padding: EdgeInsets.symmetric(
+        horizontal: selected ? 11 : 8,
+        vertical: selected ? 5 : 3,
+      ),
+      decoration: BoxDecoration(
+        color: selected ? primary.withValues(alpha: 0.12) : Colors.transparent,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutBack,
+        scale: selected ? 1.05 : 1,
+        child: Icon(icon),
       ),
     );
   }

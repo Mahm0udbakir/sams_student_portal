@@ -9,8 +9,8 @@ part 'scan_state.dart';
 
 class ScanBloc extends Bloc<ScanEvent, ScanState> {
   ScanBloc({required ScanRepository repository})
-      : _repository = repository,
-        super(const ScanState()) {
+    : _repository = repository,
+      super(const ScanState()) {
     on<ScanRequested>(_onScanRequested);
     on<ScanStarted>(_onScanStarted);
     on<ScanGalleryPicked>(_onScanGalleryPicked);
@@ -19,28 +19,39 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
 
   final ScanRepository _repository;
 
-  Future<void> _onScanRequested(ScanRequested event, Emitter<ScanState> emit) async {
+  Future<void> _onScanRequested(
+    ScanRequested event,
+    Emitter<ScanState> emit,
+  ) async {
     emit(state.copyWith(status: ScanStatus.loading));
     try {
       final options = await _repository.getOptions();
       emit(state.copyWith(status: ScanStatus.ready, options: options));
     } catch (_) {
-      emit(state.copyWith(
-        status: ScanStatus.failure,
-        feedbackMessage: 'Failed to load scan options. Please try again.',
-      ));
+      emit(
+        state.copyWith(
+          status: ScanStatus.failure,
+          feedbackMessage: 'Failed to load scan options. Please try again.',
+        ),
+      );
     }
   }
 
-  Future<void> _onScanStarted(ScanStarted event, Emitter<ScanState> emit) async {
+  Future<void> _onScanStarted(
+    ScanStarted event,
+    Emitter<ScanState> emit,
+  ) async {
     await _processScan(
       emit: emit,
       action: ScanAction.camera,
-      successMessage: 'Attendance marked for Subject XYZ',
+      successMessage: 'Attendance marked for Management Information Systems',
     );
   }
 
-  Future<void> _onScanGalleryPicked(ScanGalleryPicked event, Emitter<ScanState> emit) async {
+  Future<void> _onScanGalleryPicked(
+    ScanGalleryPicked event,
+    Emitter<ScanState> emit,
+  ) async {
     await _processScan(
       emit: emit,
       action: ScanAction.gallery,
@@ -74,7 +85,10 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
     emit(state.copyWith(status: ScanStatus.ready));
   }
 
-  void _onScanFeedbackCleared(ScanFeedbackCleared event, Emitter<ScanState> emit) {
+  void _onScanFeedbackCleared(
+    ScanFeedbackCleared event,
+    Emitter<ScanState> emit,
+  ) {
     emit(state.copyWith(clearFeedback: true));
   }
 }

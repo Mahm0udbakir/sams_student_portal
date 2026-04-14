@@ -7,6 +7,8 @@ import '../../../../shared/bloc/student_bloc.dart';
 import '../../data/repositories/fake_profile_repository.dart';
 import '../bloc/profile_bloc.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_app_bar.dart';
+import '../../../../shared/widgets/modern_snackbar.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
 import '../../../../shared/widgets/sams_state_views.dart';
 
@@ -105,9 +107,11 @@ class ProfileScreen extends StatelessWidget {
       return;
     }
 
-    ScaffoldMessenger.of(
+    ModernSnackbars.show(
       context,
-    ).showSnackBar(SnackBar(content: Text('$title activated (demo).')));
+      message: '$title activated (demo).',
+      type: ModernSnackbarType.success,
+    );
 
     await Future<void>.delayed(const Duration(milliseconds: 180));
     if (!context.mounted) {
@@ -123,6 +127,11 @@ class ProfileScreen extends StatelessWidget {
           ProfileBloc(repository: FakeProfileRepository())
             ..add(const ProfileRequested()),
       child: BlocBuilder<ProfileBloc, ProfileState>(
+        buildWhen: (previous, current) {
+          return previous.status != current.status ||
+              previous.overview != current.overview ||
+              previous.errorMessage != current.errorMessage;
+        },
         builder: (context, state) {
           if (state.status == ProfileStatus.loading ||
               state.status == ProfileStatus.initial) {
@@ -138,7 +147,7 @@ class ProfileScreen extends StatelessWidget {
           if (state.status == ProfileStatus.failure || state.overview == null) {
             return Scaffold(
               backgroundColor: SamsUiTokens.scaffoldBackground,
-              appBar: AppBar(title: const Text('Profile'), centerTitle: true),
+              appBar: const SamsAppBar(title: 'Profile'),
               body: SamsErrorState(
                 title: 'Couldn\'t load profile',
                 message:
@@ -188,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
 
           return Scaffold(
             backgroundColor: SamsUiTokens.scaffoldBackground,
-            appBar: AppBar(title: const Text('Profile'), centerTitle: true),
+            appBar: const SamsAppBar(title: 'Profile'),
             body: SafeArea(
               child: ListView(
                 padding: SamsUiTokens.pageInsets(context, top: 16, bottom: 24),
@@ -317,6 +326,7 @@ class ProfileScreen extends StatelessWidget {
                         final item = entry.value;
 
                         return _ProfileOptionRow(
+                          key: ValueKey(item.routeName),
                           title: item.title,
                           subtitle: item.subtitle,
                           icon: item.icon,
@@ -358,6 +368,7 @@ class ProfileScreen extends StatelessWidget {
 
 class _ProfileOptionRow extends StatelessWidget {
   const _ProfileOptionRow({
+    super.key,
     required this.title,
     required this.subtitle,
     required this.icon,

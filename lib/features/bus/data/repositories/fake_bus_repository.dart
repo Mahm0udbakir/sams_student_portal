@@ -7,7 +7,7 @@ import '../models/bus_snapshot_model.dart';
 
 class FakeBusRepository implements BusRepository {
   FakeBusRepository({FakeDataRepository? dataRepository})
-      : _dataRepository = dataRepository ?? const FakeDataRepository();
+    : _dataRepository = dataRepository ?? const FakeDataRepository();
 
   final FakeDataRepository _dataRepository;
 

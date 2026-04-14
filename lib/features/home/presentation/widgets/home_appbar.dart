@@ -7,7 +7,7 @@ PreferredSizeWidget homeAppBar(BuildContext context) {
       Padding(
         padding: EdgeInsets.only(right: 12.0),
         child: Icon(Icons.notifications),
-      )
+      ),
     ],
   );
 }

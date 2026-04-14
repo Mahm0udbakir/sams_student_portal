@@ -30,7 +30,9 @@ class ScanState extends Equatable {
       status: status ?? this.status,
       options: options ?? this.options,
       activeAction: activeAction ?? this.activeAction,
-      feedbackMessage: clearFeedback ? null : (feedbackMessage ?? this.feedbackMessage),
+      feedbackMessage: clearFeedback
+          ? null
+          : (feedbackMessage ?? this.feedbackMessage),
     );
   }
 

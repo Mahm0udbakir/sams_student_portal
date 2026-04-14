@@ -5,7 +5,7 @@ import '../models/hostel_menu_item_model.dart';
 
 class FakeHostelRepository implements HostelRepository {
   FakeHostelRepository({FakeDataRepository? dataRepository})
-      : _dataRepository = dataRepository ?? const FakeDataRepository();
+    : _dataRepository = dataRepository ?? const FakeDataRepository();
 
   final FakeDataRepository _dataRepository;
 

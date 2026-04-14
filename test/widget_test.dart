@@ -10,7 +10,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Splash shows branding then auto-navigates to Login in ~3s', (WidgetTester tester) async {
+  testWidgets('Splash shows branding then auto-navigates to Login in ~3s', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const SamsApp());
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -33,7 +35,9 @@ void main() {
     expect(find.text('Sign up'), findsOneWidget);
   });
 
-  testWidgets('Dummy login goes to MainShell Home as initial tab', (WidgetTester tester) async {
+  testWidgets('Dummy login goes to MainShell Home as initial tab', (
+    WidgetTester tester,
+  ) async {
     await pumpToLogin(tester);
 
     await tester.tap(find.text('Sign-in with QR code'));
@@ -44,7 +48,9 @@ void main() {
     expect(find.text('Home'), findsWidgets);
   });
 
-  testWidgets('Bottom navigation switches across all tabs smoothly', (WidgetTester tester) async {
+  testWidgets('Bottom navigation switches across all tabs smoothly', (
+    WidgetTester tester,
+  ) async {
     await pumpToLogin(tester);
     await tester.tap(find.text('Sign-in with QR code'));
     await tester.pumpAndSettle();
@@ -60,20 +66,22 @@ void main() {
     await tester.tap(find.text('Help Desk'));
     await tester.pumpAndSettle();
 
-  await tester.drag(find.byType(ListView).first, const Offset(0, -420));
-  await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).first, const Offset(0, -420));
+    await tester.pumpAndSettle();
     expect(find.text('Raise a complaint'), findsOneWidget);
 
     await tester.tap(find.text('Menu'));
     await tester.pumpAndSettle();
-  expect(find.text('Mahmoud Bakir'), findsOneWidget);
+    expect(find.text('Mahmoud Bakir'), findsOneWidget);
 
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
     expect(find.text('Daily Essentials'), findsOneWidget);
   });
 
-  testWidgets('Help Desk can push Raise Concern form and return', (WidgetTester tester) async {
+  testWidgets('Help Desk can push Raise Concern form and return', (
+    WidgetTester tester,
+  ) async {
     await pumpToLogin(tester);
     await tester.tap(find.text('Sign-in with QR code'));
     await tester.pumpAndSettle();
@@ -81,8 +89,8 @@ void main() {
     await tester.tap(find.text('Help Desk'));
     await tester.pumpAndSettle();
 
-  await tester.drag(find.byType(ListView).first, const Offset(0, -420));
-  await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).first, const Offset(0, -420));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Raise a complaint'));
     await tester.pumpAndSettle();
@@ -96,39 +104,42 @@ void main() {
     expect(find.text('Raise a complaint'), findsOneWidget);
   });
 
-  testWidgets('Profile internal navigations to Bus and Hostel work without errors', (WidgetTester tester) async {
-    await pumpToLogin(tester);
-    await tester.tap(find.text('Sign-in with QR code'));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Profile internal navigations to Bus and Hostel work without errors',
+    (WidgetTester tester) async {
+      await pumpToLogin(tester);
+      await tester.tap(find.text('Sign-in with QR code'));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Menu'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Menu'));
+      await tester.pumpAndSettle();
 
-    await tester.drag(find.byType(ListView).first, const Offset(0, -420));
-    await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView).first, const Offset(0, -420));
+      await tester.pumpAndSettle();
 
-    final busOption = find.text('Switch to SAMS Bus').hitTestable();
-    await tester.tap(busOption, warnIfMissed: false);
-    await tester.pumpAndSettle();
+      final busOption = find.text('Switch to SAMS Bus').hitTestable();
+      await tester.tap(busOption, warnIfMissed: false);
+      await tester.pumpAndSettle();
 
-  await tester.tap(find.text('Switch'));
-  await tester.pumpAndSettle();
-    expect(find.text('Live Route'), findsOneWidget);
+      await tester.tap(find.text('Switch'));
+      await tester.pumpAndSettle();
+      expect(find.text('Live Route'), findsOneWidget);
 
-    await tester.pageBack();
-    await tester.pumpAndSettle();
+      await tester.pageBack();
+      await tester.pumpAndSettle();
 
-    await tester.drag(find.byType(ListView).first, const Offset(0, -220));
-    await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView).first, const Offset(0, -220));
+      await tester.pumpAndSettle();
 
-    final hostelOption = find.text('Switch to SAMS Hostel').hitTestable();
-    expect(hostelOption, findsOneWidget);
+      final hostelOption = find.text('Switch to SAMS Hostel').hitTestable();
+      expect(hostelOption, findsOneWidget);
 
-    await tester.tap(hostelOption);
-    await tester.pumpAndSettle();
+      await tester.tap(hostelOption);
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Switch'));
-    await tester.pumpAndSettle();
-    expect(find.text('Hostel services & requests'), findsOneWidget);
-  });
+      await tester.tap(find.text('Switch'));
+      await tester.pumpAndSettle();
+      expect(find.text('Hostel services & requests'), findsOneWidget);
+    },
+  );
 }

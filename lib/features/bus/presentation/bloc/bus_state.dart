@@ -17,7 +17,8 @@ class BusState extends Equatable {
   final BusLiveInfoEntity? liveInfo;
   final String? errorMessage;
 
-  bool get hasData => snapshot != null && routeStops.isNotEmpty && liveInfo != null;
+  bool get hasData =>
+      snapshot != null && routeStops.isNotEmpty && liveInfo != null;
 
   bool get isInCampus => snapshot?.currentStatus.toLowerCase() == 'in campus';
 
@@ -38,5 +39,11 @@ class BusState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, snapshot, routeStops, liveInfo, errorMessage];
+  List<Object?> get props => [
+    status,
+    snapshot,
+    routeStops,
+    liveInfo,
+    errorMessage,
+  ];
 }

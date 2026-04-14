@@ -6,6 +6,8 @@ import '../../../../shared/bloc/student_bloc.dart';
 import '../../data/repositories/fake_hostel_repository.dart';
 import '../bloc/hostel_bloc.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_app_bar.dart';
+import '../../../../shared/widgets/modern_snackbar.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
 import '../../../../shared/widgets/sams_state_views.dart';
 
@@ -15,48 +17,57 @@ class HostelScreen extends StatelessWidget {
   Future<void> _refreshHostel(BuildContext context) async {
     final bloc = context.read<HostelBloc>();
     bloc.add(const HostelRequested());
-    await bloc.stream.firstWhere((state) => state.status != HostelStatus.loading);
+    await bloc.stream.firstWhere(
+      (state) => state.status != HostelStatus.loading,
+    );
     await Future<void>.delayed(const Duration(milliseconds: 180));
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => HostelBloc(repository: FakeHostelRepository())..add(const HostelRequested()),
+      create: (_) =>
+          HostelBloc(repository: FakeHostelRepository())
+            ..add(const HostelRequested()),
       child: BlocBuilder<HostelBloc, HostelState>(
+        buildWhen: (previous, current) {
+          return previous.status != current.status ||
+              previous.menuItems != current.menuItems ||
+              previous.errorMessage != current.errorMessage;
+        },
         builder: (context, state) {
-          if (state.status == HostelStatus.initial || state.status == HostelStatus.loading) {
+          if (state.status == HostelStatus.initial ||
+              state.status == HostelStatus.loading) {
             return const _HostelLoadingSkeleton();
           }
 
           if (state.status == HostelStatus.failure) {
             return Scaffold(
               backgroundColor: SamsUiTokens.scaffoldBackground,
-              appBar: AppBar(
-                title: const Text('SAMS Hostel'),
-                centerTitle: true,
-              ),
+              appBar: const SamsAppBar(title: 'SAMS Hostel'),
               body: SamsErrorState(
                 title: 'Couldn\'t load hostel services',
-                message: state.errorMessage ?? 'Failed to load hostel services. Please try again.',
+                message:
+                    state.errorMessage ??
+                    'Failed to load hostel services. Please try again.',
                 retryLabel: 'Retry',
-                onRetry: () => context.read<HostelBloc>().add(const HostelRequested()),
+                onRetry: () =>
+                    context.read<HostelBloc>().add(const HostelRequested()),
               ),
             );
           }
 
           return Scaffold(
             backgroundColor: SamsUiTokens.scaffoldBackground,
-            appBar: AppBar(
-              title: const Text('SAMS Hostel'),
-              centerTitle: true,
-            ),
+            appBar: const SamsAppBar(title: 'SAMS Hostel'),
             body: RefreshIndicator(
               onRefresh: () => _refreshHostel(context),
               color: SamsUiTokens.primary,
               child: SafeArea(
                 child: ListView(
-                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   children: [
                     BlocBuilder<StudentBloc, StudentState>(
@@ -66,8 +77,12 @@ class HostelScreen extends StatelessWidget {
                             previous.status != current.status;
                       },
                       builder: (context, studentState) {
-                        final name = studentState.studentName ?? FakeDataRepository.studentName;
-                        final id = studentState.studentId ?? FakeDataRepository.studentId;
+                        final name =
+                            studentState.studentName ??
+                            FakeDataRepository.studentName;
+                        final id =
+                            studentState.studentId ??
+                            FakeDataRepository.studentId;
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,15 +121,15 @@ class HostelScreen extends StatelessWidget {
                       (item) => Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: _HostelMenuCard(
+                          key: ValueKey(item.title),
                           title: item.title,
                           subtitle: item.subtitle,
                           icon: _hostelIconFor(item.title),
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('${item.title} (coming soon)'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
+                            ModernSnackbars.show(
+                              context,
+                              message: '${item.title} (coming soon)',
+                              type: ModernSnackbarType.info,
                             );
                           },
                         ),
@@ -160,16 +175,14 @@ class _HostelLoadingSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: SamsUiTokens.scaffoldBackground,
-      appBar: AppBar(
-        title: const Text('SAMS Hostel'),
-        centerTitle: true,
-      ),
+      appBar: const SamsAppBar(title: 'SAMS Hostel'),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: const [
           SamsLoadingView(
             title: 'Loading hostel services',
-            message: 'Preparing your gate pass, receipts and allotment options...',
+            message:
+                'Preparing your gate pass, receipts and allotment options...',
           ),
           SizedBox(height: 10),
           SamsSkeletonBox(height: 82, radius: 16),
@@ -185,6 +198,7 @@ class _HostelLoadingSkeleton extends StatelessWidget {
 
 class _HostelMenuCard extends StatelessWidget {
   const _HostelMenuCard({
+    super.key,
     required this.title,
     required this.subtitle,
     required this.icon,
@@ -242,7 +256,11 @@ class _HostelMenuCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(icon, color: SamsUiTokens.primary.withValues(alpha: 0.6), size: 22),
+                Icon(
+                  icon,
+                  color: SamsUiTokens.primary.withValues(alpha: 0.6),
+                  size: 22,
+                ),
               ],
             ),
           ),

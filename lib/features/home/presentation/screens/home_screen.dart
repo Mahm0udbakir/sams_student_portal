@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routes/app_router.dart';
-import '../../../../shared/bloc/student_bloc.dart';
 import '../../data/repositories/fake_home_repository.dart';
 import '../bloc/home_bloc.dart';
+import '../../../../shared/widgets/sams_app_bar.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
+import '../../../../shared/widgets/modern_snackbar.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
 import '../../../../shared/widgets/shimmer_widget.dart';
 import '../../../../shared/widgets/sams_state_views.dart';
@@ -76,87 +77,7 @@ class HomeScreen extends StatelessWidget {
 
           return Scaffold(
             backgroundColor: SamsUiTokens.scaffoldBackground,
-            appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(74),
-              child: AppBar(
-                title: const SizedBox.shrink(),
-                toolbarHeight: 74,
-                centerTitle: false,
-                automaticallyImplyLeading: false,
-                flexibleSpace: SafeArea(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [SamsUiTokens.primary, Color(0xFF04263E)],
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 34,
-                            height: 34,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            child: const Icon(
-                              Icons.person,
-                              color: SamsUiTokens.primary,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: BlocBuilder<StudentBloc, StudentState>(
-                              buildWhen: (previous, current) {
-                                return previous.studentName !=
-                                        current.studentName ||
-                                    previous.studentId != current.studentId ||
-                                    previous.status != current.status;
-                              },
-                              builder: (context, studentState) {
-                                final name =
-                                    studentState.studentName ??
-                                    state.studentName!;
-                                final id =
-                                    studentState.studentId ?? state.studentId!;
-
-                                return Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      name,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      'ID: $id',
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 11.5,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            appBar: const SamsAppBar(title: 'Home'),
             body: RefreshIndicator(
               onRefresh: () => _refreshHome(context),
               color: SamsUiTokens.primary,
@@ -194,12 +115,11 @@ class HomeScreen extends StatelessWidget {
                         child: _AttendanceMetaSection(
                           label: state.attendedClassesLabel!,
                           onMarkToday: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
+                            ModernSnackbars.show(
+                              context,
+                              message:
                                   'Today\'s attendance marked successfully.',
-                                ),
-                              ),
+                              type: ModernSnackbarType.success,
                             );
                           },
                         ),
@@ -227,12 +147,11 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
+                          ModernSnackbars.show(
+                            context,
+                            message:
                                 'Bus details are available in Menu > SAMS Bus.',
-                              ),
-                            ),
+                            type: ModernSnackbarType.info,
                           );
                         },
                       ),
@@ -277,12 +196,10 @@ class HomeScreen extends StatelessWidget {
                               icon: _iconForBadge(entry.value.badge),
                               badge: entry.value.badge,
                               onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Opened: ${entry.value.title}',
-                                    ),
-                                  ),
+                                ModernSnackbars.show(
+                                  context,
+                                  message: 'Opened: ${entry.value.title}',
+                                  type: ModernSnackbarType.info,
                                 );
                               },
                             ),

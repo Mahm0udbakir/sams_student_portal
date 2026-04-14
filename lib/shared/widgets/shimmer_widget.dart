@@ -29,9 +29,9 @@ class ShimmerWidget extends StatefulWidget {
     this.baseColor,
     this.highlightColor,
     this.duration = const Duration(milliseconds: 1300),
-  })  : width = size,
-        height = size,
-        borderRadius = null;
+  }) : width = size,
+       height = size,
+       borderRadius = null;
 
   const ShimmerWidget.line({
     super.key,
@@ -40,8 +40,8 @@ class ShimmerWidget extends StatefulWidget {
     this.baseColor,
     this.highlightColor,
     this.duration = const Duration(milliseconds: 1300),
-  })  : child = null,
-        borderRadius = const BorderRadius.all(Radius.circular(8));
+  }) : child = null,
+       borderRadius = const BorderRadius.all(Radius.circular(8));
 
   @override
   State<ShimmerWidget> createState() => _ShimmerWidgetState();
@@ -80,7 +80,9 @@ class _ShimmerWidgetState extends State<ShimmerWidget>
     final highlight =
         widget.highlightColor ?? SamsUiTokens.primary.withValues(alpha: 0.16);
 
-    final shape = widget.borderRadius == null ? BoxShape.circle : BoxShape.rectangle;
+    final shape = widget.borderRadius == null
+        ? BoxShape.circle
+        : BoxShape.rectangle;
 
     final skeleton = Container(
       width: widget.width,
@@ -103,11 +105,7 @@ class _ShimmerWidgetState extends State<ShimmerWidget>
             return LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              colors: [
-                base,
-                highlight,
-                base,
-              ],
+              colors: [base, highlight, base],
               stops: const [0.1, 0.45, 0.9],
               transform: _SlidingGradientTransform(_controller.value),
             ).createShader(bounds);

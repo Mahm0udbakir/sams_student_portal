@@ -5,7 +5,7 @@ import '../models/scan_option_model.dart';
 
 class FakeScanRepository implements ScanRepository {
   FakeScanRepository({FakeDataRepository? dataRepository})
-      : _dataRepository = dataRepository ?? const FakeDataRepository();
+    : _dataRepository = dataRepository ?? const FakeDataRepository();
 
   final FakeDataRepository _dataRepository;
 
