@@ -21,7 +21,9 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           contentPadding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
           actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -34,7 +36,10 @@ class ProfileScreen extends StatelessWidget {
                   color: SamsUiTokens.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.swap_horiz_rounded, color: SamsUiTokens.primary),
+                child: const Icon(
+                  Icons.swap_horiz_rounded,
+                  color: SamsUiTokens.primary,
+                ),
               ),
               const SizedBox(width: 10),
               const Expanded(
@@ -100,9 +105,9 @@ class ProfileScreen extends StatelessWidget {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$title activated (demo).')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('$title activated (demo).')));
 
     await Future<void>.delayed(const Duration(milliseconds: 180));
     if (!context.mounted) {
@@ -114,10 +119,13 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ProfileBloc(repository: FakeProfileRepository())..add(const ProfileRequested()),
+      create: (_) =>
+          ProfileBloc(repository: FakeProfileRepository())
+            ..add(const ProfileRequested()),
       child: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
-          if (state.status == ProfileStatus.loading || state.status == ProfileStatus.initial) {
+          if (state.status == ProfileStatus.loading ||
+              state.status == ProfileStatus.initial) {
             return const Scaffold(
               backgroundColor: SamsUiTokens.scaffoldBackground,
               body: SamsLoadingView(
@@ -130,15 +138,15 @@ class ProfileScreen extends StatelessWidget {
           if (state.status == ProfileStatus.failure || state.overview == null) {
             return Scaffold(
               backgroundColor: SamsUiTokens.scaffoldBackground,
-              appBar: AppBar(
-                title: const Text('Profile'),
-                centerTitle: true,
-              ),
+              appBar: AppBar(title: const Text('Profile'), centerTitle: true),
               body: SamsErrorState(
                 title: 'Couldn\'t load profile',
-                message: state.errorMessage ?? 'Failed to load profile. Please try again.',
+                message:
+                    state.errorMessage ??
+                    'Failed to load profile. Please try again.',
                 retryLabel: 'Retry',
-                onRetry: () => context.read<ProfileBloc>().add(const ProfileRequested()),
+                onRetry: () =>
+                    context.read<ProfileBloc>().add(const ProfileRequested()),
               ),
             );
           }
@@ -146,177 +154,201 @@ class ProfileScreen extends StatelessWidget {
           final overview = state.overview!;
 
           final options = [
-      (
-        title: 'Session',
-        subtitle: overview.sessionSubtitle,
-        icon: Icons.calendar_month_rounded,
-        routeName: AppRouteNames.session,
-      ),
-      (
-        title: 'Change Password',
-        subtitle: 'Last changed 2 months ago',
-        icon: Icons.lock_reset_rounded,
-        routeName: AppRouteNames.changePassword,
-      ),
-      (
-        title: 'Privacy',
-        subtitle: 'Manage app permissions and data visibility',
-        icon: Icons.privacy_tip_rounded,
-        routeName: AppRouteNames.privacy,
-      ),
-      (
-        title: 'Switch to SAMS Bus',
-        subtitle: 'Track route, stops and live bus status',
-        icon: Icons.directions_bus_rounded,
-        routeName: AppRouteNames.bus,
-      ),
-      (
-        title: 'Switch to SAMS Hostel',
-        subtitle: 'Access gate pass, allotment and receipts',
-        icon: Icons.apartment_rounded,
-        routeName: AppRouteNames.hostel,
-      ),
-    ];
+            (
+              title: 'Session',
+              subtitle: overview.sessionSubtitle,
+              icon: Icons.calendar_month_rounded,
+              routeName: AppRouteNames.session,
+            ),
+            (
+              title: 'Change Password',
+              subtitle: 'Last changed 2 months ago',
+              icon: Icons.lock_reset_rounded,
+              routeName: AppRouteNames.changePassword,
+            ),
+            (
+              title: 'Privacy',
+              subtitle: 'Manage app permissions and data visibility',
+              icon: Icons.privacy_tip_rounded,
+              routeName: AppRouteNames.privacy,
+            ),
+            (
+              title: 'Switch to SAMS Bus',
+              subtitle: 'Track route, stops and live bus status',
+              icon: Icons.directions_bus_rounded,
+              routeName: AppRouteNames.bus,
+            ),
+            (
+              title: 'Switch to SAMS Hostel',
+              subtitle: 'Access gate pass, allotment and receipts',
+              icon: Icons.apartment_rounded,
+              routeName: AppRouteNames.hostel,
+            ),
+          ];
 
           return Scaffold(
-  backgroundColor: SamsUiTokens.scaffoldBackground,
-      appBar: AppBar(
-        title: const Text('Profile'),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: SamsUiTokens.pageInsets(context, top: 16, bottom: 24),
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                color: Colors.white,
-                boxShadow: SamsUiTokens.cardShadow,
-                border: Border.all(color: const Color(0xFFDCE4EE)),
-              ),
-              child: Column(
+            backgroundColor: SamsUiTokens.scaffoldBackground,
+            appBar: AppBar(title: const Text('Profile'), centerTitle: true),
+            body: SafeArea(
+              child: ListView(
+                padding: SamsUiTokens.pageInsets(context, top: 16, bottom: 24),
                 children: [
                   Container(
-                    width: 124,
-                    height: 124,
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          SamsUiTokens.primary.withValues(alpha: 0.9),
-                          const Color(0xFF0A5B8D),
-                        ],
-                      ),
-                      border: Border.all(
-                        color: SamsUiTokens.primary.withValues(alpha: 0.22),
-                        width: 2.2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: SamsUiTokens.primary.withValues(alpha: 0.20),
-                          blurRadius: 18,
-                          offset: const Offset(0, 7),
+                      borderRadius: BorderRadius.circular(22),
+                      color: Colors.white,
+                      boxShadow: SamsUiTokens.cardShadow,
+                      border: Border.all(color: const Color(0xFFDCE4EE)),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 124,
+                          height: 124,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                SamsUiTokens.primary.withValues(alpha: 0.9),
+                                const Color(0xFF0A5B8D),
+                              ],
+                            ),
+                            border: Border.all(
+                              color: SamsUiTokens.primary.withValues(
+                                alpha: 0.22,
+                              ),
+                              width: 2.2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: SamsUiTokens.primary.withValues(
+                                  alpha: 0.20,
+                                ),
+                                blurRadius: 18,
+                                offset: const Offset(0, 7),
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            margin: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEAF1F8),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                width: 2,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.person_rounded,
+                              color: SamsUiTokens.primary,
+                              size: 58,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        BlocBuilder<StudentBloc, StudentState>(
+                          buildWhen: (previous, current) {
+                            return previous.studentName !=
+                                    current.studentName ||
+                                previous.studentId != current.studentId ||
+                                previous.status != current.status;
+                          },
+                          builder: (context, studentState) {
+                            final name =
+                                studentState.studentName ?? overview.name;
+                            final id =
+                                studentState.studentId ?? overview.studentId;
+
+                            return Column(
+                              children: [
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                    color: SamsUiTokens.textPrimary,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'ID: $id',
+                                  style: const TextStyle(
+                                    color: SamsUiTokens.textSecondary,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                const Text(
+                                  'SAMS Student Portal',
+                                  style: TextStyle(
+                                    color: SamsUiTokens.primary,
+                                    fontSize: 12.2,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ],
                     ),
-                    child: Container(
-                      margin: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEAF1F8),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          width: 2,
-                        ),
+                  ),
+                  const SizedBox(height: 18),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(
+                        SamsUiTokens.radiusLg,
                       ),
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.person_rounded, color: SamsUiTokens.primary, size: 58),
+                      boxShadow: SamsUiTokens.cardShadow,
+                      border: Border.all(color: const Color(0xFFDDE4ED)),
+                    ),
+                    child: Column(
+                      children: options.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+
+                        return _ProfileOptionRow(
+                          title: item.title,
+                          subtitle: item.subtitle,
+                          icon: item.icon,
+                          showDivider: index != options.length - 1,
+                          onTap: () {
+                            _onProfileOptionTap(
+                              context,
+                              title: item.title,
+                              routeName: item.routeName,
+                            );
+                          },
+                        );
+                      }).toList(),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  BlocBuilder<StudentBloc, StudentState>(
-                    buildWhen: (previous, current) {
-                      return previous.studentName != current.studentName ||
-                          previous.studentId != current.studentId ||
-                          previous.status != current.status;
-                    },
-                    builder: (context, studentState) {
-                      final name = studentState.studentName ?? overview.name;
-                      final id = studentState.studentId ?? overview.studentId;
-
-                      return Column(
-                        children: [
-                          Text(
-                            name,
-                            style: const TextStyle(
-                              color: SamsUiTokens.textPrimary,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w800,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'ID: $id',
-                            style: const TextStyle(
-                              color: SamsUiTokens.textSecondary,
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'SAMS Student Portal',
-                            style: TextStyle(
-                              color: SamsUiTokens.primary,
-                              fontSize: 12.2,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                  Center(
+                    child: Text(
+                      'SAMS Student App • Version 1.0',
+                      style: TextStyle(
+                        color: SamsUiTokens.textSecondary.withValues(
+                          alpha: 0.85,
+                        ),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-                boxShadow: SamsUiTokens.cardShadow,
-                border: Border.all(color: const Color(0xFFDDE4ED)),
-              ),
-              child: Column(
-                children: options.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final item = entry.value;
-
-                  return _ProfileOptionRow(
-                    title: item.title,
-                    subtitle: item.subtitle,
-                    icon: item.icon,
-                    showDivider: index != options.length - 1,
-                    onTap: () {
-                      _onProfileOptionTap(
-                        context,
-                        title: item.title,
-                        routeName: item.routeName,
-                      );
-                    },
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-        ),
-      ),
           );
         },
       ),
@@ -392,14 +424,21 @@ class _ProfileOptionRow extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: Color(0xFF94A3B8),
+                  ),
                 ],
               ),
             ),
             if (showDivider)
               const Padding(
                 padding: EdgeInsets.only(left: 68),
-                child: Divider(height: 1, thickness: 1, color: Color(0xFFE7EDF5)),
+                child: Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: Color(0xFFE7EDF5),
+                ),
               ),
           ],
         ),

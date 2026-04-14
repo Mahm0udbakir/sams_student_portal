@@ -20,9 +20,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final compact = SamsUiTokens.isCompactWidth(context);
-    final horizontalPadding = compact ? 14.0 : 18.0;
-    final topPadding = compact ? 14.0 : 16.0;
-    final bottomPadding = compact ? 10.0 : 14.0;
+    final horizontalPadding = compact ? 14.0 : 20.0;
+    final topPadding = compact ? 14.0 : 18.0;
+    final bottomPadding = compact ? 10.0 : 16.0;
 
     return Scaffold(
       body: Stack(
@@ -36,10 +36,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      SamsUiTokens.brandRed,
-                      SamsUiTokens.primary,
-                    ],
+                    colors: [SamsUiTokens.brandRed, SamsUiTokens.primary],
                   ),
                 ),
               ),
@@ -64,7 +61,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: SafeArea(
               top: false,
               child: Container(
-                constraints: BoxConstraints(maxHeight: screenHeight * 0.78, maxWidth: 520),
+                constraints: BoxConstraints(
+                  maxHeight: screenHeight * 0.80,
+                  maxWidth: 520,
+                ),
                 width: double.infinity,
                 padding: EdgeInsets.fromLTRB(
                   horizontalPadding,
@@ -72,27 +72,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   horizontalPadding,
                   bottomPadding,
                 ),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(26),
-                    topRight: Radius.circular(98),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(88),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.12),
+                      blurRadius: 18,
+                      offset: const Offset(0, -6),
+                    ),
+                  ],
                 ),
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    const Text(
-                      'Welcome.',
-                      style: TextStyle(
-                        color: Color(0xFF1D1D1D),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 22,
+                      const Text(
+                        'Welcome.',
+                        style: TextStyle(
+                          color: SamsUiTokens.textPrimary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 24,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Column(
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Create your SAMS account to continue.',
+                        style: TextStyle(
+                          color: SamsUiTokens.textSecondary,
+                          fontSize: 12.8,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Column(
                         children: [
                           TextField(
                             decoration: InputDecoration(
@@ -100,103 +116,135 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(
+                                  SamsUiTokens.radiusMd,
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 12),
                           TextField(
                             decoration: InputDecoration(
                               labelText: 'Roll no.',
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(
+                                  SamsUiTokens.radiusMd,
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 12),
                           TextField(
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
                               labelText: 'Password',
                               suffixIcon: IconButton(
-                                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                                icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                                onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                ),
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
                               ),
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(
+                                  SamsUiTokens.radiusMd,
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 12),
                           TextField(
                             obscureText: _obscureConfirmPassword,
                             decoration: InputDecoration(
                               labelText: 'Confirm Password',
                               suffixIcon: IconButton(
-                                onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
-                                icon: Icon(_obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                                onPressed: () => setState(
+                                  () => _obscureConfirmPassword =
+                                      !_obscureConfirmPassword,
+                                ),
+                                icon: Icon(
+                                  _obscureConfirmPassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
                               ),
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(
+                                  SamsUiTokens.radiusMd,
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           CheckboxListTile(
                             contentPadding: EdgeInsets.zero,
-                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                            visualDensity: const VisualDensity(
+                              horizontal: -4,
+                              vertical: -4,
+                            ),
                             value: _agreeTerms,
-                            onChanged: (value) => setState(() => _agreeTerms = value ?? false),
+                            onChanged: (value) =>
+                                setState(() => _agreeTerms = value ?? false),
                             activeColor: SamsUiTokens.primary,
                             controlAffinity: ListTileControlAffinity.leading,
                             title: const Text(
                               'I agree to the Terms and Conditions',
-                              style: TextStyle(fontSize: 12.8, color: Color(0xFF4B5563)),
+                              style: TextStyle(
+                                fontSize: 12.8,
+                                color: Color(0xFF4B5563),
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 6),
                           SizedBox(
                             width: double.infinity,
                             child: SamsTapScale(
                               enabled: _agreeTerms,
                               child: ElevatedButton(
-                                onPressed: _agreeTerms ? () => context.goNamed(AppRouteNames.home) : null,
+                                onPressed: _agreeTerms
+                                    ? () => context.goNamed(AppRouteNames.home)
+                                    : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: SamsUiTokens.primary,
                                   foregroundColor: Colors.white,
-                                  disabledBackgroundColor: const Color(0xFFB7C1CB),
+                                  disabledBackgroundColor: const Color(
+                                    0xFFB7C1CB,
+                                  ),
                                   disabledForegroundColor: Colors.white,
                                   elevation: 0,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 13,
                                   ),
                                 ),
                                 child: const Text(
                                   'Sign up',
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 15.5,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           SamsTapScale(
                             child: TextButton(
-                              onPressed: () => context.goNamed(AppRouteNames.login),
+                              onPressed: () =>
+                                  context.goNamed(AppRouteNames.login),
                               child: const Text(
                                 'Already have an account? Login',
                                 style: TextStyle(
                                   color: SamsUiTokens.primary,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),

@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../shared/ui/sams_ui_tokens.dart';
 
@@ -49,11 +51,18 @@ class AppTheme {
       fontFamily: null, // use system default font
       appBarTheme: AppBarTheme(
         centerTitle: true,
-        elevation: 0,
-        scrolledUnderElevation: 1,
+        elevation: 1,
+        scrolledUnderElevation: 2,
+        shadowColor: const Color(0x22000000),
         backgroundColor: primary,
         foregroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
         titleTextStyle: const TextStyle(
           color: Colors.white,
           fontSize: 20,
@@ -99,7 +108,7 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
           foregroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(SamsUiTokens.buttonHeight),
+          minimumSize: const Size(0, SamsUiTokens.buttonHeight),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(SamsUiTokens.radiusMd),
@@ -110,7 +119,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primary,
-          minimumSize: const Size.fromHeight(SamsUiTokens.buttonHeight),
+          minimumSize: const Size(0, SamsUiTokens.buttonHeight),
           side: BorderSide(color: primary.withValues(alpha: 0.4), width: 1.2),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
@@ -152,24 +161,24 @@ class AppTheme {
         ),
         titleMedium: TextStyle(
           color: SamsUiTokens.textPrimary,
-          fontSize: 15,
+          fontSize: 15.2,
           fontWeight: FontWeight.w700,
         ),
         bodyLarge: TextStyle(
           color: SamsUiTokens.textPrimary,
-          fontSize: 14,
+          fontSize: 14.2,
           fontWeight: FontWeight.w500,
           height: 1.35,
         ),
         bodyMedium: TextStyle(
           color: SamsUiTokens.textPrimary,
-          fontSize: 13,
+          fontSize: 13.2,
           fontWeight: FontWeight.w500,
           height: 1.35,
         ),
         bodySmall: TextStyle(
           color: SamsUiTokens.textSecondary,
-          fontSize: 12,
+          fontSize: 12.2,
           fontWeight: FontWeight.w500,
           height: 1.35,
         ),

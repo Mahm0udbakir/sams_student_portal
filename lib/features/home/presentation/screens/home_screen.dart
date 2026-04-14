@@ -29,7 +29,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => HomeBloc(repository: FakeHomeRepository())..add(const HomeRequested()),
+      create: (_) =>
+          HomeBloc(repository: FakeHomeRepository())
+            ..add(const HomeRequested()),
       child: BlocBuilder<HomeBloc, HomeState>(
         buildWhen: (previous, current) {
           return previous.status != current.status ||
@@ -44,7 +46,8 @@ class HomeScreen extends StatelessWidget {
               previous.errorMessage != current.errorMessage;
         },
         builder: (context, state) {
-          if (state.status == HomeStatus.loading || state.status == HomeStatus.initial) {
+          if (state.status == HomeStatus.loading ||
+              state.status == HomeStatus.initial) {
             return const _HomeLoadingSkeleton();
           }
 
@@ -54,199 +57,242 @@ class HomeScreen extends StatelessWidget {
               body: SamsErrorState(
                 title: 'Couldn\'t load home dashboard',
                 message:
-                    state.errorMessage ?? 'Failed to load home dashboard. Please try again.',
+                    state.errorMessage ??
+                    'Failed to load home dashboard. Please try again.',
                 retryLabel: 'Retry',
-                onRetry: () => context.read<HomeBloc>().add(const HomeRequested()),
+                onRetry: () =>
+                    context.read<HomeBloc>().add(const HomeRequested()),
               ),
             );
           }
 
           final screenWidth = MediaQuery.sizeOf(context).width;
-          final horizontalPadding = screenWidth < 360 ? 12.0 : SamsUiTokens.pageHPadding;
+          final horizontalPadding = screenWidth < 360
+              ? 12.0
+              : SamsUiTokens.pageHPadding;
           final attendancePercent = state.overallAttendance!;
           final attendanceValue = attendancePercent / 100;
           final announcements = state.announcements;
 
           return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(74),
-        child: AppBar(
-          title: const SizedBox.shrink(),
-          toolbarHeight: 74,
-          centerTitle: false,
-          automaticallyImplyLeading: false,
-          flexibleSpace: SafeArea(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    SamsUiTokens.primary,
-                    Color(0xFF04263E),
-                  ],
+            backgroundColor: SamsUiTokens.scaffoldBackground,
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(74),
+              child: AppBar(
+                title: const SizedBox.shrink(),
+                toolbarHeight: 74,
+                centerTitle: false,
+                automaticallyImplyLeading: false,
+                flexibleSpace: SafeArea(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [SamsUiTokens.primary, Color(0xFF04263E)],
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 34,
+                            height: 34,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                            child: const Icon(
+                              Icons.person,
+                              color: SamsUiTokens.primary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: BlocBuilder<StudentBloc, StudentState>(
+                              buildWhen: (previous, current) {
+                                return previous.studentName !=
+                                        current.studentName ||
+                                    previous.studentId != current.studentId ||
+                                    previous.status != current.status;
+                              },
+                              builder: (context, studentState) {
+                                final name =
+                                    studentState.studentName ??
+                                    state.studentName!;
+                                final id =
+                                    studentState.studentId ?? state.studentId!;
+
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      name,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    Text(
+                                      'ID: $id',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 11.5,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 34,
-                      height: 34,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
+            ),
+            body: RefreshIndicator(
+              onRefresh: () => _refreshHome(context),
+              color: SamsUiTokens.primary,
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    18,
+                    horizontalPadding,
+                    28,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Daily Essentials',
+                        style: TextStyle(
+                          color: SamsUiTokens.textPrimary,
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                          height: 1.2,
+                        ),
                       ),
-                      child: const Icon(Icons.person, color: SamsUiTokens.primary, size: 20),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: BlocBuilder<StudentBloc, StudentState>(
-                        buildWhen: (previous, current) {
-                          return previous.studentName != current.studentName ||
-                              previous.studentId != current.studentId ||
-                              previous.status != current.status;
-                        },
-                        builder: (context, studentState) {
-                          final name = studentState.studentName ?? state.studentName!;
-                          final id = studentState.studentId ?? state.studentId!;
-
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                name,
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14),
-                              ),
-                              Text(
-                                'ID: $id',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 11.5,
+                      const SizedBox(height: 12),
+                      _InfoCard(
+                        backgroundColor: SamsUiTokens.primary,
+                        title: 'Attendance',
+                        subtitle: state.attendanceSubtitle!,
+                        trailing: _AttendanceProgress(value: attendanceValue),
+                        leadingIcon: Icons.fact_check_rounded,
+                        child: _AttendanceMetaSection(
+                          label: state.attendedClassesLabel!,
+                          onMarkToday: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Today\'s attendance marked successfully.',
                                 ),
                               ),
-                            ],
+                            );
+                          },
+                        ),
+                        onTap: () {
+                          context.pushNamed(AppRouteNames.attendanceDetail);
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _InfoCard(
+                        backgroundColor: const Color(0xFF0A4A77),
+                        title: 'Track Your Bus',
+                        subtitle: state.busRouteLabel!,
+                        trailing: const Icon(
+                          Icons.location_on_rounded,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                        leadingIcon: Icons.directions_bus_filled_rounded,
+                        child: Text(
+                          state.busStatusLabel!,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.95),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Bus details are available in Menu > SAMS Bus.',
+                              ),
+                            ),
                           );
                         },
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshHome(context),
-        color: SamsUiTokens.primary,
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
-            ),
-            padding: EdgeInsets.fromLTRB(horizontalPadding, 16, horizontalPadding, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-              const SizedBox(height: 6),
-              const Text(
-                'Daily Essentials',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 10),
-              _InfoCard(
-                backgroundColor: SamsUiTokens.primary,
-                title: 'Attendance',
-                subtitle: state.attendanceSubtitle!,
-                trailing: _AttendanceProgress(value: attendanceValue),
-                leadingIcon: Icons.fact_check_rounded,
-                child: _AttendanceMetaSection(
-                  label: state.attendedClassesLabel!,
-                  onMarkToday: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Today\'s attendance marked successfully.'),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Announcements',
+                        style: TextStyle(
+                          color: SamsUiTokens.textPrimary,
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                          height: 1.2,
+                        ),
                       ),
-                    );
-                  },
-                ),
-                onTap: () {
-                  context.pushNamed(AppRouteNames.attendanceDetail);
-                },
-              ),
-              const SizedBox(height: 12),
-              _InfoCard(
-                backgroundColor: const Color(0xFF0A4A77),
-                title: 'Track Your Bus',
-                subtitle: state.busRouteLabel!,
-                trailing: const Icon(Icons.location_on_rounded, color: Colors.white, size: 40),
-                leadingIcon: Icons.directions_bus_filled_rounded,
-                child: Text(
-                  state.busStatusLabel!,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.95),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                      const SizedBox(height: 10),
+                      const _DateSeparator(label: 'Aug 30, Saturday'),
+                      const SizedBox(height: 10),
+                      if (announcements.isEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(top: 10),
+                          child: EmptyStateWidget(
+                            icon: Icons.notifications_off_rounded,
+                            title: 'No announcements yet',
+                            subtitle:
+                                'You are all caught up. New updates from SAMS will appear here.',
+                            actionLabel: 'Refresh Updates',
+                            onAction: () => context.read<HomeBloc>().add(
+                              const HomeRequested(),
+                            ),
+                          ),
+                        )
+                      else
+                        ...announcements.asMap().entries.map(
+                          (entry) => Padding(
+                            padding: EdgeInsets.only(
+                              bottom: entry.key == announcements.length - 1
+                                  ? 0
+                                  : 10,
+                            ),
+                            child: _AnnouncementCard(
+                              title: entry.value.title,
+                              subtitle: entry.value.subtitle,
+                              icon: _iconForBadge(entry.value.badge),
+                              badge: entry.value.badge,
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Opened: ${entry.value.title}',
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Bus details are available in Menu > SAMS Bus.')),
-                  );
-                },
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'Announcements',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const _DateSeparator(label: 'Aug 30, Saturday'),
-              const SizedBox(height: 8),
-              if (announcements.isEmpty)
-                Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: EmptyStateWidget(
-                    icon: Icons.notifications_off_rounded,
-                    title: 'No announcements yet',
-                    subtitle: 'You are all caught up. New updates from SAMS will appear here.',
-                    actionLabel: 'Refresh Updates',
-                    onAction: () => context.read<HomeBloc>().add(const HomeRequested()),
-                  ),
-                )
-              else
-                ...announcements.asMap().entries.map(
-                  (entry) => Padding(
-                    padding: EdgeInsets.only(bottom: entry.key == announcements.length - 1 ? 0 : 8),
-                    child: _AnnouncementCard(
-                      title: entry.value.title,
-                      subtitle: entry.value.subtitle,
-                      icon: _iconForBadge(entry.value.badge),
-                      badge: entry.value.badge,
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Opened: ${entry.value.title}')),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
             ),
-          ),
-        ),
-      ),
           );
         },
       ),
@@ -270,9 +316,15 @@ class _HomeLoadingSkeleton extends StatelessWidget {
               message: 'Fetching attendance, bus status and announcements...',
             ),
             const SizedBox(height: 8),
-            const ShimmerWidget(height: 134, borderRadius: BorderRadius.all(Radius.circular(22))),
+            const ShimmerWidget(
+              height: 134,
+              borderRadius: BorderRadius.all(Radius.circular(22)),
+            ),
             const SizedBox(height: 12),
-            const ShimmerWidget(height: 134, borderRadius: BorderRadius.all(Radius.circular(22))),
+            const ShimmerWidget(
+              height: 134,
+              borderRadius: BorderRadius.all(Radius.circular(22)),
+            ),
             const SizedBox(height: 20),
             const ShimmerWidget.line(width: 150, height: 16),
             const SizedBox(height: 10),
@@ -334,15 +386,12 @@ class _InfoCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(SamsUiTokens.radiusXl),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              backgroundColor,
-              backgroundColor.withValues(alpha: 0.82),
-            ],
+            colors: [backgroundColor, backgroundColor.withValues(alpha: 0.82)],
           ),
           borderRadius: BorderRadius.circular(SamsUiTokens.radiusXl),
           boxShadow: [
@@ -375,7 +424,7 @@ class _InfoCard extends StatelessWidget {
                         title,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 17,
+                          fontSize: 17.5,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -384,7 +433,7 @@ class _InfoCard extends StatelessWidget {
                         subtitle,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.95),
-                          fontSize: 13,
+                          fontSize: 13.2,
                           fontWeight: FontWeight.w600,
                           height: 1.3,
                         ),
@@ -396,10 +445,7 @@ class _InfoCard extends StatelessWidget {
                 trailing,
               ],
             ),
-            if (child != null) ...[
-              const SizedBox(height: 10),
-              child!,
-            ],
+            if (child != null) ...[const SizedBox(height: 12), child!],
           ],
         ),
       ),
@@ -438,57 +484,64 @@ class _AnnouncementCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: SamsUiTokens.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(9),
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: SamsUiTokens.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: const Icon(
+                Icons.article_outlined,
+                color: SamsUiTokens.primary,
+                size: 18,
+              ),
             ),
-            child: const Icon(Icons.article_outlined, color: SamsUiTokens.primary, size: 18),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 13.2,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF111827),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: SamsUiTokens.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    badge,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
                     style: const TextStyle(
-                      color: SamsUiTokens.primary,
-                      fontSize: 10.5,
+                      fontSize: 13.2,
                       fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827),
                     ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF6B7280),
-                    height: 1.3,
+                  const SizedBox(height: 2),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: SamsUiTokens.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      badge,
+                      style: const TextStyle(
+                        color: SamsUiTokens.primary,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
+            const SizedBox(width: 8),
             Icon(icon, color: SamsUiTokens.primary, size: 20),
           ],
         ),
@@ -505,23 +558,30 @@ class _AttendanceProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 84,
-      height: 84,
+      width: 88,
+      height: 88,
       child: Stack(
         fit: StackFit.expand,
         children: [
+          Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+          ),
           CircularProgressIndicator(
             value: value,
             backgroundColor: Colors.white.withValues(alpha: 0.26),
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-            strokeWidth: 4,
+            strokeWidth: 5,
           ),
           Center(
             child: Text(
               '${(value * 100).round()}%',
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 16,
+                fontSize: 16.5,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -551,7 +611,10 @@ class _AttendanceMeta extends StatelessWidget {
 }
 
 class _AttendanceMetaSection extends StatelessWidget {
-  const _AttendanceMetaSection({required this.label, required this.onMarkToday});
+  const _AttendanceMetaSection({
+    required this.label,
+    required this.onMarkToday,
+  });
 
   final String label;
   final VoidCallback onMarkToday;
@@ -561,16 +624,19 @@ class _AttendanceMetaSection extends StatelessWidget {
     return Row(
       children: [
         Expanded(child: _AttendanceMeta(label: label)),
-        const SizedBox(width: 10),
+        const SizedBox(width: 12),
         SizedBox(
-          height: 28,
+          height: 34,
           child: OutlinedButton.icon(
             onPressed: onMarkToday,
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: Colors.white.withValues(alpha: 0.76)),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 11.8,
+              ),
             ),
             icon: const Icon(Icons.check_circle_outline_rounded, size: 14),
             label: const Text('Mark Today\'s Attendance'),

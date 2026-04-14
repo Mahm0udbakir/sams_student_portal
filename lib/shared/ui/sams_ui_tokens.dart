@@ -18,15 +18,15 @@ class SamsUiTokens {
   static const Color divider = Color(0xFFD9E1EA);
 
   static const double pageHPadding = 16;
-  static const double sectionGap = 18;
-  static const double cardGap = 12;
+  static const double sectionGap = 20;
+  static const double cardGap = 14;
 
   static const double radiusSm = 10;
   static const double radiusMd = 14;
   static const double radiusLg = 18;
   static const double radiusXl = 22;
 
-  static const double buttonHeight = 48;
+  static const double buttonHeight = 50;
   static const double navBarHeight = 66;
   static const double navBarCompactHeight = 62;
   static const double navTopRadius = 22;
@@ -56,8 +56,8 @@ class SamsUiTokens {
 
   static EdgeInsets pageInsets(
     BuildContext context, {
-    double top = 14,
-    double bottom = 20,
+    double top = 16,
+    double bottom = 24,
     double regularHorizontal = pageHPadding,
     double compactHorizontal = 12,
   }) {
