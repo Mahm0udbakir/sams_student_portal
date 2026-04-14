@@ -1,0 +1,198 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/routes/app_router.dart';
+import '../../../../shared/ui/sams_ui_tokens.dart';
+
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  bool _agreeTerms = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/auth_hero.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      SamsUiTokens.brandRed,
+                      SamsUiTokens.primary,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    SamsUiTokens.brandRed.withValues(alpha: 0.7),
+                    const Color(0xFF2A030B).withValues(alpha: 0.8),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              constraints: BoxConstraints(maxHeight: screenHeight * 0.72, maxWidth: 520),
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(26),
+                  topRight: Radius.circular(98),
+                ),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Welcome.',
+                      style: TextStyle(
+                        color: Color(0xFF1D1D1D),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 22,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Column(
+                        children: [
+                          TextField(
+                            decoration: InputDecoration(
+                              labelText: 'Name',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          TextField(
+                            decoration: InputDecoration(
+                              labelText: 'Roll no.',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          TextField(
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              suffixIcon: IconButton(
+                                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          TextField(
+                            obscureText: _obscureConfirmPassword,
+                            decoration: InputDecoration(
+                              labelText: 'Confirm Password',
+                              suffixIcon: IconButton(
+                                onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                                icon: Icon(_obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          CheckboxListTile(
+                            contentPadding: EdgeInsets.zero,
+                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                            value: _agreeTerms,
+                            onChanged: (value) => setState(() => _agreeTerms = value ?? false),
+                            activeColor: SamsUiTokens.primary,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            title: const Text(
+                              'I agree to the Terms and Conditions',
+                              style: TextStyle(fontSize: 12.8, color: Color(0xFF4B5563)),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _agreeTerms ? () => context.goNamed(AppRouteNames.home) : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: SamsUiTokens.primary,
+                                foregroundColor: Colors.white,
+                                disabledBackgroundColor: const Color(0xFFB7C1CB),
+                                disabledForegroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: const Text(
+                                'Sign up',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          TextButton(
+                            onPressed: () => context.goNamed(AppRouteNames.login),
+                            child: const Text(
+                              'Already have an account? Login',
+                              style: TextStyle(
+                                color: SamsUiTokens.primary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
