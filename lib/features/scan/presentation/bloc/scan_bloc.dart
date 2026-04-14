@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,7 +18,6 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
   }
 
   final ScanRepository _repository;
-  final Random _random = Random();
 
   Future<void> _onScanRequested(ScanRequested event, Emitter<ScanState> emit) async {
     emit(state.copyWith(status: ScanStatus.loading));
@@ -39,7 +36,7 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
     await _processScan(
       emit: emit,
       action: ScanAction.camera,
-      successMessage: 'Attendance Marked Successfully',
+      successMessage: 'Attendance marked for Subject XYZ',
     );
   }
 
@@ -47,7 +44,7 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
     await _processScan(
       emit: emit,
       action: ScanAction.gallery,
-      successMessage: 'ID Verified',
+      successMessage: 'Library Access Granted',
     );
   }
 
@@ -64,24 +61,12 @@ class ScanBloc extends Bloc<ScanEvent, ScanState> {
       ),
     );
 
-    await Future<void>.delayed(const Duration(seconds: 2));
-
-    final shouldFail = _random.nextDouble() < 0.25;
-    if (shouldFail) {
-      emit(
-        state.copyWith(
-          status: ScanStatus.failure,
-          activeAction: ScanAction.none,
-          feedbackMessage: 'Scan failed. Please try again with better lighting.',
-        ),
-      );
-      return;
-    }
+    await Future<void>.delayed(const Duration(milliseconds: 1750));
 
     emit(
       state.copyWith(
         status: ScanStatus.success,
-        activeAction: ScanAction.none,
+        activeAction: action,
         feedbackMessage: successMessage,
       ),
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../shared/ui/sams_ui_tokens.dart';
 import '../../features/attendance/presentation/screens/attendance_detail_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/signup_screen.dart';
@@ -16,6 +15,9 @@ import '../../features/profile/presentation/screens/change_password_screen.dart'
 import '../../features/profile/presentation/screens/privacy_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/session_screen.dart';
+
+const Duration _kRouteTransitionDuration = Duration(milliseconds: 300);
+const Duration _kRouteReverseTransitionDuration = Duration(milliseconds: 220);
 
 class AppRouteNames {
   static const splash = 'splash';
@@ -62,7 +64,7 @@ class AppRouter {
       GoRoute(
         path: AppRoutePaths.splash,
         name: AppRouteNames.splash,
-        pageBuilder: (context, state) => _buildFadeTransitionPage(
+        pageBuilder: (context, state) => _buildPrimaryTransitionPage(
           state: state,
           child: const SplashScreen(),
         ),
@@ -70,7 +72,7 @@ class AppRouter {
       GoRoute(
         path: AppRoutePaths.login,
         name: AppRouteNames.login,
-        pageBuilder: (context, state) => _buildFadeTransitionPage(
+        pageBuilder: (context, state) => _buildPrimaryTransitionPage(
           state: state,
           child: const LoginScreen(),
         ),
@@ -78,7 +80,7 @@ class AppRouter {
       GoRoute(
         path: AppRoutePaths.signup,
         name: AppRouteNames.signup,
-        pageBuilder: (context, state) => _buildFadeTransitionPage(
+        pageBuilder: (context, state) => _buildPrimaryTransitionPage(
           state: state,
           child: const SignUpScreen(),
         ),
@@ -93,12 +95,15 @@ class AppRouter {
               GoRoute(
                 path: AppRoutePaths.home,
                 name: AppRouteNames.home,
-                builder: (context, state) => const HomeScreen(),
+                pageBuilder: (context, state) => _buildPrimaryTransitionPage(
+                  state: state,
+                  child: const HomeScreen(),
+                ),
                 routes: [
                   GoRoute(
                     path: 'attendance',
                     name: AppRouteNames.attendanceDetail,
-                    pageBuilder: (context, state) => _buildSlideTransitionPage(
+                    pageBuilder: (context, state) => _buildDetailTransitionPage(
                       state: state,
                       child: const AttendanceDetailScreen(),
                     ),
@@ -112,7 +117,10 @@ class AppRouter {
               GoRoute(
                 path: AppRoutePaths.messages,
                 name: AppRouteNames.messages,
-                builder: (context, state) => const MessagesScreen(),
+                pageBuilder: (context, state) => _buildPrimaryTransitionPage(
+                  state: state,
+                  child: const MessagesScreen(),
+                ),
               ),
             ],
           ),
@@ -121,7 +129,10 @@ class AppRouter {
               GoRoute(
                 path: AppRoutePaths.scan,
                 name: AppRouteNames.scan,
-                builder: (context, state) => const ScanScreen(),
+                pageBuilder: (context, state) => _buildPrimaryTransitionPage(
+                  state: state,
+                  child: const ScanScreen(),
+                ),
               ),
             ],
           ),
@@ -130,12 +141,15 @@ class AppRouter {
               GoRoute(
                 path: AppRoutePaths.helpDesk,
                 name: AppRouteNames.helpDesk,
-                builder: (context, state) => const HelpDeskScreen(),
+                pageBuilder: (context, state) => _buildPrimaryTransitionPage(
+                  state: state,
+                  child: const HelpDeskScreen(),
+                ),
                 routes: [
                   GoRoute(
                     path: 'raise-concern',
                     name: AppRouteNames.helpDeskRaise,
-                    pageBuilder: (context, state) => _buildSlideTransitionPage(
+                    pageBuilder: (context, state) => _buildDetailTransitionPage(
                       state: state,
                       child: const RaiseConcernScreen(),
                     ),
@@ -149,12 +163,15 @@ class AppRouter {
               GoRoute(
                 path: AppRoutePaths.menu,
                 name: AppRouteNames.menu,
-                builder: (context, state) => const ProfileScreen(),
+                pageBuilder: (context, state) => _buildPrimaryTransitionPage(
+                  state: state,
+                  child: const ProfileScreen(),
+                ),
                 routes: [
                   GoRoute(
                     path: 'session',
                     name: AppRouteNames.session,
-                    pageBuilder: (context, state) => _buildSlideTransitionPage(
+                    pageBuilder: (context, state) => _buildDetailTransitionPage(
                       state: state,
                       child: const SessionScreen(),
                     ),
@@ -162,7 +179,7 @@ class AppRouter {
                   GoRoute(
                     path: 'change-password',
                     name: AppRouteNames.changePassword,
-                    pageBuilder: (context, state) => _buildSlideTransitionPage(
+                    pageBuilder: (context, state) => _buildDetailTransitionPage(
                       state: state,
                       child: const ChangePasswordScreen(),
                     ),
@@ -170,7 +187,7 @@ class AppRouter {
                   GoRoute(
                     path: 'privacy',
                     name: AppRouteNames.privacy,
-                    pageBuilder: (context, state) => _buildSlideTransitionPage(
+                    pageBuilder: (context, state) => _buildDetailTransitionPage(
                       state: state,
                       child: const PrivacyScreen(),
                     ),
@@ -178,7 +195,7 @@ class AppRouter {
                   GoRoute(
                     path: 'bus',
                     name: AppRouteNames.bus,
-                    pageBuilder: (context, state) => _buildSlideTransitionPage(
+                    pageBuilder: (context, state) => _buildDetailTransitionPage(
                       state: state,
                       child: const BusScreen(),
                     ),
@@ -186,7 +203,7 @@ class AppRouter {
                   GoRoute(
                     path: 'hostel',
                     name: AppRouteNames.hostel,
-                    pageBuilder: (context, state) => _buildSlideTransitionPage(
+                    pageBuilder: (context, state) => _buildDetailTransitionPage(
                       state: state,
                       child: const HostelScreen(),
                     ),
@@ -201,23 +218,23 @@ class AppRouter {
   );
 }
 
-CustomTransitionPage<void> _buildFadeTransitionPage({
+CustomTransitionPage<void> _buildPrimaryTransitionPage({
   required GoRouterState state,
   required Widget child,
 }) {
   return CustomTransitionPage<void>(
     key: state.pageKey,
     child: child,
-    transitionDuration: SamsUiTokens.pageAnimation,
-    reverseTransitionDuration: const Duration(milliseconds: 220),
+    transitionDuration: _kRouteTransitionDuration,
+    reverseTransitionDuration: _kRouteReverseTransitionDuration,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       final fade = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
-      final scale = Tween<double>(begin: 0.985, end: 1).animate(fade);
+      final slide = Tween<Offset>(begin: const Offset(0.08, 0), end: Offset.zero).animate(fade);
 
       return FadeTransition(
         opacity: fade,
-        child: ScaleTransition(
-          scale: scale,
+        child: SlideTransition(
+          position: slide,
           child: child,
         ),
       );
@@ -225,24 +242,32 @@ CustomTransitionPage<void> _buildFadeTransitionPage({
   );
 }
 
-CustomTransitionPage<void> _buildSlideTransitionPage({
+CustomTransitionPage<void> _buildDetailTransitionPage({
   required GoRouterState state,
   required Widget child,
 }) {
   return CustomTransitionPage<void>(
     key: state.pageKey,
     child: child,
-    transitionDuration: SamsUiTokens.pageAnimation,
-    reverseTransitionDuration: const Duration(milliseconds: 220),
+    transitionDuration: _kRouteTransitionDuration,
+    reverseTransitionDuration: _kRouteReverseTransitionDuration,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      final offset = Tween<Offset>(
-        begin: const Offset(0.12, 0),
+      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+      final slide = Tween<Offset>(
+        begin: const Offset(0, 0.03),
         end: Offset.zero,
-      ).chain(CurveTween(curve: Curves.easeOutCubic));
+      ).animate(curved);
+      final scale = Tween<double>(begin: 0.975, end: 1).animate(curved);
 
-      return SlideTransition(
-        position: animation.drive(offset),
-        child: FadeTransition(opacity: animation, child: child),
+      return FadeTransition(
+        opacity: curved,
+        child: SlideTransition(
+          position: slide,
+          child: ScaleTransition(
+            scale: scale,
+            child: child,
+          ),
+        ),
       );
     },
   );

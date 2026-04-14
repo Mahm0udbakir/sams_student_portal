@@ -59,6 +59,9 @@ void main() {
 
     await tester.tap(find.text('Help Desk'));
     await tester.pumpAndSettle();
+
+  await tester.drag(find.byType(ListView).first, const Offset(0, -420));
+  await tester.pumpAndSettle();
     expect(find.text('Raise a complaint'), findsOneWidget);
 
     await tester.tap(find.text('Menu'));
@@ -77,6 +80,9 @@ void main() {
 
     await tester.tap(find.text('Help Desk'));
     await tester.pumpAndSettle();
+
+  await tester.drag(find.byType(ListView).first, const Offset(0, -420));
+  await tester.pumpAndSettle();
 
     await tester.tap(find.text('Raise a complaint'));
     await tester.pumpAndSettle();
@@ -104,6 +110,9 @@ void main() {
     final busOption = find.text('Switch to SAMS Bus').hitTestable();
     await tester.tap(busOption, warnIfMissed: false);
     await tester.pumpAndSettle();
+
+  await tester.tap(find.text('Switch'));
+  await tester.pumpAndSettle();
     expect(find.text('Live Route'), findsOneWidget);
 
     await tester.pageBack();
@@ -116,6 +125,9 @@ void main() {
     expect(hostelOption, findsOneWidget);
 
     await tester.tap(hostelOption);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Switch'));
     await tester.pumpAndSettle();
     expect(find.text('Hostel services & requests'), findsOneWidget);
   });

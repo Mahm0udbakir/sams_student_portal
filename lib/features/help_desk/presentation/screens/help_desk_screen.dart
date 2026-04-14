@@ -7,7 +7,9 @@ import '../../data/repositories/fake_help_desk_repository.dart';
 import '../../domain/entities/complaint_entity.dart';
 import '../bloc/help_desk_bloc.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/empty_state_widget.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
+import '../../../../shared/widgets/shimmer_widget.dart';
 import '../../../../shared/widgets/sams_state_views.dart';
 
 class HelpDeskScreen extends StatelessWidget {
@@ -18,7 +20,11 @@ class HelpDeskScreen extends StatelessWidget {
   Future<void> _refreshHelpDesk(BuildContext context) async {
     final bloc = context.read<HelpDeskBloc>();
     bloc.add(const HelpDeskRequested());
-    await bloc.stream.firstWhere((state) => state.status != HelpDeskStatus.loading);
+    try {
+      await bloc.stream
+          .firstWhere((state) => state.status != HelpDeskStatus.loading)
+          .timeout(const Duration(seconds: 6));
+    } catch (_) {}
     await Future<void>.delayed(const Duration(milliseconds: 180));
   }
 
@@ -27,6 +33,11 @@ class HelpDeskScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => HelpDeskBloc(repository: FakeHelpDeskRepository())..add(const HelpDeskRequested()),
       child: BlocBuilder<HelpDeskBloc, HelpDeskState>(
+        buildWhen: (previous, current) {
+          return previous.status != current.status ||
+              previous.complaints != current.complaints ||
+              previous.errorMessage != current.errorMessage;
+        },
         builder: (context, state) {
           if (state.status == HelpDeskStatus.loading || state.status == HelpDeskStatus.initial) {
             return const _HelpDeskLoadingSkeleton();
@@ -64,7 +75,7 @@ class HelpDeskScreen extends StatelessWidget {
         child: SafeArea(
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+            padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 16),
             children: [
               Text(
                 'Aug 30, Saturday',
@@ -78,12 +89,14 @@ class HelpDeskScreen extends StatelessWidget {
               const Divider(height: 1, color: Color(0xFFD8DEE7)),
               const SizedBox(height: 12),
               if (complaints.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 72),
-                  child: SamsEmptyState(
+                  child: EmptyStateWidget(
                     icon: Icons.support_agent_rounded,
                     title: 'No complaints right now',
-                    message: 'Great! You have no active concerns at the moment.',
+                    subtitle: 'Great! You have no active concerns at the moment.',
+                    actionLabel: 'Check Again',
+                    onAction: () => context.read<HelpDeskBloc>().add(const HelpDeskRequested()),
                   ),
                 )
               else
@@ -160,33 +173,40 @@ class HelpDeskScreen extends StatelessWidget {
               const SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final submittedComplaint = await context.pushNamed<ComplaintEntity>(
-                      AppRouteNames.helpDeskRaise,
-                    );
+                child: SamsTapScale(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final submittedComplaint = await context.pushNamed<ComplaintEntity>(
+                        AppRouteNames.helpDeskRaise,
+                      );
 
-                    if (!context.mounted) {
-                      return;
-                    }
+                      if (!context.mounted) {
+                        return;
+                      }
 
-                    if (submittedComplaint != null) {
-                      context.read<HelpDeskBloc>().add(
-                            HelpDeskComplaintAdded(complaint: submittedComplaint),
-                          );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _samsPrimary,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      if (submittedComplaint != null) {
+                        context.read<HelpDeskBloc>().add(
+                              HelpDeskComplaintAdded(complaint: submittedComplaint),
+                            );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Concern submitted successfully'),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _samsPrimary,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
                     ),
-                    textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                    child: const Text('Raise a complaint'),
                   ),
-                  child: const Text('Raise a complaint'),
                 ),
               ),
             ],
@@ -211,20 +231,25 @@ class _HelpDeskLoadingSkeleton extends StatelessWidget {
         title: const Text('Help Desk'),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-        child: Column(
-          children: const [
-            SamsLoadingView(
-              title: 'Loading support tickets',
-              message: 'Fetching your latest complaints and updates...',
+      body: ListView(
+        padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 16),
+        children: [
+          const SamsLoadingView(
+            title: 'Loading your concerns...',
+            message: 'Fetching your latest complaints and help desk updates...',
+          ),
+          const SizedBox(height: 8),
+          ...List.generate(
+            3,
+            (index) => Padding(
+              padding: EdgeInsets.only(bottom: index == 2 ? 0 : 10),
+              child: const ShimmerWidget(
+                height: 116,
+                borderRadius: BorderRadius.all(Radius.circular(18)),
+              ),
             ),
-            SizedBox(height: 8),
-            SamsSkeletonBox(height: 116, radius: 18),
-            SizedBox(height: 10),
-            SamsSkeletonBox(height: 116, radius: 18),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -238,7 +263,7 @@ class RaiseConcernScreen extends StatefulWidget {
 }
 
 class _RaiseConcernScreenState extends State<RaiseConcernScreen> {
-  static const Color _samsPrimary = Color(0xFF063454);
+  static const Color _samsPrimary = SamsUiTokens.primary;
   final TextEditingController _departmentController = TextEditingController();
   final TextEditingController _concernController = TextEditingController();
   String? _selectedDepartment;
@@ -281,8 +306,6 @@ class _RaiseConcernScreenState extends State<RaiseConcernScreen> {
                   contact: 'Help Desk Team\nExt. 101',
                 );
 
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-
           setState(() {
             _selectedDepartment = null;
             _departmentController.clear();
@@ -291,13 +314,16 @@ class _RaiseConcernScreenState extends State<RaiseConcernScreen> {
 
           context.read<HelpDeskBloc>().add(const HelpDeskSubmissionNoticeCleared());
 
-          await Future<void>.delayed(const Duration(milliseconds: 450));
+          await Future<void>.delayed(const Duration(milliseconds: 220));
           if (!context.mounted) {
             return;
           }
           context.pop(submittedComplaint);
         },
         child: BlocBuilder<HelpDeskBloc, HelpDeskState>(
+          buildWhen: (previous, current) {
+            return previous.submissionStatus != current.submissionStatus;
+          },
           builder: (context, state) {
             final isSubmitting = state.submissionStatus == HelpDeskSubmissionStatus.submitting;
 
@@ -309,10 +335,46 @@ class _RaiseConcernScreenState extends State<RaiseConcernScreen> {
               ),
               body: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+                  padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        child: isSubmitting
+                            ? Container(
+                                key: const ValueKey('submitting-banner'),
+                                width: double.infinity,
+                                margin: const EdgeInsets.only(bottom: 10),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE9F1F9),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFFCADCED)),
+                                ),
+                                child: const Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2.2),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        'Submitting your concern...',
+                                        style: TextStyle(
+                                          color: SamsUiTokens.textPrimary,
+                                          fontSize: 12.8,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : const SizedBox.shrink(key: ValueKey('submitting-banner-hidden')),
+                      ),
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -408,49 +470,52 @@ class _RaiseConcernScreenState extends State<RaiseConcernScreen> {
                       const Spacer(),
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: isSubmitting
-                              ? null
-                              : () {
-                                  final department = _selectedDepartment;
-                                  final concern = _concernController.text.trim();
+                        child: SamsTapScale(
+                          enabled: !isSubmitting,
+                          child: ElevatedButton(
+                            onPressed: isSubmitting
+                                ? null
+                                : () {
+                                    final department = _selectedDepartment;
+                                    final concern = _concernController.text.trim();
 
-                                  if (department == null || concern.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Please select department and enter your concern.'),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  context.read<HelpDeskBloc>().add(
-                                        HelpDeskConcernSubmitted(
-                                          department: department,
-                                          concern: concern,
+                                    if (department == null || concern.isEmpty) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Please select department and enter your concern.'),
                                         ),
                                       );
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _samsPrimary,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                                      return;
+                                    }
+
+                                    context.read<HelpDeskBloc>().add(
+                                          HelpDeskConcernSubmitted(
+                                            department: department,
+                                            concern: concern,
+                                          ),
+                                        );
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _samsPrimary,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
                             ),
-                            textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                            child: isSubmitting
+                                ? const SizedBox(
+                                    height: 18,
+                                    width: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  )
+                                : const Text('Submit'),
                           ),
-                          child: isSubmitting
-                              ? const SizedBox(
-                                  height: 18,
-                                  width: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : const Text('Submit'),
                         ),
                       ),
                     ],

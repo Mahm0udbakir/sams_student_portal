@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../ui/sams_ui_tokens.dart';
+import 'sams_pressable.dart';
+import 'shimmer_widget.dart';
 
 class SamsLoadingView extends StatelessWidget {
   const SamsLoadingView({
@@ -27,11 +29,16 @@ class SamsLoadingView extends StatelessWidget {
                 color: SamsUiTokens.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Center(
-                child: SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: CircularProgressIndicator(strokeWidth: 2.6),
+              child: Center(
+                child: ShimmerWidget.circle(
+                  size: 30,
+                  baseColor: SamsUiTokens.primary.withValues(alpha: 0.15),
+                  highlightColor: SamsUiTokens.primary.withValues(alpha: 0.34),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    size: 18,
+                    color: SamsUiTokens.primary,
+                  ),
                 ),
               ),
             ),
@@ -185,19 +192,11 @@ class SamsErrorState extends StatelessWidget {
               ),
               if (onRetry != null) ...[
                 const SizedBox(height: 14),
-                ElevatedButton(
-                  onPressed: onRetry,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: SamsUiTokens.primary,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                SamsTapScale(
+                  child: ElevatedButton(
+                    onPressed: onRetry,
+                    child: Text(retryLabel),
                   ),
-                  child: Text(retryLabel),
                 ),
               ],
             ],
@@ -222,13 +221,12 @@ class SamsSkeletonBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ShimmerWidget(
       width: width,
       height: height,
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8EDF4),
-        borderRadius: BorderRadius.circular(radius),
-      ),
+      borderRadius: BorderRadius.circular(radius),
+      baseColor: const Color(0xFFE2ECF5),
+      highlightColor: SamsUiTokens.primary.withValues(alpha: 0.18),
     );
   }
 }

@@ -51,12 +51,12 @@ class ChangePasswordBloc
 
     emit(state.copyWith(status: ChangePasswordStatus.submitting, clearFeedback: true));
 
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+  await Future<void>.delayed(const Duration(milliseconds: 1200));
 
     emit(
       state.copyWith(
         status: ChangePasswordStatus.success,
-        feedbackMessage: 'Password changed successfully',
+        feedbackMessage: 'Password updated successfully',
       ),
     );
   }

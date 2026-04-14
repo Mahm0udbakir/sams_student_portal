@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/shimmer_widget.dart';
 
 class SessionScreen extends StatefulWidget {
   const SessionScreen({super.key});
@@ -38,7 +39,16 @@ class _SessionScreenState extends State<SessionScreen> {
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: SamsUiTokens.scaffoldBackground,
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: SizedBox(
+            width: 86,
+            height: 86,
+            child: ShimmerWidget.circle(
+              size: 86,
+              child: Icon(Icons.calendar_month_rounded, color: SamsUiTokens.primary, size: 34),
+            ),
+          ),
+        ),
       );
     }
 
@@ -50,38 +60,76 @@ class _SessionScreenState extends State<SessionScreen> {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+          padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 20),
           children: [
+            const Text(
+              'Academic Overview',
+              style: TextStyle(
+                color: SamsUiTokens.textPrimary,
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Track your active semester and previous academic progress.',
+              style: TextStyle(
+                color: SamsUiTokens.textSecondary,
+                fontSize: 12.8,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
                 boxShadow: SamsUiTokens.cardShadow,
                 border: Border.all(color: SamsUiTokens.divider),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Current Session',
-                    style: TextStyle(
-                      color: SamsUiTokens.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Row(
+                    children: [
+                      const Text(
+                        'Current Session',
+                        style: TextStyle(
+                          color: SamsUiTokens.textSecondary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: SamsUiTokens.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: const Text(
+                          'Active',
+                          style: TextStyle(
+                            color: SamsUiTokens.primary,
+                            fontSize: 11.2,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 8),
-                  Text(
+                  const SizedBox(height: 8),
+                  const Text(
                     'B.Des Semester 5',
                     style: TextStyle(
                       color: SamsUiTokens.textPrimary,
-                      fontSize: 20,
+                      fontSize: 22,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: 4),
-                  Text(
+                  const SizedBox(height: 4),
+                  const Text(
                     'Academic Year 2025-26',
                     style: TextStyle(
                       color: SamsUiTokens.primary,
@@ -89,22 +137,26 @@ class _SessionScreenState extends State<SessionScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
+                  const SizedBox(height: 10),
+                  const Divider(height: 1, color: Color(0xFFE6ECF4)),
+                  const SizedBox(height: 10),
+                  const Text(
                     'Programme: Bachelor of Design • Department of Communication Design',
                     style: TextStyle(
                       color: SamsUiTokens.textSecondary,
-                      fontSize: 12.5,
+                      fontSize: 12.8,
                       fontWeight: FontWeight.w600,
+                      height: 1.35,
                     ),
                   ),
-                  SizedBox(height: 6),
-                  Text(
+                  const SizedBox(height: 6),
+                  const Text(
                     'Advisor: Dr. Meera Khanna • Current Credit Load: 21',
                     style: TextStyle(
                       color: SamsUiTokens.textSecondary,
-                      fontSize: 12.5,
+                      fontSize: 12.8,
                       fontWeight: FontWeight.w600,
+                      height: 1.35,
                     ),
                   ),
                 ],
@@ -120,75 +172,89 @@ class _SessionScreenState extends State<SessionScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            ...pastSemesters.map(
-              (semester) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFDDE4ED)),
-                    boxShadow: SamsUiTokens.cardShadow,
-                  ),
-                  child: Row(
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFDDE4ED)),
+                boxShadow: SamsUiTokens.cardShadow,
+              ),
+              child: Column(
+                children: pastSemesters.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final semester = entry.value;
+
+                  return Column(
                     children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: SamsUiTokens.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: const Icon(
-                          Icons.school_rounded,
-                          color: SamsUiTokens.primary,
-                          size: 18,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                        child: Row(
                           children: [
-                            Text(
-                              semester.title,
-                              style: const TextStyle(
-                                color: SamsUiTokens.textPrimary,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: SamsUiTokens.primary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: const Icon(
+                                Icons.school_rounded,
+                                color: SamsUiTokens.primary,
+                                size: 19,
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              semester.year,
-                              style: const TextStyle(
-                                color: SamsUiTokens.textSecondary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    semester.title,
+                                    style: const TextStyle(
+                                      color: SamsUiTokens.textPrimary,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    semester.year,
+                                    style: const TextStyle(
+                                      color: SamsUiTokens.textSecondary,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: SamsUiTokens.success.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                semester.status,
+                                style: const TextStyle(
+                                  color: SamsUiTokens.success,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: SamsUiTokens.success.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(999),
+                      if (index != pastSemesters.length - 1)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 64),
+                          child: Divider(height: 1, thickness: 1, color: Color(0xFFE7EDF5)),
                         ),
-                        child: Text(
-                          semester.status,
-                          style: const TextStyle(
-                            color: SamsUiTokens.success,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
                     ],
-                  ),
-                ),
+                  );
+                }).toList(),
               ),
             ),
           ],

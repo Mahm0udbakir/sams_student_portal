@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_pressable.dart';
 
 class PrivacyScreen extends StatefulWidget {
   const PrivacyScreen({super.key});
@@ -50,8 +51,35 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+          padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 20),
           children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+                boxShadow: SamsUiTokens.cardShadow,
+                border: Border.all(color: const Color(0xFFDDE4ED)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.verified_user_rounded, color: SamsUiTokens.primary, size: 20),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Manage privacy and notification preferences for your SAMS account.',
+                      style: TextStyle(
+                        color: SamsUiTokens.textSecondary,
+                        fontSize: 12.8,
+                        fontWeight: FontWeight.w600,
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
             _SettingsSection(
               title: 'Profile Visibility',
               children: [
@@ -141,41 +169,44 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
             const SizedBox(height: 14),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSaving
-                    ? null
-                    : () async {
-                        setState(() => _isSaving = true);
-                        await Future<void>.delayed(const Duration(milliseconds: 550));
-                        if (!mounted) {
-                          return;
-                        }
-                        setState(() => _isSaving = false);
-                        if (!context.mounted) {
-                          return;
-                        }
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Privacy preferences saved successfully.')),
-                        );
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: SamsUiTokens.primary,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+              child: SamsTapScale(
+                enabled: !_isSaving,
+                child: ElevatedButton(
+                  onPressed: _isSaving
+                      ? null
+                      : () async {
+                          setState(() => _isSaving = true);
+                          await Future<void>.delayed(const Duration(milliseconds: 550));
+                          if (!mounted) {
+                            return;
+                          }
+                          setState(() => _isSaving = false);
+                          if (!context.mounted) {
+                            return;
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Privacy preferences saved successfully.')),
+                          );
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: SamsUiTokens.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  ),
+                  child: _isSaving
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text('Save Preferences'),
                 ),
-                child: _isSaving
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Text('Save Preferences'),
               ),
             ),
           ],
@@ -193,31 +224,47 @@ class _SettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final indexedChildren = children.asMap().entries;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
         boxShadow: SamsUiTokens.cardShadow,
-        border: Border.all(color: SamsUiTokens.divider),
+        border: Border.all(color: const Color(0xFFDDE4ED)),
       ),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
             child: Row(
               children: [
                 Text(
                   title,
                   style: const TextStyle(
                     color: SamsUiTokens.textPrimary,
-                    fontSize: 15,
+                    fontSize: 15.2,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
             ),
           ),
-          ...children,
+          ...indexedChildren.map((entry) {
+            final index = entry.key;
+            final child = entry.value;
+
+            return Column(
+              children: [
+                child,
+                if (index != children.length - 1)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 14, right: 14),
+                    child: Divider(height: 1, thickness: 1, color: Color(0xFFE7EDF5)),
+                  ),
+              ],
+            );
+          }),
         ],
       ),
     );
@@ -240,7 +287,7 @@ class _SettingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 8, 14, 10),
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 11),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -252,17 +299,17 @@ class _SettingTile extends StatelessWidget {
                   title,
                   style: const TextStyle(
                     color: SamsUiTokens.textPrimary,
-                    fontSize: 13.5,
+                    fontSize: 13.8,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 Text(
                   subtitle,
                   style: const TextStyle(
                     color: SamsUiTokens.textSecondary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 12.2,
+                    fontWeight: FontWeight.w600,
                     height: 1.35,
                   ),
                 ),

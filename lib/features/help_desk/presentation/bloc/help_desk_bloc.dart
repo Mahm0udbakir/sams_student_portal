@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -10,14 +12,16 @@ part 'help_desk_state.dart';
 class HelpDeskBloc extends Bloc<HelpDeskEvent, HelpDeskState> {
   HelpDeskBloc({required HelpDeskRepository repository})
       : _repository = repository,
+        _random = Random(),
         super(const HelpDeskState()) {
     on<HelpDeskRequested>(_onHelpDeskRequested);
     on<HelpDeskConcernSubmitted>(_onHelpDeskConcernSubmitted);
     on<HelpDeskSubmissionNoticeCleared>(_onHelpDeskSubmissionNoticeCleared);
-  on<HelpDeskComplaintAdded>(_onHelpDeskComplaintAdded);
+    on<HelpDeskComplaintAdded>(_onHelpDeskComplaintAdded);
   }
 
   final HelpDeskRepository _repository;
+  final Random _random;
 
   Future<void> _onHelpDeskRequested(
     HelpDeskRequested event,
@@ -48,7 +52,8 @@ class HelpDeskBloc extends Bloc<HelpDeskEvent, HelpDeskState> {
       ),
     );
 
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+  final simulatedDelay = Duration(milliseconds: 1500 + _random.nextInt(501));
+  await Future<void>.delayed(simulatedDelay);
 
     final updatedComplaints = <ComplaintEntity>[
       ComplaintEntity(

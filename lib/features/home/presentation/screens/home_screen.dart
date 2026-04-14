@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routes/app_router.dart';
-import '../../../auth/presentation/bloc/student_bloc.dart';
+import '../../../../shared/bloc/student_bloc.dart';
 import '../../data/repositories/fake_home_repository.dart';
 import '../bloc/home_bloc.dart';
+import '../../../../shared/widgets/empty_state_widget.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
+import '../../../../shared/widgets/shimmer_widget.dart';
 import '../../../../shared/widgets/sams_state_views.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
 
@@ -16,7 +18,11 @@ class HomeScreen extends StatelessWidget {
   Future<void> _refreshHome(BuildContext context) async {
     final bloc = context.read<HomeBloc>();
     bloc.add(const HomeRequested());
-    await bloc.stream.firstWhere((state) => state.status != HomeStatus.loading);
+    try {
+      await bloc.stream
+          .firstWhere((state) => state.status != HomeStatus.loading)
+          .timeout(const Duration(seconds: 6));
+    } catch (_) {}
     await Future<void>.delayed(const Duration(milliseconds: 180));
   }
 
@@ -25,6 +31,18 @@ class HomeScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => HomeBloc(repository: FakeHomeRepository())..add(const HomeRequested()),
       child: BlocBuilder<HomeBloc, HomeState>(
+        buildWhen: (previous, current) {
+          return previous.status != current.status ||
+              previous.studentName != current.studentName ||
+              previous.studentId != current.studentId ||
+              previous.overallAttendance != current.overallAttendance ||
+              previous.attendanceSubtitle != current.attendanceSubtitle ||
+              previous.attendedClassesLabel != current.attendedClassesLabel ||
+              previous.busRouteLabel != current.busRouteLabel ||
+              previous.busStatusLabel != current.busStatusLabel ||
+              previous.announcements != current.announcements ||
+              previous.errorMessage != current.errorMessage;
+        },
         builder: (context, state) {
           if (state.status == HomeStatus.loading || state.status == HomeStatus.initial) {
             return const _HomeLoadingSkeleton();
@@ -86,13 +104,14 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: BlocBuilder<StudentBloc, StudentState>(
+                        buildWhen: (previous, current) {
+                          return previous.studentName != current.studentName ||
+                              previous.studentId != current.studentId ||
+                              previous.status != current.status;
+                        },
                         builder: (context, studentState) {
-                          final name = studentState is StudentLoaded
-                              ? studentState.student.name
-                              : state.studentName!;
-                          final id = studentState is StudentLoaded
-                              ? studentState.student.id
-                              : state.studentId!;
+                          final name = studentState.studentName ?? state.studentName!;
+                          final id = studentState.studentId ?? state.studentId!;
 
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -149,7 +168,16 @@ class HomeScreen extends StatelessWidget {
                 subtitle: state.attendanceSubtitle!,
                 trailing: _AttendanceProgress(value: attendanceValue),
                 leadingIcon: Icons.fact_check_rounded,
-                child: _AttendanceMeta(label: state.attendedClassesLabel!),
+                child: _AttendanceMetaSection(
+                  label: state.attendedClassesLabel!,
+                  onMarkToday: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Today\'s attendance marked successfully.'),
+                      ),
+                    );
+                  },
+                ),
                 onTap: () {
                   context.pushNamed(AppRouteNames.attendanceDetail);
                 },
@@ -187,12 +215,14 @@ class HomeScreen extends StatelessWidget {
               const _DateSeparator(label: 'Aug 30, Saturday'),
               const SizedBox(height: 8),
               if (announcements.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 10),
-                  child: SamsEmptyState(
+                  child: EmptyStateWidget(
                     icon: Icons.notifications_off_rounded,
                     title: 'No announcements yet',
-                    message: 'You are all caught up. New updates from SAMS will appear here.',
+                    subtitle: 'You are all caught up. New updates from SAMS will appear here.',
+                    actionLabel: 'Refresh Updates',
+                    onAction: () => context.read<HomeBloc>().add(const HomeRequested()),
                   ),
                 )
               else
@@ -233,22 +263,29 @@ class _HomeLoadingSkeleton extends StatelessWidget {
       backgroundColor: SamsUiTokens.scaffoldBackground,
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          children: const [
-            SamsLoadingView(
+          padding: SamsUiTokens.pageInsets(context, top: 16, bottom: 24),
+          children: [
+            const SamsLoadingView(
               title: 'Loading your dashboard',
               message: 'Fetching attendance, bus status and announcements...',
             ),
-            SizedBox(height: 6),
-            SamsSkeletonBox(height: 134, radius: 22),
-            SizedBox(height: 12),
-            SamsSkeletonBox(height: 134, radius: 22),
-            SizedBox(height: 20),
-            SamsSkeletonBox(height: 18, width: 140, radius: 6),
-            SizedBox(height: 10),
-            SamsSkeletonBox(height: 84, radius: 18),
-            SizedBox(height: 8),
-            SamsSkeletonBox(height: 84, radius: 18),
+            const SizedBox(height: 8),
+            const ShimmerWidget(height: 134, borderRadius: BorderRadius.all(Radius.circular(22))),
+            const SizedBox(height: 12),
+            const ShimmerWidget(height: 134, borderRadius: BorderRadius.all(Radius.circular(22))),
+            const SizedBox(height: 20),
+            const ShimmerWidget.line(width: 150, height: 16),
+            const SizedBox(height: 10),
+            ...List.generate(
+              3,
+              (index) => Padding(
+                padding: EdgeInsets.only(bottom: index == 2 ? 0 : 8),
+                child: const ShimmerWidget(
+                  height: 84,
+                  borderRadius: BorderRadius.all(Radius.circular(18)),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -509,6 +546,37 @@ class _AttendanceMeta extends StatelessWidget {
         fontSize: 12.5,
         fontWeight: FontWeight.w600,
       ),
+    );
+  }
+}
+
+class _AttendanceMetaSection extends StatelessWidget {
+  const _AttendanceMetaSection({required this.label, required this.onMarkToday});
+
+  final String label;
+  final VoidCallback onMarkToday;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: _AttendanceMeta(label: label)),
+        const SizedBox(width: 10),
+        SizedBox(
+          height: 28,
+          child: OutlinedButton.icon(
+            onPressed: onMarkToday,
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: Colors.white.withValues(alpha: 0.76)),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5),
+            ),
+            icon: const Icon(Icons.check_circle_outline_rounded, size: 14),
+            label: const Text('Mark Today\'s Attendance'),
+          ),
+        ),
+      ],
     );
   }
 }

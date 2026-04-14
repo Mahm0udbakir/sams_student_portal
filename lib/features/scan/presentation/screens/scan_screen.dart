@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_pressable.dart';
 import '../../data/repositories/fake_scan_repository.dart';
 import '../../domain/entities/scan_option_entity.dart';
 import '../bloc/scan_bloc.dart';
@@ -36,55 +37,129 @@ class ScanScreen extends StatelessWidget {
           }
 
           if (state.status == ScanStatus.success) {
-            await showDialog<void>(
+            final action = state.activeAction;
+            final shouldScanAgain = await showDialog<bool>(
               context: context,
               builder: (dialogContext) {
-                return AlertDialog(
-                  title: const Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Color(0x1F0E8F54),
-                        child: Icon(Icons.check_rounded, color: SamsUiTokens.success),
-                      ),
-                      SizedBox(width: 10),
-                      Text('Success'),
-                    ],
-                  ),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        message,
-                        style: const TextStyle(
-                          color: SamsUiTokens.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Your scan has been processed successfully.',
-                        style: TextStyle(
-                          color: SamsUiTokens.textSecondary,
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(),
-                      child: const Text('OK'),
+                return Dialog(
+                  insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFDCE5EF)),
                     ),
-                  ],
+                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: SamsUiTokens.success.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.check_circle_rounded,
+                                color: SamsUiTokens.success,
+                                size: 28,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'Scan successful',
+                                style: TextStyle(
+                                  color: SamsUiTokens.textPrimary,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          message,
+                          style: const TextStyle(
+                            color: SamsUiTokens.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Your request has been verified by SAMS services.',
+                          style: TextStyle(
+                            color: SamsUiTokens.textSecondary,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            height: 1.35,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SamsTapScale(
+                                child: OutlinedButton(
+                                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: SamsUiTokens.primary),
+                                    foregroundColor: SamsUiTokens.primary,
+                                    padding: const EdgeInsets.symmetric(vertical: 11),
+                                    textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  child: const Text('Scan again'),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: SamsTapScale(
+                                child: ElevatedButton(
+                                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: SamsUiTokens.primary,
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(vertical: 11),
+                                    textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  child: const Text('Done'),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             );
 
             if (!context.mounted) {
               return;
+            }
+
+            if (shouldScanAgain == true) {
+              if (action == ScanAction.gallery) {
+                context.read<ScanBloc>().add(const ScanGalleryPicked());
+              } else {
+                context.read<ScanBloc>().add(const ScanStarted());
+              }
             }
           } else if (state.status == ScanStatus.failure) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -141,7 +216,13 @@ class ScanScreen extends StatelessWidget {
                 children: [
                   SafeArea(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+                      padding: SamsUiTokens.pageInsets(
+                        context,
+                        top: 14,
+                        bottom: 24,
+                        regularHorizontal: 20,
+                        compactHorizontal: 14,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -196,38 +277,44 @@ class ScanScreen extends StatelessWidget {
                           const SizedBox(height: 48),
                           SizedBox(
                             width: double.infinity,
-                            child: TextButton(
-                              onPressed: isProcessing
-                                  ? null
-                                  : () => context.read<ScanBloc>().add(const ScanGalleryPicked()),
-                              style: TextButton.styleFrom(
-                                foregroundColor: SamsUiTokens.primary,
-                                textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                            child: SamsTapScale(
+                              enabled: !isProcessing,
+                              child: TextButton(
+                                onPressed: isProcessing
+                                    ? null
+                                    : () => context.read<ScanBloc>().add(const ScanGalleryPicked()),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: SamsUiTokens.primary,
+                                  textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                                ),
+                                child: Text(galleryLabel),
                               ),
-                              child: Text(galleryLabel),
                             ),
                           ),
                           const SizedBox(height: 10),
                           SizedBox(
                             width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: isProcessing
-                                  ? null
-                                  : () => context.read<ScanBloc>().add(const ScanStarted()),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _samsPrimary,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                            child: SamsTapScale(
+                              enabled: !isProcessing,
+                              child: ElevatedButton(
+                                onPressed: isProcessing
+                                    ? null
+                                    : () => context.read<ScanBloc>().add(const ScanStarted()),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _samsPrimary,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  textStyle: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                  ),
                                 ),
-                                textStyle: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15,
-                                ),
+                                child: Text(cameraLabel),
                               ),
-                              child: Text(cameraLabel),
                             ),
                           ),
                         ],
@@ -239,11 +326,53 @@ class ScanScreen extends StatelessWidget {
                       child: IgnorePointer(
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.28),
+                            color: const Color(0xFF052941).withValues(alpha: 0.46),
                           ),
-                          child: const SamsLoadingView(
-                            title: 'Processing scan',
-                            message: 'Analyzing QR and verifying your request...',
+                          child: Center(
+                            child: Container(
+                              width: 240,
+                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(18),
+                                boxShadow: SamsUiTokens.cardShadow,
+                                border: Border.all(color: const Color(0xFFDCE5EF)),
+                              ),
+                              child: const Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    height: 28,
+                                    width: 28,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.8,
+                                      valueColor:
+                                          AlwaysStoppedAnimation<Color>(SamsUiTokens.primary),
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    'Scanning...',
+                                    style: TextStyle(
+                                      color: SamsUiTokens.textPrimary,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Please hold still while we verify your code.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: SamsUiTokens.textSecondary,
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.35,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),

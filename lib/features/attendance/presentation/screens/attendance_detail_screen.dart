@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/repositories/fake_attendance_repository.dart';
 import '../bloc/attendance_bloc.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_pressable.dart';
+import '../../../../shared/widgets/shimmer_widget.dart';
 import '../../../../shared/widgets/sams_state_views.dart';
 
 class AttendanceDetailScreen extends StatelessWidget {
@@ -12,7 +14,11 @@ class AttendanceDetailScreen extends StatelessWidget {
   Future<void> _refreshAttendance(BuildContext context) async {
     final bloc = context.read<AttendanceBloc>();
     bloc.add(const AttendanceRequested());
-    await bloc.stream.firstWhere((state) => state.status != AttendanceStatus.loading);
+    try {
+      await bloc.stream
+          .firstWhere((state) => state.status != AttendanceStatus.loading)
+          .timeout(const Duration(seconds: 6));
+    } catch (_) {}
     await Future<void>.delayed(const Duration(milliseconds: 180));
   }
 
@@ -70,58 +76,11 @@ class AttendanceDetailScreen extends StatelessWidget {
                   physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics(),
                   ),
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+                  padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 20),
                   children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-                      boxShadow: SamsUiTokens.cardShadow,
-                      border: Border.all(color: SamsUiTokens.divider),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: SamsUiTokens.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.fact_check_rounded,
-                            color: SamsUiTokens.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Overall Attendance',
-                                style: TextStyle(
-                                  color: SamsUiTokens.textSecondary,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Overall Attendance: ${state.overallPercent!}%',
-                                style: const TextStyle(
-                                  color: SamsUiTokens.textPrimary,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _OverallAttendanceCard(percentage: state.overallPercent!),
+                  const SizedBox(height: 12),
+                  const _AttendanceLegend(),
                   const SizedBox(height: 14),
                   const Text(
                     'Class-wise Attendance',
@@ -136,7 +95,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                     (entry) {
                       final index = entry.key;
                       final item = entry.value;
-                      final colors = _attendanceCardColors(item.band);
+                      final visual = _visualForPercentage(item.percentage);
                       final isActionClass = index == 0;
                       final isMarking =
                           state.actionStatus == AttendanceActionStatus.processing &&
@@ -144,27 +103,37 @@ class AttendanceDetailScreen extends StatelessWidget {
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: colors,
+                        child: SamsPressable(
+                          borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                            decoration: BoxDecoration(
+                              color: visual.background,
+                              borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+                              boxShadow: SamsUiTokens.cardShadow,
+                              border: Border.all(
+                                color: visual.accent.withValues(alpha: 0.30),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-                            boxShadow: SamsUiTokens.cardShadow,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                               Row(
                                 children: [
+                                  Container(
+                                    width: 5,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      color: visual.accent,
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
                                       item.subject,
                                       style: const TextStyle(
-                                        color: Colors.white,
+                                        color: SamsUiTokens.textPrimary,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -173,16 +142,16 @@ class AttendanceDetailScreen extends StatelessWidget {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.2),
+                                      color: visual.accent.withValues(alpha: 0.14),
                                       borderRadius: BorderRadius.circular(999),
                                       border: Border.all(
-                                        color: Colors.white.withValues(alpha: 0.24),
+                                        color: visual.accent.withValues(alpha: 0.32),
                                       ),
                                     ),
                                     child: Text(
                                       '${item.percentage}%',
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: visual.accent,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w800,
                                       ),
@@ -190,40 +159,52 @@ class AttendanceDetailScreen extends StatelessWidget {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 6),
+                              Text(
+                                _bandLabel(item.percentage),
+                                style: TextStyle(
+                                  color: visual.accent,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                               if (isActionClass) ...[
                                 const SizedBox(height: 8),
                                 SizedBox(
                                   height: 30,
-                                  child: OutlinedButton(
-                                    onPressed: isMarking
-                                        ? null
-                                        : () => context.read<AttendanceBloc>().add(
-                                              AttendanceMarkRequested(subject: item.subject),
-                                            ),
-                                    style: OutlinedButton.styleFrom(
-                                      side: BorderSide(color: Colors.white.withValues(alpha: 0.7)),
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                                      textStyle: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 11.5,
+                                  child: SamsTapScale(
+                                    enabled: !isMarking,
+                                    child: OutlinedButton(
+                                      onPressed: isMarking
+                                          ? null
+                                          : () => context.read<AttendanceBloc>().add(
+                                                AttendanceMarkRequested(subject: item.subject),
+                                              ),
+                                      style: OutlinedButton.styleFrom(
+                                        side: BorderSide(color: visual.accent.withValues(alpha: 0.75)),
+                                        foregroundColor: visual.accent,
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 11.5,
+                                        ),
                                       ),
+                                      child: isMarking
+                                          ? SizedBox(
+                                              height: 14,
+                                              width: 14,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor: AlwaysStoppedAnimation<Color>(visual.accent),
+                                              ),
+                                            )
+                                          : const Text('Mark Attendance'),
                                     ),
-                                    child: isMarking
-                                        ? const SizedBox(
-                                            height: 14,
-                                            width: 14,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                                            ),
-                                          )
-                                        : const Text('Mark Attendance'),
                                   ),
                                 ),
                               ],
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -241,16 +222,216 @@ class AttendanceDetailScreen extends StatelessWidget {
   }
 }
 
-List<Color> _attendanceCardColors(AttendanceBand band) {
-  if (band == AttendanceBand.green) {
-    return const [Color(0xFF0E8F54), Color(0xFF0A7645)];
+class _AttendanceVisual {
+  const _AttendanceVisual({
+    required this.background,
+    required this.accent,
+  });
+
+  final Color background;
+  final Color accent;
+}
+
+_AttendanceVisual _visualForPercentage(int percentage) {
+  if (percentage >= 80) {
+    return const _AttendanceVisual(
+      background: Color(0xFFF0FAF5),
+      accent: Color(0xFF0E8F54),
+    );
   }
 
-  if (band == AttendanceBand.yellow) {
-    return const [Color(0xFFB7791F), Color(0xFF996513)];
+  if (percentage >= 60) {
+    return const _AttendanceVisual(
+      background: Color(0xFFFFF7EB),
+      accent: Color(0xFFB7791F),
+    );
   }
 
-  return const [Color(0xFFC0352B), Color(0xFFA72C24)];
+  return const _AttendanceVisual(
+    background: Color(0xFFFFF1F0),
+    accent: Color(0xFFC0352B),
+  );
+}
+
+String _bandLabel(int percentage) {
+  if (percentage >= 80) {
+    return 'Safe Zone (≥ 80%)';
+  }
+
+  if (percentage >= 60) {
+    return 'Watch Zone (60–79%)';
+  }
+
+  return 'Critical Zone (< 60%)';
+}
+
+class _OverallAttendanceCard extends StatelessWidget {
+  const _OverallAttendanceCard({required this.percentage});
+
+  final int percentage;
+
+  @override
+  Widget build(BuildContext context) {
+    final visual = _visualForPercentage(percentage);
+
+    return SamsPressable(
+      borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+          boxShadow: SamsUiTokens.cardShadow,
+          border: Border.all(color: visual.accent.withValues(alpha: 0.26)),
+        ),
+        child: Row(
+          children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Overall Attendance',
+                  style: TextStyle(
+                    color: SamsUiTokens.textSecondary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  '$percentage%',
+                  style: TextStyle(
+                    color: visual.accent,
+                    fontSize: 38,
+                    height: 1,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _bandLabel(percentage),
+                  style: TextStyle(
+                    color: visual.accent,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 74,
+            height: 74,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CircularProgressIndicator(
+                  value: percentage / 100,
+                  strokeWidth: 8,
+                  valueColor: AlwaysStoppedAnimation<Color>(visual.accent),
+                  backgroundColor: visual.background,
+                ),
+                Center(
+                  child: Icon(
+                    Icons.fact_check_rounded,
+                    color: visual.accent,
+                    size: 24,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AttendanceLegend extends StatelessWidget {
+  const _AttendanceLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    return SamsPressable(
+      borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+          boxShadow: SamsUiTokens.cardShadow,
+          border: Border.all(color: SamsUiTokens.divider),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+          Text(
+            'Attendance Color Guide',
+            style: TextStyle(
+              color: SamsUiTokens.textPrimary,
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+            ),
+          ),
+          SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _LegendChip(label: '≥ 80%', color: Color(0xFF0E8F54)),
+              _LegendChip(label: '60% – 79%', color: Color(0xFFB7791F)),
+              _LegendChip(label: '< 60%', color: Color(0xFFC0352B)),
+            ],
+          ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LegendChip extends StatelessWidget {
+  const _LegendChip({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.28)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _AttendanceLoadingSkeleton extends StatelessWidget {
@@ -265,22 +446,27 @@ class _AttendanceLoadingSkeleton extends StatelessWidget {
         centerTitle: true,
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
-        children: const [
-          SamsLoadingView(
-            title: 'Loading attendance details',
-            message: 'Preparing class-wise attendance for you...',
+        padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 20),
+        children: [
+          const SamsLoadingView(
+            title: 'Loading your attendance...',
+            message: 'Preparing overall and class-wise attendance for you...',
           ),
-          SizedBox(height: 8),
-          SamsSkeletonBox(height: 84, radius: 18),
-          SizedBox(height: 14),
-          SamsSkeletonBox(height: 18, width: 160, radius: 6),
-          SizedBox(height: 10),
-          SamsSkeletonBox(height: 56, radius: 18),
-          SizedBox(height: 10),
-          SamsSkeletonBox(height: 56, radius: 18),
-          SizedBox(height: 10),
-          SamsSkeletonBox(height: 56, radius: 18),
+          const SizedBox(height: 8),
+          const ShimmerWidget(height: 84, borderRadius: BorderRadius.all(Radius.circular(18))),
+          const SizedBox(height: 14),
+          const ShimmerWidget.line(width: 170, height: 16),
+          const SizedBox(height: 10),
+          ...List.generate(
+            4,
+            (index) => Padding(
+              padding: EdgeInsets.only(bottom: index == 3 ? 0 : 10),
+              child: const ShimmerWidget(
+                height: 56,
+                borderRadius: BorderRadius.all(Radius.circular(18)),
+              ),
+            ),
+          ),
         ],
       ),
     );

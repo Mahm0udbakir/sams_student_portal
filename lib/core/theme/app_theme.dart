@@ -56,14 +56,17 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         titleTextStyle: const TextStyle(
           color: Colors.white,
-          fontSize: 33,
-          fontWeight: FontWeight.w500,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 13,
+        ),
         hintStyle: TextStyle(color: _lightColorScheme.onSurfaceVariant),
         labelStyle: TextStyle(color: _lightColorScheme.onSurfaceVariant),
         enabledBorder: OutlineInputBorder(
@@ -87,7 +90,42 @@ class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-          side: BorderSide(color: _lightColorScheme.outlineVariant.withValues(alpha: 0.4)),
+          side: BorderSide(
+            color: _lightColorScheme.outlineVariant.withValues(alpha: 0.4),
+          ),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primary,
+          foregroundColor: Colors.white,
+          minimumSize: const Size.fromHeight(SamsUiTokens.buttonHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SamsUiTokens.radiusMd),
+          ),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: primary,
+          minimumSize: const Size.fromHeight(SamsUiTokens.buttonHeight),
+          side: BorderSide(color: primary.withValues(alpha: 0.4), width: 1.2),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SamsUiTokens.radiusMd),
+          ),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primary,
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SamsUiTokens.radiusMd),
+          ),
         ),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(

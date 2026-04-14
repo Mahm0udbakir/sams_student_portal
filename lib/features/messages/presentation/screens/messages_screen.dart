@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/repositories/fake_messages_repository.dart';
 import '../bloc/messages_bloc.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/empty_state_widget.dart';
+import '../../../../shared/widgets/shimmer_widget.dart';
 import '../../../../shared/widgets/sams_state_views.dart';
 
 class MessagesScreen extends StatelessWidget {
@@ -14,7 +16,11 @@ class MessagesScreen extends StatelessWidget {
   Future<void> _refreshMessages(BuildContext context) async {
     final bloc = context.read<MessagesBloc>();
     bloc.add(const MessagesRequested());
-    await bloc.stream.firstWhere((state) => state.status != MessagesStatus.loading);
+    try {
+      await bloc.stream
+          .firstWhere((state) => state.status != MessagesStatus.loading)
+          .timeout(const Duration(seconds: 6));
+    } catch (_) {}
     await Future<void>.delayed(const Duration(milliseconds: 180));
   }
 
@@ -23,6 +29,11 @@ class MessagesScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => MessagesBloc(repository: FakeMessagesRepository())..add(const MessagesRequested()),
       child: BlocBuilder<MessagesBloc, MessagesState>(
+        buildWhen: (previous, current) {
+          return previous.status != current.status ||
+              previous.threads != current.threads ||
+              previous.errorMessage != current.errorMessage;
+        },
         builder: (context, state) {
           final horizontalPadding = MediaQuery.sizeOf(context).width < 360 ? 12.0 : 16.0;
           final chats = state.threads;
@@ -75,12 +86,14 @@ class MessagesScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             if (chats.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 72),
-                child: SamsEmptyState(
+                child: EmptyStateWidget(
                   icon: Icons.mark_chat_unread_rounded,
                   title: 'No messages yet',
-                  message: 'Start a new conversation and your chats will appear here.',
+                  subtitle: 'Start a new conversation and your chats will appear here.',
+                  actionLabel: 'Refresh Inbox',
+                  onAction: () => context.read<MessagesBloc>().add(const MessagesRequested()),
                 ),
               )
             else
@@ -156,24 +169,27 @@ class _MessagesLoadingSkeleton extends StatelessWidget {
         title: const Text('Messages'),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-        child: Column(
-          children: const [
-            SamsSkeletonBox(height: 46, radius: 12),
-            SizedBox(height: 12),
-            SamsLoadingView(
-              title: 'Loading messages',
-              message: 'Syncing your latest chats from SAMS...',
+      body: ListView(
+        padding: SamsUiTokens.pageInsets(context, top: 10, bottom: 16),
+        children: [
+          const ShimmerWidget(height: 46, borderRadius: BorderRadius.all(Radius.circular(12))),
+          const SizedBox(height: 12),
+          const SamsLoadingView(
+            title: 'Loading your messages...',
+            message: 'Syncing your latest conversations from SAMS...',
+          ),
+          const SizedBox(height: 10),
+          ...List.generate(
+            4,
+            (index) => Padding(
+              padding: EdgeInsets.only(bottom: index == 3 ? 0 : 8),
+              child: const ShimmerWidget(
+                height: 58,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
             ),
-            SizedBox(height: 8),
-            SamsSkeletonBox(height: 58, radius: 10),
-            SizedBox(height: 8),
-            SamsSkeletonBox(height: 58, radius: 10),
-            SizedBox(height: 8),
-            SamsSkeletonBox(height: 58, radius: 10),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

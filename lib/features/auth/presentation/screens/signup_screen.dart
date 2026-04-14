@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
+import '../../../../shared/widgets/sams_pressable.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -18,6 +19,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final compact = SamsUiTokens.isCompactWidth(context);
+    final horizontalPadding = compact ? 14.0 : 18.0;
+    final topPadding = compact ? 14.0 : 16.0;
+    final bottomPadding = compact ? 10.0 : 14.0;
 
     return Scaffold(
       body: Stack(
@@ -56,21 +61,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: Container(
-              constraints: BoxConstraints(maxHeight: screenHeight * 0.72, maxWidth: 520),
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(26),
-                  topRight: Radius.circular(98),
+            child: SafeArea(
+              top: false,
+              child: Container(
+                constraints: BoxConstraints(maxHeight: screenHeight * 0.78, maxWidth: 520),
+                width: double.infinity,
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  topPadding,
+                  horizontalPadding,
+                  bottomPadding,
                 ),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(26),
+                    topRight: Radius.circular(98),
+                  ),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                     const Text(
                       'Welcome.',
                       style: TextStyle(
@@ -151,42 +163,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           const SizedBox(height: 2),
                           SizedBox(
                             width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _agreeTerms ? () => context.goNamed(AppRouteNames.home) : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: SamsUiTokens.primary,
-                                foregroundColor: Colors.white,
-                                disabledBackgroundColor: const Color(0xFFB7C1CB),
-                                disabledForegroundColor: Colors.white,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                            child: SamsTapScale(
+                              enabled: _agreeTerms,
+                              child: ElevatedButton(
+                                onPressed: _agreeTerms ? () => context.goNamed(AppRouteNames.home) : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: SamsUiTokens.primary,
+                                  foregroundColor: Colors.white,
+                                  disabledBackgroundColor: const Color(0xFFB7C1CB),
+                                  disabledForegroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
                                 ),
-                              ),
-                              child: const Text(
-                                'Sign up',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
+                                child: const Text(
+                                  'Sign up',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                           const SizedBox(height: 6),
-                          TextButton(
-                            onPressed: () => context.goNamed(AppRouteNames.login),
-                            child: const Text(
-                              'Already have an account? Login',
-                              style: TextStyle(
-                                color: SamsUiTokens.primary,
-                                fontWeight: FontWeight.w500,
+                          SamsTapScale(
+                            child: TextButton(
+                              onPressed: () => context.goNamed(AppRouteNames.login),
+                              child: const Text(
+                                'Already have an account? Login',
+                                style: TextStyle(
+                                  color: SamsUiTokens.primary,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

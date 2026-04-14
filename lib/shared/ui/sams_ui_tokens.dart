@@ -26,22 +26,47 @@ class SamsUiTokens {
   static const double radiusLg = 18;
   static const double radiusXl = 22;
 
+  static const double buttonHeight = 48;
+  static const double navBarHeight = 66;
+  static const double navBarCompactHeight = 62;
+  static const double navTopRadius = 22;
+
   static const Duration fastAnimation = Duration(milliseconds: 180);
   static const Duration pageAnimation = Duration(milliseconds: 280);
 
   static const List<BoxShadow> cardShadow = [
-    BoxShadow(
-      color: Color(0x14091C2B),
-      blurRadius: 14,
-      offset: Offset(0, 5),
-    ),
+    BoxShadow(color: Color(0x14091C2B), blurRadius: 14, offset: Offset(0, 5)),
   ];
 
   static const List<BoxShadow> softTopShadow = [
-    BoxShadow(
-      color: Color(0x14000000),
-      blurRadius: 20,
-      offset: Offset(0, -4),
-    ),
+    BoxShadow(color: Color(0x14000000), blurRadius: 20, offset: Offset(0, -4)),
   ];
+
+  static bool isCompactWidth(BuildContext context) {
+    return MediaQuery.sizeOf(context).width < 360;
+  }
+
+  static double horizontalPagePadding(
+    BuildContext context, {
+    double regular = pageHPadding,
+    double compact = 12,
+  }) {
+    return isCompactWidth(context) ? compact : regular;
+  }
+
+  static EdgeInsets pageInsets(
+    BuildContext context, {
+    double top = 14,
+    double bottom = 20,
+    double regularHorizontal = pageHPadding,
+    double compactHorizontal = 12,
+  }) {
+    final horizontal = horizontalPagePadding(
+      context,
+      regular: regularHorizontal,
+      compact: compactHorizontal,
+    );
+
+    return EdgeInsets.fromLTRB(horizontal, top, horizontal, bottom);
+  }
 }

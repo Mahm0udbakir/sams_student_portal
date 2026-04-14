@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../ui/sams_ui_tokens.dart';
+
 class SamsLogoTitle extends StatelessWidget {
   const SamsLogoTitle({super.key, required this.title, this.logoSize = 24});
 
@@ -20,7 +22,7 @@ class SamsLogoTitle extends StatelessWidget {
           errorBuilder: (_, __, ___) => const Icon(
             Icons.shield_rounded,
             size: 22,
-            color: Color(0xFF063454),
+            color: SamsUiTokens.primary,
           ),
         ),
         const SizedBox(width: 8),

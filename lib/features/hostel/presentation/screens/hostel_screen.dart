@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/data/repositories/fake_data_repository.dart';
-import '../../../auth/presentation/bloc/student_bloc.dart';
+import '../../../../shared/bloc/student_bloc.dart';
 import '../../data/repositories/fake_hostel_repository.dart';
 import '../bloc/hostel_bloc.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
@@ -60,13 +60,14 @@ class HostelScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   children: [
                     BlocBuilder<StudentBloc, StudentState>(
+                      buildWhen: (previous, current) {
+                        return previous.studentName != current.studentName ||
+                            previous.studentId != current.studentId ||
+                            previous.status != current.status;
+                      },
                       builder: (context, studentState) {
-                        final name = studentState is StudentLoaded
-                            ? studentState.student.name
-              : FakeDataRepository.studentName;
-                        final id = studentState is StudentLoaded
-                            ? studentState.student.id
-              : FakeDataRepository.studentId;
+                        final name = studentState.studentName ?? FakeDataRepository.studentName;
+                        final id = studentState.studentId ?? FakeDataRepository.studentId;
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

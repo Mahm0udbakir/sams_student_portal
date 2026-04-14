@@ -17,10 +17,10 @@ class FakeDataRepository {
       'studentName': studentName,
       'studentId': studentId,
       'attendancePercent': 75,
-      'attendanceSubtitle': 'for omnichannel',
+      'attendanceSubtitle': 'B.Des Semester 5 • Current term',
       'attendedClassesLabel': '8/11 classes attended',
-      'busRouteLabel': 'route no. 3',
-      'busStatusLabel': 'Status: In campus',
+      'busRouteLabel': 'Route 03 • North Loop',
+      'busStatusLabel': 'Status: Arriving at Main Gate',
       'announcements': getAnnouncements(),
     };
   }
@@ -36,13 +36,13 @@ class FakeDataRepository {
       {
         'title': 'Post Matric Scholarship Verification Window',
         'subtitle':
-            'Document verification desk will remain open from 10:00 AM to 4:00 PM till Sept 12.',
+            'Document verification desk will remain open from 10:00 AM to 4:00 PM through Sept 12 at Block A Reception.',
         'badge': 'Financial Aid',
       },
       {
         'title': 'Mid-Semester Examination Schedule Released',
         'subtitle':
-            'Please check your exam timetable on ERP and report conflicts to the exam cell immediately.',
+            'Please check your exam timetable on ERP and report conflicts to the exam cell within 48 hours.',
         'badge': 'Academics',
       },
       {
@@ -76,11 +76,17 @@ class FakeDataRepository {
 
   List<Map<String, dynamic>> getMessageThreads() {
     return const [
-      {'name': 'Gopal Meena', 'message': 'Sure. Meet me tomorrow'},
-      {'name': 'Mandeep Kaur', 'message': 'Okay.'},
+      {
+        'name': 'Gopal Meena',
+        'message': 'Sure, let\'s review the studio brief tomorrow at 10:30 AM.',
+      },
+      {
+        'name': 'Mandeep Kaur',
+        'message': 'Thanks! I uploaded the typography assignment files.',
+      },
       {
         'name': 'Class Rep - B.Des',
-        'message': 'Attendance notice shared for tomorrow.',
+        'message': 'Attendance notice shared for tomorrow. Bring your ID cards.',
       },
       {
         'name': 'Placement Cell',
@@ -104,6 +110,12 @@ class FakeDataRepository {
             'Student portal takes too long to load on hostel Wi-Fi during evening hours.',
         'contact': 'helpdesk.it@sams.edu\nExt. 214',
       },
+      {
+        'department': 'Library Services',
+        'message':
+            'My library card is not unlocking the digital journal portal from campus lab systems.',
+        'contact': 'library.support@sams.edu\nExt. 118',
+      },
     ];
   }
 
@@ -119,6 +131,7 @@ class FakeDataRepository {
       {'stop': 'SAMS University', 'time': '9:15 AM', 'status': 'Current'},
       {'stop': 'Zirakpur Lights', 'time': '8:45 AM', 'status': 'Passed'},
       {'stop': 'Elante Lights', 'time': '8:30 AM', 'status': 'Passed'},
+      {'stop': 'Sector 17 Plaza', 'time': '8:26 AM', 'status': 'Upcoming'},
       {'stop': 'Sector 28', 'time': '8:20 AM', 'status': 'Origin'},
     ];
   }
@@ -145,6 +158,10 @@ class FakeDataRepository {
       {
         'title': 'Mess Feedback',
         'subtitle': 'Submit daily meal quality and hygiene feedback',
+      },
+      {
+        'title': 'Room Maintenance',
+        'subtitle': 'Raise plumbing, electrical, or furniture maintenance requests',
       },
     ];
   }

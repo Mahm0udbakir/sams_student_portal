@@ -43,7 +43,9 @@ class AppScaffold extends StatelessWidget {
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(SamsUiTokens.navTopRadius),
+          ),
           boxShadow: SamsUiTokens.softTopShadow,
         ),
         child: NavigationBar(
@@ -52,7 +54,7 @@ class AppScaffold extends StatelessWidget {
           backgroundColor: Colors.white,
           indicatorColor: SamsUiTokens.primary.withValues(alpha: 0.12),
           surfaceTintColor: Colors.transparent,
-          height: 66,
+          height: SamsUiTokens.navBarHeight,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: const [
             NavigationDestination(
