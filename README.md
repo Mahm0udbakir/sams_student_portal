@@ -2,6 +2,10 @@
 
 A new Flutter project.
 
+## Tester Guide
+
+- See `TESTING_CHECKLIST.md` for the final QA checklist (Android + iOS install, login, and feature validation).
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
