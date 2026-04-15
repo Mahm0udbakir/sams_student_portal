@@ -1,5 +1,3 @@
-import 'dart:ui' show lerpDouble;
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
@@ -13,10 +11,16 @@ class MainShell extends StatefulWidget {
   State<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell>
-    with SingleTickerProviderStateMixin {
+class _MainShellState extends State<MainShell> {
   static const Color _samsPrimary = SamsUiTokens.primary;
-  late final AnimationController _tabSwitchController;
+  static const Set<String> _rootTabPaths = {
+    '/home',
+    '/messages',
+    '/scan',
+    '/help-desk',
+    '/menu',
+  };
+
   static const _navItems = [
     (label: 'Home', icon: Icons.home_outlined, activeIcon: Icons.home_rounded),
     (
@@ -37,33 +41,11 @@ class _MainShellState extends State<MainShell>
     (label: 'Menu', icon: Icons.menu_outlined, activeIcon: Icons.menu_rounded),
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _tabSwitchController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-      value: 1,
-    );
-  }
-
-  @override
-  void dispose() {
-    _tabSwitchController.dispose();
-    super.dispose();
-  }
-
   void _onTap(int index) {
-    final switchingBranch = index != widget.navigationShell.currentIndex;
-
     widget.navigationShell.goBranch(
       index,
       initialLocation: index == widget.navigationShell.currentIndex,
     );
-
-    if (switchingBranch) {
-      _tabSwitchController.forward(from: 0);
-    }
   }
 
   List<NavigationDestination> _buildDestinations(int selectedIndex) {
@@ -102,47 +84,26 @@ class _MainShellState extends State<MainShell>
         .toList(growable: false);
   }
 
-  Widget _buildAnimatedBody({required Widget child, required double bottom}) {
-    return AnimatedBuilder(
-      animation: _tabSwitchController,
-      child: child,
-      builder: (context, child) {
-        final progress = Curves.easeOutCubic.transform(
-          _tabSwitchController.value,
-        );
-        final opacity = lerpDouble(0.9, 1, progress)!;
-        final scale = lerpDouble(0.992, 1, progress)!;
-        final horizontalShift = lerpDouble(6, 0, progress)!;
-
-        return Opacity(
-          opacity: opacity,
-          child: Transform.translate(
-            offset: Offset(horizontalShift, 0),
-            child: Transform.scale(
-              scale: scale,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: bottom),
-                child: child,
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final location = GoRouterState.of(context).uri.path;
+    final showShellNavigation = _rootTabPaths.contains(location);
     final compact = SamsUiTokens.isCompactWidth(context);
     final ultraNarrow = screenWidth < 390;
     final useDesktopRail = SamsUiTokens.isDesktopWidth(context);
     final navBarHeight = compact
         ? SamsUiTokens.navBarCompactHeight
         : SamsUiTokens.navBarHeight;
+    const floatingBottomGap = 12.0;
+    const floatingSideGap = 12.0;
+    const floatingTopGap = 6.0;
 
     if (useDesktopRail) {
+      if (!showShellNavigation) {
+        return SafeArea(child: widget.navigationShell);
+      }
+
       return Scaffold(
         body: Row(
           children: [
@@ -150,38 +111,27 @@ class _MainShellState extends State<MainShell>
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
                 child: Container(
-                  width: 108,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFFE0E7EF)),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x14001426),
-                        blurRadius: 18,
+                        color: Color(0x12001426),
+                        blurRadius: 20,
                         offset: Offset(0, 6),
                       ),
                     ],
+                    border: Border.all(color: const Color(0xFFDDE5EE)),
                   ),
                   child: NavigationRail(
                     selectedIndex: widget.navigationShell.currentIndex,
                     onDestinationSelected: _onTap,
-                    labelType: screenWidth >= 1240
-                        ? NavigationRailLabelType.none
-                        : NavigationRailLabelType.selected,
-                    groupAlignment: -0.65,
-                    minWidth: 98,
-                    minExtendedWidth: 176,
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: Colors.white,
+                    useIndicator: true,
                     indicatorColor: _samsPrimary.withValues(alpha: 0.13),
-                    selectedLabelTextStyle: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: SamsUiTokens.primary,
-                    ),
-                    unselectedLabelTextStyle: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF7E8794),
-                    ),
+                    labelType: NavigationRailLabelType.all,
+                    minWidth: 80,
+                    minExtendedWidth: 132,
                     destinations: _buildRailDestinations(
                       widget.navigationShell.currentIndex,
                     ),
@@ -191,17 +141,9 @@ class _MainShellState extends State<MainShell>
             ),
             Expanded(
               child: SafeArea(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: SamsUiTokens.contentMaxWidth,
-                    ),
-                    child: _buildAnimatedBody(
-                      child: widget.navigationShell,
-                      bottom: 0,
-                    ),
-                  ),
-                ),
+                top: false,
+                bottom: false,
+                child: widget.navigationShell,
               ),
             ),
           ],
@@ -210,54 +152,68 @@ class _MainShellState extends State<MainShell>
     }
 
     return Scaffold(
-      body: _buildAnimatedBody(
-        child: widget.navigationShell,
-        bottom: navBarHeight + bottomInset + 4,
-      ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.only(bottom: bottomInset),
-        margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x22001426),
-              blurRadius: 22,
-              offset: Offset(0, -4),
-            ),
-          ],
-          borderRadius: BorderRadius.circular(SamsUiTokens.navTopRadius),
-          border: Border.all(color: const Color(0xFFE0E7EF)),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(SamsUiTokens.navTopRadius),
-          child: NavigationBar(
-            selectedIndex: widget.navigationShell.currentIndex,
-            onDestinationSelected: _onTap,
-            backgroundColor: Colors.white,
-            indicatorColor: _samsPrimary.withValues(alpha: 0.13),
-            indicatorShape: const StadiumBorder(),
-            surfaceTintColor: Colors.transparent,
-            height: navBarHeight,
-            labelBehavior: ultraNarrow
-                ? NavigationDestinationLabelBehavior.onlyShowSelected
-                : NavigationDestinationLabelBehavior.alwaysShow,
-            labelTextStyle: WidgetStateProperty.resolveWith((states) {
-              final selected = states.contains(WidgetState.selected);
-              return TextStyle(
-                fontSize: compact ? 11.2 : 12,
-                height: 1.1,
-                letterSpacing: 0.1,
-                fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                color: selected ? _samsPrimary : const Color(0xFF7E8794),
-              );
-            }),
-            destinations: _buildDestinations(
-              widget.navigationShell.currentIndex,
-            ),
-          ),
-        ),
-      ),
+      body: SafeArea(top: false, bottom: false, child: widget.navigationShell),
+      bottomNavigationBar: showShellNavigation
+          ? SafeArea(
+              top: false,
+              minimum: const EdgeInsets.fromLTRB(
+                floatingSideGap,
+                floatingTopGap,
+                floatingSideGap,
+                floatingBottomGap,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x22001426),
+                      blurRadius: 24,
+                      offset: Offset(0, -6),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(
+                    SamsUiTokens.navTopRadius,
+                  ),
+                  border: Border.all(color: const Color(0xFFE0E7EF)),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    SamsUiTokens.navTopRadius,
+                  ),
+                  child: NavigationBar(
+                    selectedIndex: widget.navigationShell.currentIndex,
+                    onDestinationSelected: _onTap,
+                    backgroundColor: Colors.white,
+                    indicatorColor: _samsPrimary.withValues(alpha: 0.13),
+                    indicatorShape: const StadiumBorder(),
+                    surfaceTintColor: Colors.transparent,
+                    height: navBarHeight,
+                    labelBehavior: ultraNarrow
+                        ? NavigationDestinationLabelBehavior.onlyShowSelected
+                        : NavigationDestinationLabelBehavior.alwaysShow,
+                    labelTextStyle: WidgetStateProperty.resolveWith((states) {
+                      final selected = states.contains(WidgetState.selected);
+                      return TextStyle(
+                        fontSize: compact ? 11.2 : 12,
+                        height: 1.1,
+                        letterSpacing: 0.1,
+                        fontWeight: selected
+                            ? FontWeight.w800
+                            : FontWeight.w600,
+                        color: selected
+                            ? _samsPrimary
+                            : const Color(0xFF7E8794),
+                      );
+                    }),
+                    destinations: _buildDestinations(
+                      widget.navigationShell.currentIndex,
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }

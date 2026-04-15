@@ -74,6 +74,7 @@ class HelpDeskScreen extends StatelessWidget {
               color: SamsUiTokens.primary,
               child: SafeArea(
                 child: ListView(
+                  key: const PageStorageKey<String>('helpDeskMainList'),
                   physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics(),
                   ),

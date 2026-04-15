@@ -225,7 +225,7 @@ class ScanScreen extends StatelessWidget {
           },
           builder: (context, state) {
             final width = MediaQuery.sizeOf(context).width;
-            final frameSize = (width - 68).clamp(230.0, 290.0);
+            final frameSize = (width - 68).clamp(220.0, 290.0);
             final options = state.options;
             final galleryLabel = _labelForKeyword(
               options,
@@ -273,122 +273,128 @@ class ScanScreen extends StatelessWidget {
               body: Stack(
                 children: [
                   SafeArea(
-                    child: SingleChildScrollView(
+                    child: Padding(
                       padding: SamsUiTokens.pageInsets(
                         context,
                         top: 14,
-                        bottom: 24,
+                        bottom: 18,
                         regularHorizontal: 20,
                         compactHorizontal: 14,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Scan QR Code',
-                            style: TextStyle(
-                              color: SamsUiTokens.primary,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          if (isProcessing)
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: 12),
-                              child: Text(
-                                'Scanning in progress...',
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Column(
+                            children: [
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Scan QR Code',
                                 style: TextStyle(
-                                  color: SamsUiTokens.textSecondary,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
+                                  color: SamsUiTokens.primary,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                            ),
-                          Center(
-                            child: Container(
-                              width: frameSize,
-                              height: frameSize,
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: const Color(0xFFE3E8EF),
-                                ),
-                                boxShadow: SamsUiTokens.cardShadow,
-                              ),
-                              child: const DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: Color(0xFFF8FAFD),
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(10),
+                              const SizedBox(height: 10),
+                              if (isProcessing)
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 10),
+                                  child: Text(
+                                    'Scanning in progress...',
+                                    style: TextStyle(
+                                      color: SamsUiTokens.textSecondary,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
+                              Expanded(
                                 child: Center(
-                                  child: Icon(
-                                    Icons.qr_code_scanner_rounded,
-                                    color: SamsUiTokens.primary,
-                                    size: 116,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 48),
-                          SizedBox(
-                            width: double.infinity,
-                            child: SamsTapScale(
-                              enabled: !isProcessing,
-                              child: TextButton(
-                                onPressed: isProcessing
-                                    ? null
-                                    : () => context.read<ScanBloc>().add(
-                                        const ScanGalleryPicked(),
+                                  child: Container(
+                                    width: frameSize,
+                                    height: frameSize,
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(14),
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: const Color(0xFFE3E8EF),
                                       ),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: SamsUiTokens.primary,
-                                  textStyle: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                                child: Text(galleryLabel),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: double.infinity,
-                            child: SamsTapScale(
-                              enabled: !isProcessing,
-                              child: ElevatedButton(
-                                onPressed: isProcessing
-                                    ? null
-                                    : () => context.read<ScanBloc>().add(
-                                        const ScanStarted(),
+                                      boxShadow: SamsUiTokens.cardShadow,
+                                    ),
+                                    child: const DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFF8FAFD),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(10),
+                                        ),
                                       ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _samsPrimary,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 14,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  textStyle: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 15,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.qr_code_scanner_rounded,
+                                          color: SamsUiTokens.primary,
+                                          size: 116,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                child: Text(cameraLabel),
                               ),
-                            ),
-                          ),
-                        ],
+                              SizedBox(
+                                width: double.infinity,
+                                child: SamsTapScale(
+                                  enabled: !isProcessing,
+                                  child: TextButton(
+                                    onPressed: isProcessing
+                                        ? null
+                                        : () => context.read<ScanBloc>().add(
+                                            const ScanGalleryPicked(),
+                                          ),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: SamsUiTokens.primary,
+                                      minimumSize: const Size.fromHeight(46),
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    child: Text(galleryLabel),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: double.infinity,
+                                child: SamsTapScale(
+                                  enabled: !isProcessing,
+                                  child: ElevatedButton(
+                                    onPressed: isProcessing
+                                        ? null
+                                        : () => context.read<ScanBloc>().add(
+                                            const ScanStarted(),
+                                          ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: _samsPrimary,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      minimumSize: const Size.fromHeight(50),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    child: Text(cameraLabel),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ),

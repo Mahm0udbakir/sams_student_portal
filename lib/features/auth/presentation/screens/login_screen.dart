@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [SamsUiTokens.brandRed, SamsUiTokens.primary],
+                    colors: [SamsUiTokens.primary, Color(0xFF0A4F81)],
                   ),
                 ),
               ),
@@ -53,8 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    SamsUiTokens.brandRed.withValues(alpha: 0.72),
-                    const Color(0xFF2A030B).withValues(alpha: 0.78),
+                    SamsUiTokens.primary.withValues(alpha: 0.72),
+                    const Color(0xFF02253D).withValues(alpha: 0.82),
                   ],
                 ),
               ),
@@ -86,16 +86,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     bottomPadding,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFFF9FCFF),
                     borderRadius: useDesktopCard
                         ? BorderRadius.circular(30)
                         : const BorderRadius.only(
                             topLeft: Radius.circular(30),
                             topRight: Radius.circular(88),
                           ),
+                    border: Border.all(
+                      color: SamsUiTokens.primary.withValues(alpha: 0.12),
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.12),
+                        color: const Color(0xFF011B2D).withValues(alpha: 0.14),
                         blurRadius: 18,
                         offset: const Offset(0, -6),
                       ),
@@ -134,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: SamsUiTokens.brandRed.withValues(
+                                    color: SamsUiTokens.primary.withValues(
                                       alpha: 0.22,
                                     ),
                                     blurRadius: 16,
@@ -146,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () =>
                                     context.goNamed(AppRouteNames.home),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: SamsUiTokens.brandRed,
+                                  backgroundColor: SamsUiTokens.primary,
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   minimumSize: const Size.fromHeight(52),
