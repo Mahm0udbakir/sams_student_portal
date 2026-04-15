@@ -1,2 +1,2 @@
-// Legacy auth student BLoC removed.
+// Compatibility stub.
 // Use `lib/shared/bloc/student_bloc.dart` instead.

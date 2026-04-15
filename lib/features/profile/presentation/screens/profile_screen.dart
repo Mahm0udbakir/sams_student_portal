@@ -165,6 +165,12 @@ class ProfileScreen extends StatelessWidget {
 
           final options = [
             (
+              title: 'Settings',
+              subtitle: 'Appearance, language, notifications and security',
+              icon: Icons.settings_rounded,
+              routeName: AppRouteNames.settings,
+            ),
+            (
               title: 'Session',
               subtitle: overview.sessionSubtitle,
               icon: Icons.calendar_month_rounded,
@@ -175,12 +181,6 @@ class ProfileScreen extends StatelessWidget {
               subtitle: 'Last changed 2 months ago',
               icon: Icons.lock_reset_rounded,
               routeName: AppRouteNames.changePassword,
-            ),
-            (
-              title: 'Privacy',
-              subtitle: 'Manage app permissions and data visibility',
-              icon: Icons.privacy_tip_rounded,
-              routeName: AppRouteNames.privacy,
             ),
             (
               title: 'Switch to SAMS Bus',

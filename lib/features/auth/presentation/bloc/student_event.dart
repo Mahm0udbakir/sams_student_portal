@@ -1,1 +1,1 @@
-// Legacy auth student event model removed.
+// Compatibility stub.

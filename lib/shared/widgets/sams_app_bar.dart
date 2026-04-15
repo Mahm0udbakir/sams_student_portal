@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../ui/sams_ui_tokens.dart';
 import 'sams_logo_title.dart';
@@ -18,7 +19,7 @@ class SamsAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
 
   @override
-  Size get preferredSize => const Size.fromHeight(68);
+  Size get preferredSize => const Size.fromHeight(58);
 
   @override
   Widget build(BuildContext context) {
@@ -28,39 +29,35 @@ class SamsAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       automaticallyImplyLeading: false,
       centerTitle: true,
-      toolbarHeight: 68,
+      toolbarHeight: 58,
       elevation: 0,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       backgroundColor: Colors.transparent,
       shadowColor: Colors.transparent,
-      leadingWidth: 56,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(18),
+          bottomRight: Radius.circular(18),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      leadingWidth: 66,
       leading: showBackButton
-          ? Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.28),
-                  ),
-                ),
-                child: BackButton(
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  color: Colors.white,
-                ),
-              ),
+          ? CupertinoNavigationBarBackButton(
+              onPressed: () => Navigator.of(context).maybePop(),
+              color: Colors.white,
+              previousPageTitle: '',
             )
           : null,
       title: showLogo
           ? SamsLogoTitle(
               title: title,
-              logoSize: 22,
+              logoSize: 20,
               fallbackIconColor: Colors.white,
               textStyle: const TextStyle(
                 color: Colors.white,
-                fontSize: 17,
+                fontSize: 16,
                 fontWeight: FontWeight.w800,
               ),
             )
@@ -72,6 +69,10 @@ class SamsAppBar extends StatelessWidget implements PreferredSizeWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [SamsUiTokens.primary, Color(0xFF0A4D78)],
+          ),
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(18),
+            bottomRight: Radius.circular(18),
           ),
           boxShadow: [
             BoxShadow(

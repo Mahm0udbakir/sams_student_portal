@@ -73,7 +73,7 @@ class BusScreen extends StatelessWidget {
               : 300.0;
           final statusColor = state.isInCampus
               ? SamsUiTokens.success
-              : const Color(0xFFCC2D2D);
+              : SamsUiTokens.secondary;
 
           return Scaffold(
             backgroundColor: SamsUiTokens.scaffoldBackground,
@@ -195,12 +195,12 @@ class BusScreen extends StatelessWidget {
                                   width: 58,
                                   height: 58,
                                   decoration: const BoxDecoration(
-                                    color: Color(0x1AFF3B30),
+                                    color: Color(0x1A1E88E5),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
                                     Icons.location_on_rounded,
-                                    color: Color(0xFFEF3D3D),
+                                    color: SamsUiTokens.secondary,
                                     size: 38,
                                   ),
                                 ),

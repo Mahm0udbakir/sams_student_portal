@@ -1,1 +1,1 @@
-// Legacy auth student state model removed.
+// Compatibility stub.

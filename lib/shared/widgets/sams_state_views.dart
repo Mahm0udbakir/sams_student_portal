@@ -107,10 +107,10 @@ class SamsErrorState extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF1F1),
+                  color: SamsUiTokens.primary.withValues(alpha: 0.10),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: const Color(0xFFCC2D2D), size: 30),
+                child: Icon(icon, color: SamsUiTokens.primary, size: 30),
               ),
               const SizedBox(height: 12),
               Text(

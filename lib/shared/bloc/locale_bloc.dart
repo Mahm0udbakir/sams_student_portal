@@ -1,0 +1,13 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class LocaleBloc extends Cubit<Locale> {
+  LocaleBloc() : super(const Locale('en'));
+
+  void setLocale(Locale locale) {
+    if (state == locale) {
+      return;
+    }
+    emit(locale);
+  }
+}

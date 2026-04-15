@@ -36,7 +36,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [SamsUiTokens.brandRed, SamsUiTokens.primary],
+                    colors: [SamsUiTokens.brandBlue, SamsUiTokens.primary],
                   ),
                 ),
               ),
@@ -49,8 +49,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    SamsUiTokens.brandRed.withValues(alpha: 0.7),
-                    const Color(0xFF2A030B).withValues(alpha: 0.8),
+                    SamsUiTokens.brandBlue.withValues(alpha: 0.72),
+                    const Color(0xFF02253D).withValues(alpha: 0.82),
                   ],
                 ),
               ),

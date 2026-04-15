@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class SamsUiTokens {
   static const Color primary = Color(0xFF063454);
-  static const Color brandRed = Color(0xFFA90F2A);
+  static const Color brandBlue = Color(0xFF0A4D78);
   static const Color secondary = Color(0xFF1E88E5);
   static const Color accent = Color(0xFF0AA7A7);
 

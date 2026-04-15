@@ -8,6 +8,9 @@ class AppTheme {
   static const Color secondary = SamsUiTokens.secondary;
   static const Color background = SamsUiTokens.background;
   static const Color surface = SamsUiTokens.surface;
+  static const Color _darkScaffold = Color(0xFF0F141B);
+  static const Color _darkSurface = Color(0xFF18222C);
+  static const Color _darkNavSurface = Color(0xFF15202A);
 
   static final ColorScheme _lightColorScheme = ColorScheme(
     brightness: Brightness.light,
@@ -39,6 +42,38 @@ class AppTheme {
     onInverseSurface: const Color(0xFFF0F1F3),
     inversePrimary: const Color(0xFFA9C9EA),
     surfaceTint: primary,
+  );
+
+  static final ColorScheme _darkColorScheme = ColorScheme(
+    brightness: Brightness.dark,
+    primary: const Color(0xFF8BC6F0),
+    onPrimary: const Color(0xFF03263F),
+    primaryContainer: const Color(0xFF0B3D60),
+    onPrimaryContainer: const Color(0xFFD6ECFF),
+    secondary: const Color(0xFF73B8EA),
+    onSecondary: const Color(0xFF042842),
+    secondaryContainer: const Color(0xFF133754),
+    onSecondaryContainer: const Color(0xFFD4EAFF),
+    tertiary: const Color(0xFF6EE2E2),
+    onTertiary: const Color(0xFF003737),
+    tertiaryContainer: const Color(0xFF005555),
+    onTertiaryContainer: const Color(0xFFB6FFFF),
+    error: const Color(0xFFFFB4AB),
+    onError: const Color(0xFF690005),
+    errorContainer: const Color(0xFF93000A),
+    onErrorContainer: const Color(0xFFFFDAD6),
+    surface: const Color(0xFF111821),
+    onSurface: const Color(0xFFE8EDF3),
+    surfaceContainerHighest: const Color(0xFF1B2631),
+    onSurfaceVariant: const Color(0xFFB5C1CD),
+    outline: const Color(0xFF8090A0),
+    outlineVariant: const Color(0xFF32414F),
+    shadow: Colors.black,
+    scrim: Colors.black,
+    inverseSurface: const Color(0xFFE8EDF3),
+    onInverseSurface: const Color(0xFF1A1F26),
+    inversePrimary: const Color(0xFF245A81),
+    surfaceTint: const Color(0xFF8BC6F0),
   );
 
   static ThemeData get lightTheme {
@@ -148,6 +183,19 @@ class AppTheme {
         showUnselectedLabels: true,
         elevation: 8,
       ),
+      dividerTheme: DividerThemeData(
+        color: _lightColorScheme.outlineVariant.withValues(alpha: 0.5),
+        thickness: 1,
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: _lightColorScheme.onSurfaceVariant,
+        textColor: _lightColorScheme.onSurface,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: _lightColorScheme.inverseSurface,
+        contentTextStyle: TextStyle(color: _lightColorScheme.onInverseSurface),
+      ),
       textTheme: const TextTheme(
         headlineSmall: TextStyle(
           color: SamsUiTokens.textPrimary,
@@ -201,6 +249,195 @@ class AppTheme {
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
             fontSize: 12,
             color: isSelected ? primary : const Color(0xFF7A8694),
+          );
+        }),
+      ),
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+    );
+  }
+
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: _darkColorScheme,
+      scaffoldBackgroundColor: _darkScaffold,
+      brightness: Brightness.dark,
+      fontFamily: null,
+      appBarTheme: AppBarTheme(
+        centerTitle: true,
+        toolbarHeight: 68,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shadowColor: const Color(0x66000000),
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.white),
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+          systemNavigationBarIconBrightness: Brightness.light,
+        ),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: _darkSurface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 13,
+        ),
+        hintStyle: TextStyle(color: _darkColorScheme.onSurfaceVariant),
+        labelStyle: TextStyle(color: _darkColorScheme.onSurfaceVariant),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(SamsUiTokens.radiusMd),
+          borderSide: BorderSide(
+            color: _darkColorScheme.outlineVariant.withValues(alpha: 0.8),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(SamsUiTokens.radiusMd),
+          borderSide: BorderSide(color: _darkColorScheme.primary, width: 1.4),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(SamsUiTokens.radiusMd),
+          borderSide: BorderSide(color: _darkColorScheme.error),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: _darkSurface,
+        elevation: 0,
+        shadowColor: Colors.black45,
+        surfaceTintColor: Colors.transparent,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+          side: BorderSide(
+            color: _darkColorScheme.outlineVariant.withValues(alpha: 0.7),
+          ),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primary,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(0, SamsUiTokens.buttonHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SamsUiTokens.radiusMd),
+          ),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: _darkColorScheme.primary,
+          minimumSize: const Size(0, SamsUiTokens.buttonHeight),
+          side: BorderSide(
+            color: _darkColorScheme.primary.withValues(alpha: 0.5),
+            width: 1.2,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SamsUiTokens.radiusMd),
+          ),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: _darkColorScheme.primary,
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SamsUiTokens.radiusMd),
+          ),
+        ),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: _darkNavSurface,
+        selectedItemColor: _darkColorScheme.primary,
+        unselectedItemColor: _darkColorScheme.onSurfaceVariant,
+        selectedIconTheme: const IconThemeData(size: 24),
+        unselectedIconTheme: const IconThemeData(size: 22),
+        showUnselectedLabels: true,
+        elevation: 8,
+      ),
+      dividerTheme: DividerThemeData(
+        color: _darkColorScheme.outlineVariant.withValues(alpha: 0.8),
+        thickness: 1,
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: _darkColorScheme.onSurfaceVariant,
+        textColor: _darkColorScheme.onSurface,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: _darkColorScheme.surfaceContainerHighest,
+        contentTextStyle: TextStyle(color: _darkColorScheme.onSurface),
+      ),
+      textTheme: const TextTheme(
+        headlineSmall: TextStyle(
+          color: Color(0xFFE8EDF3),
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+          height: 1.2,
+        ),
+        titleLarge: TextStyle(
+          color: Color(0xFFE8EDF3),
+          fontSize: 19,
+          fontWeight: FontWeight.w800,
+        ),
+        titleMedium: TextStyle(
+          color: Color(0xFFE8EDF3),
+          fontSize: 15.2,
+          fontWeight: FontWeight.w700,
+        ),
+        bodyLarge: TextStyle(
+          color: Color(0xFFE8EDF3),
+          fontSize: 14.2,
+          fontWeight: FontWeight.w500,
+          height: 1.35,
+        ),
+        bodyMedium: TextStyle(
+          color: Color(0xFFE8EDF3),
+          fontSize: 13.2,
+          fontWeight: FontWeight.w500,
+          height: 1.35,
+        ),
+        bodySmall: TextStyle(
+          color: Color(0xFFBDC7D4),
+          fontSize: 12.2,
+          fontWeight: FontWeight.w500,
+          height: 1.35,
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        elevation: 0,
+        backgroundColor: _darkNavSurface,
+        indicatorColor: _darkColorScheme.primary.withValues(alpha: 0.22),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final isSelected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            color: isSelected
+                ? _darkColorScheme.primary
+                : _darkColorScheme.onSurfaceVariant,
+            size: 24,
+          );
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final isSelected = states.contains(WidgetState.selected);
+          return TextStyle(
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+            fontSize: 12,
+            color: isSelected
+                ? _darkColorScheme.primary
+                : _darkColorScheme.onSurfaceVariant,
           );
         }),
       ),

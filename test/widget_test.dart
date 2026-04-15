@@ -101,7 +101,110 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
 
+    await tester.drag(find.byType(ListView).first, const Offset(0, -420));
+    await tester.pumpAndSettle();
+
     expect(find.text('Raise a complaint'), findsOneWidget);
+  });
+
+  testWidgets('Home Schedule card opens Calendar screen', (
+    WidgetTester tester,
+  ) async {
+    await pumpToLogin(tester);
+    await tester.tap(find.text('Sign-in with QR code'));
+    await tester.pumpAndSettle();
+
+    final scheduleCard = find.text('Schedule').first;
+    expect(scheduleCard, findsOneWidget);
+
+    await tester.tap(scheduleCard);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Calendar'), findsWidgets);
+    expect(
+      find.textContaining('Swipe left or right to change month'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Profile Settings route opens Settings screen', (
+    WidgetTester tester,
+  ) async {
+    await pumpToLogin(tester);
+    await tester.tap(find.text('Sign-in with QR code'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Menu'));
+    await tester.pumpAndSettle();
+
+    final settingsOption = find.text('Settings').hitTestable();
+    expect(settingsOption, findsOneWidget);
+
+    await tester.tap(settingsOption);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Smart Settings'), findsOneWidget);
+    expect(find.text('Appearance'), findsOneWidget);
+  });
+
+  testWidgets('Hostel detail routes open all detail screens', (
+    WidgetTester tester,
+  ) async {
+    await pumpToLogin(tester);
+    await tester.tap(find.text('Sign-in with QR code'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Menu'));
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -420));
+    await tester.pumpAndSettle();
+
+    final hostelOption = find.text('Switch to SAMS Hostel').hitTestable();
+    await tester.tap(hostelOption, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Switch'));
+    await tester.pumpAndSettle();
+
+    Future<void> openAndAssertDetail({
+      required String menuItem,
+      required String screenTitle,
+    }) async {
+      final menuText = find.text(menuItem).first;
+      await tester.ensureVisible(menuText);
+      await tester.pumpAndSettle();
+
+      final menuEntry = find.text(menuItem).hitTestable();
+      expect(menuEntry, findsOneWidget);
+
+      await tester.tap(menuEntry);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hostel services & requests'), findsNothing);
+      expect(find.text(screenTitle), findsWidgets);
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.text('Hostel services & requests'), findsOneWidget);
+    }
+
+    await openAndAssertDetail(
+      menuItem: 'Leave Permission',
+      screenTitle: 'Leave Permission',
+    );
+    await openAndAssertDetail(
+      menuItem: 'Fee Receipt',
+      screenTitle: 'Fee Receipt',
+    );
+    await openAndAssertDetail(
+      menuItem: 'Mess Feedback',
+      screenTitle: 'Mess Feedback',
+    );
+    await openAndAssertDetail(
+      menuItem: 'Maintenance Request',
+      screenTitle: 'Maintenance Request',
+    );
   });
 
   testWidgets(
@@ -142,4 +245,53 @@ void main() {
       expect(find.text('Hostel services & requests'), findsOneWidget);
     },
   );
+
+  testWidgets('Settings dark mode applies app theme immediately', (
+    WidgetTester tester,
+  ) async {
+    await pumpToLogin(tester);
+    await tester.tap(find.text('Sign-in with QR code'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Menu'));
+    await tester.pumpAndSettle();
+
+    final settingsOption = find.text('Settings').hitTestable();
+    await tester.tap(settingsOption);
+    await tester.pumpAndSettle();
+
+    final appBefore = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(appBefore.themeMode, ThemeMode.light);
+
+    await tester.tap(find.byType(Switch).first);
+    await tester.pumpAndSettle();
+
+    final appAfter = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(appAfter.themeMode, ThemeMode.dark);
+  });
+
+  testWidgets('Settings language change applies locale immediately', (
+    WidgetTester tester,
+  ) async {
+    await pumpToLogin(tester);
+    await tester.tap(find.text('Sign-in with QR code'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Menu'));
+    await tester.pumpAndSettle();
+
+    final settingsOption = find.text('Settings').hitTestable();
+    await tester.tap(settingsOption);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(DropdownButton<String>).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Arabic').last);
+    await tester.pumpAndSettle();
+
+    final directionality = tester.widget<Directionality>(
+      find.byType(Directionality).first,
+    );
+    expect(directionality.textDirection, TextDirection.rtl);
+  });
 }

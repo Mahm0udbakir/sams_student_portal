@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/routes/app_router.dart';
 import '../../../../core/data/repositories/fake_data_repository.dart';
 import '../../../../shared/bloc/student_bloc.dart';
 import '../../data/repositories/fake_hostel_repository.dart';
@@ -36,6 +38,9 @@ class HostelScreen extends StatelessWidget {
               previous.errorMessage != current.errorMessage;
         },
         builder: (context, state) {
+          final colorScheme = Theme.of(context).colorScheme;
+          final textTheme = Theme.of(context).textTheme;
+
           if (state.status == HostelStatus.initial ||
               state.status == HostelStatus.loading) {
             return const _HostelLoadingSkeleton();
@@ -43,7 +48,7 @@ class HostelScreen extends StatelessWidget {
 
           if (state.status == HostelStatus.failure) {
             return Scaffold(
-              backgroundColor: SamsUiTokens.scaffoldBackground,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               appBar: const SamsAppBar(title: 'SAMS Hostel'),
               body: SamsErrorState(
                 title: 'Couldn\'t load hostel services',
@@ -58,7 +63,7 @@ class HostelScreen extends StatelessWidget {
           }
 
           return Scaffold(
-            backgroundColor: SamsUiTokens.scaffoldBackground,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             appBar: const SamsAppBar(title: 'SAMS Hostel'),
             body: RefreshIndicator(
               onRefresh: () => _refreshHostel(context),
@@ -68,7 +73,7 @@ class HostelScreen extends StatelessWidget {
                   physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics(),
                   ),
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 26),
                   children: [
                     BlocBuilder<StudentBloc, StudentState>(
                       buildWhen: (previous, current) {
@@ -84,53 +89,73 @@ class HostelScreen extends StatelessWidget {
                             studentState.studentId ??
                             FakeDataRepository.studentId;
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Hi, $name',
-                              style: const TextStyle(
-                                color: Color(0xFF1F2937),
-                                fontSize: 29,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'ID: $id',
-                              style: const TextStyle(
-                                color: SamsUiTokens.textSecondary,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        );
+                        return _HostelHeroHeader(name: name, id: id);
                       },
                     ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Hostel services & requests',
-                      style: TextStyle(
-                        color: Color(0xFF6B7280),
-                        fontWeight: FontWeight.w600,
+                    const SizedBox(height: 22),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: colorScheme.outlineVariant.withValues(
+                            alpha: 0.72,
+                          ),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.12),
+                            blurRadius: 14,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.apartment_rounded,
+                            size: 19,
+                            color: colorScheme.primary,
+                          ),
+                          SizedBox(width: 9),
+                          Expanded(
+                            child: Text(
+                              'Hostel services & requests',
+                              style: textTheme.titleMedium?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 14),
                     ...state.menuItems.map(
                       (item) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.only(bottom: 12),
                         child: _HostelMenuCard(
                           key: ValueKey(item.title),
                           title: item.title,
                           subtitle: item.subtitle,
                           icon: _hostelIconFor(item.title),
                           onTap: () {
-                            ModernSnackbars.show(
-                              context,
-                              message: '${item.title} (coming soon)',
-                              type: ModernSnackbarType.info,
-                            );
+                            final routeName = _hostelRouteFor(item.title);
+                            if (routeName == null) {
+                              ModernSnackbars.show(
+                                context,
+                                message: '${item.title} is not available yet.',
+                                type: ModernSnackbarType.info,
+                              );
+                              return;
+                            }
+                            context.pushNamed(routeName);
                           },
                         ),
                       ),
@@ -146,26 +171,172 @@ class HostelScreen extends StatelessWidget {
   }
 }
 
+String? _hostelRouteFor(String title) {
+  final normalized = title.toLowerCase();
+
+  if (normalized.contains('leave')) {
+    return AppRouteNames.hostelLeavePermission;
+  }
+
+  if (normalized.contains('mess') || normalized.contains('feedback')) {
+    return AppRouteNames.hostelMessFeedback;
+  }
+
+  if (normalized.contains('fee') || normalized.contains('receipt')) {
+    return AppRouteNames.hostelFeeReceipt;
+  }
+
+  if (normalized.contains('maintenance') || normalized.contains('request')) {
+    return AppRouteNames.hostelMaintenanceRequest;
+  }
+
+  return null;
+}
+
 IconData _hostelIconFor(String title) {
   final lower = title.toLowerCase();
 
-  if (lower.contains('gate')) {
-    return Icons.logout_rounded;
+  if (lower.contains('leave')) {
+    return Icons.directions_walk_rounded;
+  }
+
+  if (lower.contains('mess') || lower.contains('feedback')) {
+    return Icons.restaurant_menu_rounded;
   }
 
   if (lower.contains('payment') || lower.contains('receipt')) {
     return Icons.receipt_long_rounded;
   }
 
-  if (lower.contains('disciplinary')) {
-    return Icons.gavel_rounded;
-  }
-
-  if (lower.contains('allotment') || lower.contains('room')) {
-    return Icons.meeting_room_rounded;
+  if (lower.contains('maintenance') ||
+      lower.contains('repair') ||
+      lower.contains('issue')) {
+    return Icons.handyman_rounded;
   }
 
   return Icons.apartment_rounded;
+}
+
+class _HostelHeroHeader extends StatelessWidget {
+  const _HostelHeroHeader({required this.name, required this.id});
+
+  final String name;
+  final String id;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF063454), Color(0xFF0A4B75)],
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x33063454),
+            blurRadius: 22,
+            offset: Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -24,
+            right: -18,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -40,
+            left: -20,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(11),
+                      ),
+                      child: const Icon(
+                        Icons.bed_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'SAMS Hostel',
+                      style: TextStyle(
+                        color: Color(0xFFD7E9F9),
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Hi, $name',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    height: 1.14,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.26),
+                    ),
+                  ),
+                  child: Text(
+                    'ID: $id',
+                    style: const TextStyle(
+                      color: Color(0xFFEAF4FF),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _HostelLoadingSkeleton extends StatelessWidget {
@@ -174,22 +345,24 @@ class _HostelLoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const SamsAppBar(title: 'SAMS Hostel'),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
         children: const [
+          SamsSkeletonBox(height: 164, radius: 22),
+          SizedBox(height: 14),
           SamsLoadingView(
             title: 'Loading hostel services',
             message:
                 'Preparing your gate pass, receipts and allotment options...',
           ),
-          SizedBox(height: 10),
-          SamsSkeletonBox(height: 82, radius: 16),
-          SizedBox(height: 10),
-          SamsSkeletonBox(height: 82, radius: 16),
-          SizedBox(height: 10),
-          SamsSkeletonBox(height: 82, radius: 16),
+          SizedBox(height: 12),
+          SamsSkeletonBox(height: 98, radius: 18),
+          SizedBox(height: 12),
+          SamsSkeletonBox(height: 98, radius: 18),
+          SizedBox(height: 12),
+          SamsSkeletonBox(height: 98, radius: 18),
         ],
       ),
     );
@@ -212,43 +385,89 @@ class _HostelMenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    const cardRadius = 18.0;
+
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+      borderRadius: BorderRadius.circular(cardRadius),
       child: SamsPressable(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+        borderRadius: BorderRadius.circular(cardRadius),
+        baseShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
+        ],
+        hoverShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 22,
+            offset: Offset(0, 9),
+          ),
+        ],
+        pressedShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 24,
+            offset: Offset(0, 10),
+          ),
+        ],
         child: Ink(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-            boxShadow: SamsUiTokens.cardShadow,
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(cardRadius),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.72),
+            ),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        SamsUiTokens.primary.withValues(alpha: 0.96),
+                        const Color(0xFF0A4C78),
+                      ],
+                    ),
+                  ),
+                  child: Icon(icon, color: Colors.white, size: 22),
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF111827),
-                          decoration: TextDecoration.underline,
+                        style: TextStyle(
+                          fontSize: 16.2,
+                          fontWeight: FontWeight.w700,
+                          color: textTheme.bodyLarge?.color,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 5),
                       Text(
                         subtitle,
-                        style: const TextStyle(
-                          fontSize: 13.2,
-                          color: SamsUiTokens.primary,
-                          height: 1.3,
+                        style: TextStyle(
+                          fontSize: 12.8,
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.96,
+                          ),
+                          height: 1.35,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -256,10 +475,18 @@ class _HostelMenuCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(
-                  icon,
-                  color: SamsUiTokens.primary.withValues(alpha: 0.6),
-                  size: 22,
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 18,
+                    color: colorScheme.primary,
+                  ),
                 ),
               ],
             ),

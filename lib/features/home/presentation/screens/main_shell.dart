@@ -12,7 +12,6 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  static const Color _samsPrimary = SamsUiTokens.primary;
   static const Set<String> _rootTabPaths = {
     '/home',
     '/messages',
@@ -86,6 +85,15 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final navSurface = colorScheme.surfaceContainerHighest;
+    final navBorder = colorScheme.outlineVariant.withValues(
+      alpha: isDark ? 0.9 : 0.6,
+    );
+    final navShadowColor = Colors.black.withValues(alpha: isDark ? 0.34 : 0.14);
+
     final screenWidth = MediaQuery.sizeOf(context).width;
     final location = GoRouterState.of(context).uri.path;
     final showShellNavigation = _rootTabPaths.contains(location);
@@ -112,23 +120,23 @@ class _MainShellState extends State<MainShell> {
                 padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: navSurface,
                     borderRadius: BorderRadius.circular(24),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Color(0x12001426),
+                        color: navShadowColor,
                         blurRadius: 20,
                         offset: Offset(0, 6),
                       ),
                     ],
-                    border: Border.all(color: const Color(0xFFDDE5EE)),
+                    border: Border.all(color: navBorder),
                   ),
                   child: NavigationRail(
                     selectedIndex: widget.navigationShell.currentIndex,
                     onDestinationSelected: _onTap,
-                    backgroundColor: Colors.white,
+                    backgroundColor: navSurface,
                     useIndicator: true,
-                    indicatorColor: _samsPrimary.withValues(alpha: 0.13),
+                    indicatorColor: colorScheme.primary.withValues(alpha: 0.16),
                     labelType: NavigationRailLabelType.all,
                     minWidth: 80,
                     minExtendedWidth: 132,
@@ -164,10 +172,10 @@ class _MainShellState extends State<MainShell> {
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: const [
+                  color: navSurface,
+                  boxShadow: [
                     BoxShadow(
-                      color: Color(0x22001426),
+                      color: navShadowColor,
                       blurRadius: 24,
                       offset: Offset(0, -6),
                     ),
@@ -175,7 +183,7 @@ class _MainShellState extends State<MainShell> {
                   borderRadius: BorderRadius.circular(
                     SamsUiTokens.navTopRadius,
                   ),
-                  border: Border.all(color: const Color(0xFFE0E7EF)),
+                  border: Border.all(color: navBorder),
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(
@@ -184,8 +192,10 @@ class _MainShellState extends State<MainShell> {
                   child: NavigationBar(
                     selectedIndex: widget.navigationShell.currentIndex,
                     onDestinationSelected: _onTap,
-                    backgroundColor: Colors.white,
-                    indicatorColor: _samsPrimary.withValues(alpha: 0.13),
+                    backgroundColor: navSurface,
+                    indicatorColor: colorScheme.primary.withValues(
+                      alpha: isDark ? 0.24 : 0.13,
+                    ),
                     indicatorShape: const StadiumBorder(),
                     surfaceTintColor: Colors.transparent,
                     height: navBarHeight,
@@ -202,8 +212,8 @@ class _MainShellState extends State<MainShell> {
                             ? FontWeight.w800
                             : FontWeight.w600,
                         color: selected
-                            ? _samsPrimary
-                            : const Color(0xFF7E8794),
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
                       );
                     }),
                     destinations: _buildDestinations(
@@ -226,25 +236,11 @@ class _NavItemIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = SamsUiTokens.primary;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 240),
-      curve: Curves.easeOutCubic,
-      padding: EdgeInsets.symmetric(
-        horizontal: selected ? 11 : 8,
-        vertical: selected ? 5 : 3,
-      ),
-      decoration: BoxDecoration(
-        color: selected ? primary.withValues(alpha: 0.12) : Colors.transparent,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutBack,
-        scale: selected ? 1.05 : 1,
-        child: Icon(icon),
-      ),
+    return AnimatedScale(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutBack,
+      scale: selected ? 1.05 : 1,
+      child: Icon(icon),
     );
   }
 }

@@ -163,6 +163,12 @@ class HomeScreen extends StatelessWidget {
                               );
                             },
                           ),
+                          const SizedBox(height: 12),
+                          _SchedulePreviewCard(
+                            onTap: () {
+                              context.pushNamed(AppRouteNames.calendar);
+                            },
+                          ),
                           const SizedBox(height: 24),
                           Text(
                             'Announcements',
@@ -479,6 +485,308 @@ class _AnnouncementCard extends StatelessWidget {
             Icon(icon, color: SamsUiTokens.primary, size: 20),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SchedulePreviewCard extends StatelessWidget {
+  const _SchedulePreviewCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  static const List<String> _weekdayLabels = [
+    'S',
+    'M',
+    'T',
+    'W',
+    'T',
+    'F',
+    'S',
+  ];
+
+  static const List<int> _preferredHighlights = [4, 10, 17, 24, 29];
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final monthStart = DateTime(now.year, now.month, 1);
+    final daysInMonth = DateUtils.getDaysInMonth(now.year, now.month);
+    final firstWeekdayOffset = monthStart.weekday % 7;
+    final monthName = _monthLabel(now.month);
+    final highlights = _preferredHighlights
+        .where((day) => day <= daysInMonth)
+        .take(3)
+        .toList(growable: false);
+
+    final dateLegend = [
+      (
+        'Exam',
+        highlights.isNotEmpty ? highlights[0] : 6,
+        const Color(0xFFEF4444),
+      ),
+      (
+        'Event',
+        highlights.length > 1 ? highlights[1] : 14,
+        const Color(0xFFF59E0B),
+      ),
+      (
+        'Lecture',
+        highlights.length > 2 ? highlights[2] : 22,
+        const Color(0xFF10B981),
+      ),
+    ];
+
+    final highlightedDays = dateLegend.map((entry) => entry.$2).toSet();
+
+    return SamsPressable(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(SamsUiTokens.radiusXl),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(SamsUiTokens.radiusXl),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF063454), Color(0xFF0A4A77)],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF063454).withValues(alpha: 0.22),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.calendar_month_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Schedule',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.95),
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '$monthName ${now.year}',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 12.6,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.white.withValues(alpha: 0.95),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.95),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: _weekdayLabels
+                        .map(
+                          (label) => Expanded(
+                            child: Center(
+                              child: Text(
+                                label,
+                                style: const TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF64748B),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(growable: false),
+                  ),
+                  const SizedBox(height: 6),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 7,
+                          mainAxisSpacing: 4,
+                          crossAxisSpacing: 4,
+                          childAspectRatio: 1.05,
+                        ),
+                    itemCount:
+                        ((firstWeekdayOffset + daysInMonth + 6) ~/ 7) * 7,
+                    itemBuilder: (context, index) {
+                      final dayValue = index - firstWeekdayOffset + 1;
+                      if (dayValue < 1 || dayValue > daysInMonth) {
+                        return const SizedBox.shrink();
+                      }
+                      final isToday = dayValue == now.day;
+                      final isHighlighted = highlightedDays.contains(dayValue);
+
+                      return _CalendarDayChip(
+                        day: dayValue,
+                        isToday: isToday,
+                        isHighlighted: isHighlighted,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: dateLegend
+                  .map(
+                    (entry) => _ScheduleLegendPill(
+                      label: '${entry.$1} ${entry.$2}',
+                      color: entry.$3,
+                    ),
+                  )
+                  .toList(growable: false),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _monthLabel(int month) {
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return monthNames[month - 1];
+  }
+}
+
+class _CalendarDayChip extends StatelessWidget {
+  const _CalendarDayChip({
+    required this.day,
+    required this.isToday,
+    required this.isHighlighted,
+  });
+
+  final int day;
+  final bool isToday;
+  final bool isHighlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color bg = isToday
+        ? const Color(0xFF063454)
+        : isHighlighted
+        ? const Color(0xFFEAF6FF)
+        : const Color(0xFFF8FAFC);
+    final Color fg = isToday
+        ? Colors.white
+        : isHighlighted
+        ? const Color(0xFF0A4A77)
+        : const Color(0xFF334155);
+
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isToday
+              ? Colors.white.withValues(alpha: 0.2)
+              : isHighlighted
+              ? const Color(0xFFBDE2FF)
+              : const Color(0xFFE2E8F0),
+        ),
+      ),
+      child: Text(
+        '$day',
+        style: TextStyle(
+          fontSize: 11.2,
+          fontWeight: FontWeight.w700,
+          color: fg,
+        ),
+      ),
+    );
+  }
+}
+
+class _ScheduleLegendPill extends StatelessWidget {
+  const _ScheduleLegendPill({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.26)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.95),
+              fontSize: 11.2,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }

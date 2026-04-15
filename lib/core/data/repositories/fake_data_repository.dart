@@ -190,6 +190,192 @@ class FakeDataRepository {
     ];
   }
 
+  List<Map<String, dynamic>> getCalendarSchedule({
+    required int year,
+    required int month,
+  }) {
+    final daysInMonth = DateTime(year, month + 1, 0).day;
+    int safeDay(int day) => day.clamp(1, daysInMonth);
+
+    final items = <Map<String, dynamic>>[];
+
+    void addItem({
+      required int day,
+      required String type,
+      required String title,
+      required String timeRange,
+      required String location,
+      String? note,
+    }) {
+      items.add({
+        'day': safeDay(day),
+        'type': type,
+        'title': title,
+        'timeRange': timeRange,
+        'location': location,
+        if (note != null) 'note': note,
+      });
+    }
+
+    // Core weekly lecture rhythm (Sun/Tue/Thu) similar to Egyptian university schedules.
+    addItem(
+      day: 3 + (month % 3),
+      type: 'lecture',
+      title: 'Accounting Principles Lecture',
+      timeRange: '09:00 AM - 10:30 AM',
+      location: 'Lecture Hall B2',
+      note: 'Dr. Ahmed Hassan',
+    );
+    addItem(
+      day: 8 + (month % 4),
+      type: 'lecture',
+      title: 'Financial Management Tutorial',
+      timeRange: '11:00 AM - 12:30 PM',
+      location: 'Room C-114',
+      note: 'Dr. Sara Ibrahim',
+    );
+    addItem(
+      day: 16 + (month % 5),
+      type: 'lecture',
+      title: 'MIS Lab Session',
+      timeRange: '01:30 PM - 03:00 PM',
+      location: 'Computer Lab 2',
+      note: 'Dr. Nourhan Adel',
+    );
+
+    // Mid-month activity/event.
+    addItem(
+      day: 11 + (month % 6),
+      type: 'event',
+      title: 'Student Activities Committee Meetup',
+      timeRange: '12:30 PM - 02:00 PM',
+      location: 'Student Union Hall',
+      note: 'Open for all Semester 5 students',
+    );
+
+    // Periodic assessments.
+    addItem(
+      day: 20 + (month % 4),
+      type: 'exam',
+      title: month == 1 || month == 6
+          ? 'Final Exam - Business Administration'
+          : 'Quiz - Operations Management',
+      timeRange: month == 1 || month == 6
+          ? '10:00 AM - 12:00 PM'
+          : '09:30 AM - 10:30 AM',
+      location: month == 1 || month == 6 ? 'Main Exam Hall A' : 'Hall M-203',
+      note: 'Bring SAMS ID and approved calculator',
+    );
+
+    // Birthdays and social events (human touch similar to your reference).
+    addItem(
+      day: 7 + (month % 7),
+      type: 'birthday',
+      title: 'Gana Abdelrahman Birthday',
+      timeRange: 'After lectures',
+      location: 'Campus Café Terrace',
+      note: 'Classmates gathering',
+    );
+
+    // Egyptian academic-season highlights.
+    switch (month) {
+      case 2:
+        addItem(
+          day: 15,
+          type: 'event',
+          title: 'Spring Semester Orientation',
+          timeRange: '10:00 AM - 12:00 PM',
+          location: 'SAMS Main Auditorium',
+          note: 'Dean office + Student Affairs',
+        );
+        break;
+      case 3:
+        addItem(
+          day: 8,
+          type: 'event',
+          title: 'Career Week: Banking Track',
+          timeRange: '01:00 PM - 03:30 PM',
+          location: 'Conference Hall, Building A',
+          note: 'Hosted with Banque Misr alumni',
+        );
+        break;
+      case 4:
+        addItem(
+          day: 24,
+          type: 'exam',
+          title: 'Midterm Exam - Marketing Management',
+          timeRange: '09:00 AM - 11:00 AM',
+          location: 'Exam Hall C',
+          note: 'Semester 5 core requirement',
+        );
+        break;
+      case 5:
+        addItem(
+          day: 5,
+          type: 'event',
+          title: 'Community Service Day (Maadi)',
+          timeRange: '09:30 AM - 01:00 PM',
+          location: 'Maadi Community Center',
+          note: 'Volunteer hours count toward activities record',
+        );
+        break;
+      case 9:
+        addItem(
+          day: 28,
+          type: 'event',
+          title: 'Fall Semester Kickoff',
+          timeRange: '11:00 AM - 01:00 PM',
+          location: 'Open Air Theater',
+          note: 'Welcome session for returning students',
+        );
+        break;
+      case 10:
+        addItem(
+          day: 6,
+          type: 'event',
+          title: 'October Victory Commemoration Talk',
+          timeRange: '12:00 PM - 01:00 PM',
+          location: 'History Hall, Building D',
+          note: 'Special lecture by Dr. Khaled Samir',
+        );
+        break;
+      case 11:
+        addItem(
+          day: 19,
+          type: 'exam',
+          title: 'Midterm Exam - Economics for Managers',
+          timeRange: '11:30 AM - 01:30 PM',
+          location: 'Exam Hall B',
+          note: 'Paper-based exam',
+        );
+        break;
+      case 12:
+        addItem(
+          day: 14,
+          type: 'birthday',
+          title: 'Class Advisor Birthday - Prof. Mohamed Salah',
+          timeRange: '02:30 PM - 03:00 PM',
+          location: 'Faculty Lounge',
+          note: 'Short appreciation gathering',
+        );
+        break;
+    }
+
+    items.sort((a, b) {
+      final dayCompare = (a['day'] as int).compareTo(b['day'] as int);
+      if (dayCompare != 0) {
+        return dayCompare;
+      }
+
+      const typeOrder = {'exam': 0, 'lecture': 1, 'event': 2, 'birthday': 3};
+      return (typeOrder[a['type'] as String] ?? 9).compareTo(
+        typeOrder[b['type'] as String] ?? 9,
+      );
+    });
+
+    return items;
+  }
+
   List<Map<String, dynamic>> getScanOptions() {
     return const [
       {'label': 'Scan SAMS ID from gallery'},
