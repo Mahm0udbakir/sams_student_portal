@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class SamsUiTokens {
   static const Color primary = Color(0xFF063454);
   static const Color brandBlue = Color(0xFF0A4D78);
-  static const Color secondary = Color(0xFF1E88E5);
+  static const Color secondary = Color(0xFF2FA8FF);
   static const Color accent = Color(0xFF0AA7A7);
 
   static const Color success = Color(0xFF0E8F54);
@@ -121,11 +121,92 @@ class SamsLocaleText extends StatelessWidget {
   final TextHeightBehavior? textHeightBehavior;
   final Color? selectionColor;
 
+  TextStyle? _resolveStyleForDarkMode(BuildContext context) {
+    if (Theme.of(context).brightness != Brightness.dark) {
+      return style;
+    }
+
+    final currentStyle = style;
+    if (currentStyle == null) {
+      return const TextStyle(color: Colors.white);
+    }
+
+    final currentColor = currentStyle.color;
+    if (currentColor == null) {
+      return currentStyle.copyWith(color: Colors.white);
+    }
+
+    if (currentColor.computeLuminance() > 0.72 ||
+        _isCloseTo(currentColor, Colors.white, tolerance: 24)) {
+      return currentStyle;
+    }
+
+    if (_shouldUseWhiteInDarkMode(currentColor)) {
+      return currentStyle.copyWith(color: Colors.white);
+    }
+
+    return currentStyle;
+  }
+
+  bool _shouldUseWhiteInDarkMode(Color color) {
+    final isKnownDarkTextToken =
+        _isCloseTo(color, SamsUiTokens.textPrimary) ||
+        _isCloseTo(color, SamsUiTokens.textSecondary) ||
+        _isCloseTo(color, const Color(0xFF111827)) ||
+        _isCloseTo(color, const Color(0xFF6B7280)) ||
+        _isCloseTo(color, const Color(0xFF64748B)) ||
+        _isCloseTo(color, const Color(0xFF334155)) ||
+        _isCloseTo(color, const Color(0xFF94A3B8));
+
+    if (isKnownDarkTextToken) {
+      return true;
+    }
+
+    if (!_isNearNeutral(color)) {
+      return false;
+    }
+
+    return color.computeLuminance() < 0.60;
+  }
+
+  bool _isNearNeutral(Color color) {
+    final red = _toIntChannel(color.r);
+    final green = _toIntChannel(color.g);
+    final blue = _toIntChannel(color.b);
+    final maxChannel = red > green
+        ? (red > blue ? red : blue)
+        : (green > blue ? green : blue);
+    final minChannel = red < green
+        ? (red < blue ? red : blue)
+        : (green < blue ? green : blue);
+
+    return (maxChannel - minChannel) <= 44;
+  }
+
+  bool _isCloseTo(Color a, Color b, {int tolerance = 20}) {
+    final aRed = _toIntChannel(a.r);
+    final aGreen = _toIntChannel(a.g);
+    final aBlue = _toIntChannel(a.b);
+    final bRed = _toIntChannel(b.r);
+    final bGreen = _toIntChannel(b.g);
+    final bBlue = _toIntChannel(b.b);
+
+    return (aRed - bRed).abs() <= tolerance &&
+        (aGreen - bGreen).abs() <= tolerance &&
+        (aBlue - bBlue).abs() <= tolerance;
+  }
+
+  int _toIntChannel(double value) {
+    return (value * 255).round() & 0xff;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final resolvedStyle = _resolveStyleForDarkMode(context);
+
     return Text(
       context.tr(data),
-      style: style,
+      style: resolvedStyle,
       strutStyle: strutStyle,
       textAlign: textAlign,
       textDirection: textDirection,

@@ -47,6 +47,8 @@ class HomeScreen extends StatelessWidget {
               previous.errorMessage != current.errorMessage;
         },
         builder: (context, state) {
+          final colorScheme = Theme.of(context).colorScheme;
+
           if (state.status == HomeStatus.loading ||
               state.status == HomeStatus.initial) {
             return const _HomeLoadingSkeleton();
@@ -105,7 +107,7 @@ class HomeScreen extends StatelessWidget {
                           SamsLocaleText(
                             'Daily Essentials',
                             style: TextStyle(
-                              color: SamsUiTokens.textPrimary,
+                              color: colorScheme.onSurface,
                               fontSize: isDesktop ? 21 : 19,
                               fontWeight: FontWeight.w800,
                               height: 1.2,
@@ -173,7 +175,7 @@ class HomeScreen extends StatelessWidget {
                           SamsLocaleText(
                             'Announcements',
                             style: TextStyle(
-                              color: SamsUiTokens.textPrimary,
+                              color: colorScheme.onSurface,
                               fontSize: isDesktop ? 21 : 19,
                               fontWeight: FontWeight.w800,
                               height: 1.2,
@@ -410,6 +412,9 @@ class _AnnouncementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SamsPressable(
       onTap: onTap,
       borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
@@ -417,9 +422,18 @@ class _AnnouncementCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-          boxShadow: SamsUiTokens.cardShadow,
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.8),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.34 : 0.12),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,10 +458,10 @@ class _AnnouncementCard extends StatelessWidget {
                 children: [
                   SamsLocaleText(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13.2,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -472,9 +486,9 @@ class _AnnouncementCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   SamsLocaleText(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF6B7280),
+                      color: colorScheme.onSurfaceVariant,
                       height: 1.3,
                     ),
                   ),
@@ -509,6 +523,8 @@ class _SchedulePreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final now = DateTime.now();
     final monthStart = DateTime(now.year, now.month, 1);
     final daysInMonth = DateUtils.getDaysInMonth(now.year, now.month);
@@ -613,8 +629,15 @@ class _SchedulePreviewCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.95),
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: isDark ? 0.94 : 0.95,
+                ),
                 borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(
+                    alpha: isDark ? 0.9 : 0.45,
+                  ),
+                ),
               ),
               child: Column(
                 children: [
@@ -625,10 +648,10 @@ class _SchedulePreviewCard extends StatelessWidget {
                             child: Center(
                               child: SamsLocaleText(
                                 label,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF64748B),
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
@@ -718,16 +741,21 @@ class _CalendarDayChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final Color bg = isToday
         ? const Color(0xFF063454)
         : isHighlighted
-        ? const Color(0xFFEAF6FF)
-        : const Color(0xFFF8FAFC);
+        ? (isDark
+              ? colorScheme.primary.withValues(alpha: 0.2)
+              : const Color(0xFFEAF6FF))
+        : (isDark ? colorScheme.surface : const Color(0xFFF8FAFC));
     final Color fg = isToday
         ? Colors.white
         : isHighlighted
-        ? const Color(0xFF0A4A77)
-        : const Color(0xFF334155);
+        ? (isDark ? colorScheme.primary : const Color(0xFF0A4A77))
+        : (isDark ? colorScheme.onSurface : const Color(0xFF334155));
 
     return Container(
       alignment: Alignment.center,
@@ -736,10 +764,14 @@ class _CalendarDayChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: isToday
-              ? Colors.white.withValues(alpha: 0.2)
+              ? Colors.white.withValues(alpha: 0.24)
               : isHighlighted
-              ? const Color(0xFFBDE2FF)
-              : const Color(0xFFE2E8F0),
+              ? (isDark
+                    ? colorScheme.primary.withValues(alpha: 0.52)
+                    : const Color(0xFFBDE2FF))
+              : (isDark
+                    ? colorScheme.outlineVariant.withValues(alpha: 0.9)
+                    : const Color(0xFFE2E8F0)),
         ),
       ),
       child: SamsLocaleText(
@@ -926,21 +958,33 @@ class _DateSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       children: [
-        const Expanded(child: Divider(color: Color(0xFFD8DEE7), thickness: 1)),
+        Expanded(
+          child: Divider(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.88),
+            thickness: 1,
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: SamsLocaleText(
             label,
-            style: const TextStyle(
-              color: Color(0xFF6B7280),
+            style: TextStyle(
+              color: colorScheme.onSurfaceVariant,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        const Expanded(child: Divider(color: Color(0xFFD8DEE7), thickness: 1)),
+        Expanded(
+          child: Divider(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.88),
+            thickness: 1,
+          ),
+        ),
       ],
     );
   }

@@ -160,7 +160,7 @@ void main() {
     await tester.drag(find.byType(ListView).first, const Offset(0, -420));
     await tester.pumpAndSettle();
 
-    final hostelOption = find.text('Switch to SAMS Hostel').hitTestable();
+    final hostelOption = find.text('Hostel').hitTestable();
     await tester.tap(hostelOption, warnIfMissed: false);
     await tester.pumpAndSettle();
 
@@ -220,7 +220,7 @@ void main() {
       await tester.drag(find.byType(ListView).first, const Offset(0, -420));
       await tester.pumpAndSettle();
 
-      final busOption = find.text('Switch to SAMS Bus').hitTestable();
+      final busOption = find.text('Bus').hitTestable();
       await tester.tap(busOption, warnIfMissed: false);
       await tester.pumpAndSettle();
 
@@ -234,7 +234,7 @@ void main() {
       await tester.drag(find.byType(ListView).first, const Offset(0, -220));
       await tester.pumpAndSettle();
 
-      final hostelOption = find.text('Switch to SAMS Hostel').hitTestable();
+      final hostelOption = find.text('Hostel').hitTestable();
       expect(hostelOption, findsOneWidget);
 
       await tester.tap(hostelOption);

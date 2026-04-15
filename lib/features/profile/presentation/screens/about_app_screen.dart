@@ -195,16 +195,27 @@ class _AboutSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SamsPressable(
       borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
       enableLift: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-          border: Border.all(color: const Color(0xFFDDE5EE)),
-          boxShadow: SamsUiTokens.cardShadow,
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.82),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.34 : 0.12),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,8 +226,8 @@ class _AboutSectionCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 SamsLocaleText(
                   title,
-                  style: const TextStyle(
-                    color: SamsUiTokens.textPrimary,
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
                     fontSize: 15.2,
                     fontWeight: FontWeight.w800,
                   ),
@@ -239,6 +250,8 @@ class _BulletText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -252,8 +265,8 @@ class _BulletText extends StatelessWidget {
           Expanded(
             child: SamsLocaleText(
               text,
-              style: const TextStyle(
-                color: SamsUiTokens.textSecondary,
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 12.8,
                 fontWeight: FontWeight.w600,
                 height: 1.35,
@@ -274,21 +287,23 @@ class _KeyValueText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return RichText(
       text: TextSpan(
         children: [
           TextSpan(
             text: '${context.tr(label)}: ',
-            style: const TextStyle(
-              color: SamsUiTokens.textPrimary,
+            style: TextStyle(
+              color: colorScheme.onSurface,
               fontSize: 12.9,
               fontWeight: FontWeight.w700,
             ),
           ),
           TextSpan(
             text: context.tr(value),
-            style: const TextStyle(
-              color: SamsUiTokens.textSecondary,
+            style: TextStyle(
+              color: colorScheme.onSurfaceVariant,
               fontSize: 12.9,
               fontWeight: FontWeight.w600,
             ),
@@ -312,6 +327,8 @@ class _LegalActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SamsPressable(
       onTap: onTap,
       enableLift: false,
@@ -327,8 +344,8 @@ class _LegalActionTile extends StatelessWidget {
                 children: [
                   SamsLocaleText(
                     title,
-                    style: const TextStyle(
-                      color: SamsUiTokens.textPrimary,
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
                       fontSize: 13.8,
                       fontWeight: FontWeight.w700,
                     ),
@@ -336,8 +353,8 @@ class _LegalActionTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   SamsLocaleText(
                     subtitle,
-                    style: const TextStyle(
-                      color: SamsUiTokens.textSecondary,
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 12.2,
                       fontWeight: FontWeight.w600,
                       height: 1.35,

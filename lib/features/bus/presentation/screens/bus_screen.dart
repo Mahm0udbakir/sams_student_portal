@@ -194,8 +194,10 @@ class BusScreen extends StatelessWidget {
                                 child: Container(
                                   width: 58,
                                   height: 58,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0x1A1E88E5),
+                                  decoration: BoxDecoration(
+                                    color: SamsUiTokens.secondary.withValues(
+                                      alpha: 0.10,
+                                    ),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(

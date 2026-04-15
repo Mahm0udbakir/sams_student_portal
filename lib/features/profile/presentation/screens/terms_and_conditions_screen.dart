@@ -118,24 +118,35 @@ class _TermsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SamsPressable(
       borderRadius: BorderRadius.circular(16),
       enableLift: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFDDE5EE)),
-          boxShadow: SamsUiTokens.cardShadow,
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.82),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.34 : 0.12),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SamsLocaleText(
               title,
-              style: const TextStyle(
-                color: SamsUiTokens.textPrimary,
+              style: TextStyle(
+                color: colorScheme.onSurface,
                 fontSize: 14.3,
                 fontWeight: FontWeight.w800,
               ),
@@ -143,8 +154,8 @@ class _TermsSection extends StatelessWidget {
             const SizedBox(height: 6),
             SamsLocaleText(
               content,
-              style: const TextStyle(
-                color: SamsUiTokens.textSecondary,
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 12.8,
                 fontWeight: FontWeight.w600,
                 height: 1.4,

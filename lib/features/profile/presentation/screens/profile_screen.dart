@@ -133,6 +133,9 @@ class ProfileScreen extends StatelessWidget {
               previous.errorMessage != current.errorMessage;
         },
         builder: (context, state) {
+          final colorScheme = Theme.of(context).colorScheme;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+
           if (state.status == ProfileStatus.loading ||
               state.status == ProfileStatus.initial) {
             return Scaffold(
@@ -169,30 +172,35 @@ class ProfileScreen extends StatelessWidget {
               subtitle: 'Appearance, language, notifications and security',
               icon: Icons.settings_rounded,
               routeName: AppRouteNames.settings,
+              translateTitle: true,
             ),
             (
               title: 'Session',
               subtitle: overview.sessionSubtitle,
               icon: Icons.calendar_month_rounded,
               routeName: AppRouteNames.session,
+              translateTitle: true,
             ),
             (
               title: 'Change Password',
               subtitle: 'Last changed 2 months ago',
               icon: Icons.lock_reset_rounded,
               routeName: AppRouteNames.changePassword,
+              translateTitle: true,
             ),
             (
-              title: 'Switch to SAMS Bus',
+              title: 'Bus',
               subtitle: 'Track route, stops and live bus status',
               icon: Icons.directions_bus_rounded,
               routeName: AppRouteNames.bus,
+              translateTitle: true,
             ),
             (
-              title: 'Switch to SAMS Hostel',
+              title: 'Hostel',
               subtitle: 'Access gate pass, allotment and receipts',
               icon: Icons.apartment_rounded,
               routeName: AppRouteNames.hostel,
+              translateTitle: true,
             ),
           ];
 
@@ -216,9 +224,21 @@ class ProfileScreen extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(22),
-                          color: Colors.white,
-                          boxShadow: SamsUiTokens.cardShadow,
-                          border: Border.all(color: const Color(0xFFDCE4EE)),
+                          color: colorScheme.surfaceContainerHighest,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.34 : 0.12,
+                              ),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                          border: Border.all(
+                            color: colorScheme.outlineVariant.withValues(
+                              alpha: 0.82,
+                            ),
+                          ),
                         ),
                         child: Column(
                           children: [
@@ -254,10 +274,11 @@ class ProfileScreen extends StatelessWidget {
                               child: Container(
                                 margin: const EdgeInsets.all(5),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFEAF1F8),
+                                  color: colorScheme.surface,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.9),
+                                    color: colorScheme.outlineVariant
+                                        .withValues(alpha: 0.62),
                                     width: 2,
                                   ),
                                 ),
@@ -324,12 +345,24 @@ class ProfileScreen extends StatelessWidget {
                       const SizedBox(height: 18),
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(
                             SamsUiTokens.radiusLg,
                           ),
-                          boxShadow: SamsUiTokens.cardShadow,
-                          border: Border.all(color: const Color(0xFFDDE4ED)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.34 : 0.12,
+                              ),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                          border: Border.all(
+                            color: colorScheme.outlineVariant.withValues(
+                              alpha: 0.82,
+                            ),
+                          ),
                         ),
                         child: Column(
                           children: options.asMap().entries.map((entry) {
@@ -341,6 +374,7 @@ class ProfileScreen extends StatelessWidget {
                               title: item.title,
                               subtitle: item.subtitle,
                               icon: item.icon,
+                              translateTitle: item.translateTitle,
                               showDivider: index != options.length - 1,
                               onTap: () {
                                 _onProfileOptionTap(
@@ -385,6 +419,7 @@ class _ProfileOptionRow extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.icon,
+    this.translateTitle = true,
     required this.onTap,
     required this.showDivider,
   });
@@ -392,18 +427,21 @@ class _ProfileOptionRow extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
+  final bool translateTitle;
   final VoidCallback onTap;
   final bool showDivider;
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SamsPressable(
       onTap: onTap,
       enableLift: false,
       borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
         ),
         child: Column(
@@ -426,19 +464,29 @@ class _ProfileOptionRow extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SamsLocaleText(
-                          title,
-                          style: const TextStyle(
-                            color: SamsUiTokens.textPrimary,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
+                        if (translateTitle)
+                          SamsLocaleText(
+                            title,
+                            style: TextStyle(
+                              color: colorScheme.onSurface,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
+                          )
+                        else
+                          Text(
+                            title,
+                            style: TextStyle(
+                              color: colorScheme.onSurface,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 3),
                         SamsLocaleText(
                           subtitle,
-                          style: const TextStyle(
-                            color: SamsUiTokens.textSecondary,
+                          style: TextStyle(
+                            color: colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w600,
                             fontSize: 12.4,
                             height: 1.3,
@@ -448,20 +496,20 @@ class _ProfileOptionRow extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right_rounded,
-                    color: Color(0xFF94A3B8),
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ],
               ),
             ),
             if (showDivider)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(left: 68),
                 child: Divider(
                   height: 1,
                   thickness: 1,
-                  color: Color(0xFFE7EDF5),
+                  color: colorScheme.outlineVariant,
                 ),
               ),
           ],
