@@ -101,7 +101,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const SamsAppBar(title: 'Fee Receipt'),
       body: SafeArea(
         child: ListView(
@@ -136,7 +136,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
                         size: 20,
                       ),
                       SizedBox(width: 8),
-                      Text(
+                      SamsLocaleText(
                         'Payment summary',
                         style: TextStyle(
                           color: Colors.white,
@@ -146,7 +146,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
                     ],
                   ),
                   SizedBox(height: 8),
-                  Text(
+                  SamsLocaleText(
                     'Academic Year 2025/2026\nTotal paid: EGP 8,500 • Outstanding: EGP 4,250',
                     style: TextStyle(
                       color: Color(0xFFD7E9FA),
@@ -158,7 +158,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
               ),
             ),
             const SizedBox(height: 14),
-            const Text(
+            const SamsLocaleText(
               'Available receipts',
               style: TextStyle(
                 color: SamsUiTokens.textPrimary,
@@ -195,7 +195,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
+                              child: SamsLocaleText(
                                 receipt.title,
                                 style: const TextStyle(
                                   color: SamsUiTokens.textPrimary,
@@ -214,7 +214,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
                                     : const Color(0xFFFFF6E9),
                                 borderRadius: BorderRadius.circular(999),
                               ),
-                              child: Text(
+                              child: SamsLocaleText(
                                 receipt.status,
                                 style: TextStyle(
                                   color: isPaid
@@ -228,7 +228,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text(
+                        SamsLocaleText(
                           '${receipt.amount} • ${receipt.paidOn}',
                           style: const TextStyle(
                             color: SamsUiTokens.textSecondary,
@@ -236,7 +236,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
                           ),
                         ),
                         const SizedBox(height: 3),
-                        Text(
+                        SamsLocaleText(
                           receipt.method,
                           style: const TextStyle(
                             color: SamsUiTokens.textSecondary,
@@ -267,7 +267,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
                                     Icons.ios_share_rounded,
                                     size: 18,
                                   ),
-                                  label: const Text('Share'),
+                                  label: const SamsLocaleText('Share'),
                                 ),
                               ),
                             ),
@@ -290,7 +290,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
                                     Icons.download_rounded,
                                     size: 18,
                                   ),
-                                  label: Text(
+                                  label: SamsLocaleText(
                                     receipt.status == 'Paid'
                                         ? 'Download'
                                         : 'Unavailable',
@@ -324,7 +324,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
                   ),
                   SizedBox(width: 8),
                   Expanded(
-                    child: Text(
+                    child: SamsLocaleText(
                       'Official stamped receipts are generated within 1-2 minutes and sent to your registered email.',
                       style: TextStyle(
                         color: SamsUiTokens.textSecondary,
@@ -350,7 +350,7 @@ class _FeeReceiptDetailScreenState extends State<FeeReceiptDetailScreen> {
                   ),
                 ),
                 icon: const Icon(Icons.download_rounded),
-                label: const Text('Request selected receipt PDF'),
+                label: const SamsLocaleText('Request selected receipt PDF'),
               ),
             ),
           ],

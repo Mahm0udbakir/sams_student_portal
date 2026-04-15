@@ -54,7 +54,7 @@ class _MaintenanceRequestDetailScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const SamsAppBar(title: 'Maintenance Request'),
       body: SafeArea(
         child: ListView(
@@ -83,7 +83,7 @@ class _MaintenanceRequestDetailScreenState
                   Icon(Icons.support_agent_rounded, color: Color(0xFFD7E9FA)),
                   SizedBox(width: 10),
                   Expanded(
-                    child: Text(
+                    child: SamsLocaleText(
                       'Average response time: 2.5 hours • Emergency cases are prioritized.',
                       style: TextStyle(
                         color: Color(0xFFD7E9FA),
@@ -103,26 +103,26 @@ class _MaintenanceRequestDetailScreenState
                 children: [
                   DropdownButtonFormField<String>(
                     initialValue: _category,
-                    decoration: const InputDecoration(
-                      labelText: 'Category',
+                    decoration: InputDecoration(
+                      labelText: context.tr('Category'),
                       prefixIcon: Icon(Icons.category_rounded),
                     ),
                     items: const [
                       DropdownMenuItem(
                         value: 'Electrical',
-                        child: Text('Electrical'),
+                        child: SamsLocaleText('Electrical'),
                       ),
                       DropdownMenuItem(
                         value: 'Plumbing',
-                        child: Text('Plumbing'),
+                        child: SamsLocaleText('Plumbing'),
                       ),
                       DropdownMenuItem(
                         value: 'Furniture',
-                        child: Text('Furniture'),
+                        child: SamsLocaleText('Furniture'),
                       ),
                       DropdownMenuItem(
                         value: 'Internet',
-                        child: Text('Internet / Network'),
+                        child: SamsLocaleText('Internet / Network'),
                       ),
                     ],
                     onChanged: (value) {
@@ -134,13 +134,13 @@ class _MaintenanceRequestDetailScreenState
                   const SizedBox(height: 10),
                   TextField(
                     controller: _locationController,
-                    decoration: const InputDecoration(
-                      labelText: 'Location',
+                    decoration: InputDecoration(
+                      labelText: context.tr('Location'),
                       prefixIcon: Icon(Icons.location_on_outlined),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
+                  const SamsLocaleText(
                     'Priority',
                     style: TextStyle(
                       color: SamsUiTokens.textSecondary,
@@ -154,7 +154,7 @@ class _MaintenanceRequestDetailScreenState
                     children: ['Low', 'Medium', 'High']
                         .map(
                           (level) => ChoiceChip(
-                            label: Text(level),
+                            label: SamsLocaleText(level),
                             selected: _priority == level,
                             selectedColor: SamsUiTokens.primary.withValues(
                               alpha: 0.14,
@@ -179,22 +179,22 @@ class _MaintenanceRequestDetailScreenState
                   const SizedBox(height: 10),
                   DropdownButtonFormField<String>(
                     initialValue: _visitSlot,
-                    decoration: const InputDecoration(
-                      labelText: 'Preferred visit slot',
+                    decoration: InputDecoration(
+                      labelText: context.tr('Preferred visit slot'),
                       prefixIcon: Icon(Icons.schedule_rounded),
                     ),
                     items: const [
                       DropdownMenuItem(
                         value: 'Today (6:00 PM - 8:00 PM)',
-                        child: Text('Today (6:00 PM - 8:00 PM)'),
+                        child: SamsLocaleText('Today (6:00 PM - 8:00 PM)'),
                       ),
                       DropdownMenuItem(
                         value: 'Tomorrow (8:00 AM - 10:00 AM)',
-                        child: Text('Tomorrow (8:00 AM - 10:00 AM)'),
+                        child: SamsLocaleText('Tomorrow (8:00 AM - 10:00 AM)'),
                       ),
                       DropdownMenuItem(
                         value: 'Tomorrow (4:00 PM - 6:00 PM)',
-                        child: Text('Tomorrow (4:00 PM - 6:00 PM)'),
+                        child: SamsLocaleText('Tomorrow (4:00 PM - 6:00 PM)'),
                       ),
                     ],
                     onChanged: (value) {
@@ -207,9 +207,11 @@ class _MaintenanceRequestDetailScreenState
                   TextField(
                     controller: _issueController,
                     maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Issue description',
-                      hintText: 'Describe the issue and when it started...',
+                    decoration: InputDecoration(
+                      labelText: context.tr('Issue description'),
+                      hintText: context.tr(
+                        'Describe the issue and when it started...',
+                      ),
                       alignLabelWithHint: true,
                       prefixIcon: Icon(Icons.build_circle_outlined),
                     ),
@@ -251,7 +253,7 @@ class _MaintenanceRequestDetailScreenState
                   ),
                 ),
                 icon: const Icon(Icons.construction_rounded),
-                label: const Text('Submit maintenance request'),
+                label: const SamsLocaleText('Submit maintenance request'),
               ),
             ),
           ],
@@ -282,7 +284,7 @@ class _CardSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            SamsLocaleText(
               title,
               style: const TextStyle(
                 color: SamsUiTokens.textPrimary,
@@ -337,7 +339,7 @@ class _OpenTicketRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              SamsLocaleText(
                 '$code • $issue',
                 style: const TextStyle(
                   color: SamsUiTokens.textPrimary,
@@ -345,7 +347,7 @@ class _OpenTicketRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 3),
-              Text(
+              SamsLocaleText(
                 eta,
                 style: const TextStyle(
                   color: SamsUiTokens.textSecondary,
@@ -365,7 +367,7 @@ class _OpenTicketRow extends StatelessWidget {
                 : const Color(0xFFFFF6E9),
             borderRadius: BorderRadius.circular(999),
           ),
-          child: Text(
+          child: SamsLocaleText(
             status,
             style: TextStyle(
               color: isInProgress

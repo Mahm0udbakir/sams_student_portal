@@ -123,7 +123,7 @@ class HostelScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 9),
                           Expanded(
-                            child: Text(
+                            child: SamsLocaleText(
                               'Hostel services & requests',
                               style: textTheme.titleMedium?.copyWith(
                                 color: colorScheme.onSurface,
@@ -287,7 +287,7 @@ class _HostelHeroHeader extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    const Text(
+                    const SamsLocaleText(
                       'SAMS Hostel',
                       style: TextStyle(
                         color: Color(0xFFD7E9F9),
@@ -298,7 +298,7 @@ class _HostelHeroHeader extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text(
+                SamsLocaleText(
                   'Hi, $name',
                   style: const TextStyle(
                     color: Colors.white,
@@ -320,7 +320,7 @@ class _HostelHeroHeader extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.26),
                     ),
                   ),
-                  child: Text(
+                  child: SamsLocaleText(
                     'ID: $id',
                     style: const TextStyle(
                       color: Color(0xFFEAF4FF),
@@ -451,7 +451,7 @@ class _HostelMenuCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      SamsLocaleText(
                         title,
                         style: TextStyle(
                           fontSize: 16.2,
@@ -460,7 +460,7 @@ class _HostelMenuCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 5),
-                      Text(
+                      SamsLocaleText(
                         subtitle,
                         style: TextStyle(
                           fontSize: 12.8,

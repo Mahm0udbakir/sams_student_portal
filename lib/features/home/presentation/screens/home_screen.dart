@@ -54,7 +54,7 @@ class HomeScreen extends StatelessWidget {
 
           if (state.status == HomeStatus.failure || !state.hasCoreData) {
             return Scaffold(
-              backgroundColor: SamsUiTokens.scaffoldBackground,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               body: SamsErrorState(
                 title: 'Couldn\'t load home dashboard',
                 message:
@@ -77,7 +77,7 @@ class HomeScreen extends StatelessWidget {
           final announcements = state.announcements;
 
           return Scaffold(
-            backgroundColor: SamsUiTokens.scaffoldBackground,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             appBar: const SamsAppBar(title: 'Home'),
             body: RefreshIndicator(
               onRefresh: () => _refreshHome(context),
@@ -102,7 +102,7 @@ class HomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 8),
-                          Text(
+                          SamsLocaleText(
                             'Daily Essentials',
                             style: TextStyle(
                               color: SamsUiTokens.textPrimary,
@@ -146,7 +146,7 @@ class HomeScreen extends StatelessWidget {
                               size: 40,
                             ),
                             leadingIcon: Icons.directions_bus_filled_rounded,
-                            child: Text(
+                            child: SamsLocaleText(
                               state.busStatusLabel!,
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.95),
@@ -170,7 +170,7 @@ class HomeScreen extends StatelessWidget {
                             },
                           ),
                           const SizedBox(height: 24),
-                          Text(
+                          SamsLocaleText(
                             'Announcements',
                             style: TextStyle(
                               color: SamsUiTokens.textPrimary,
@@ -239,7 +239,7 @@ class _HomeLoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: ListView(
           padding: SamsUiTokens.pageInsets(context, top: 16, bottom: 24),
@@ -358,7 +358,7 @@ class _InfoCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      SamsLocaleText(
                         title,
                         style: TextStyle(
                           color: Colors.white,
@@ -367,7 +367,7 @@ class _InfoCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
+                      SamsLocaleText(
                         subtitle,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.95),
@@ -442,7 +442,7 @@ class _AnnouncementCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  SamsLocaleText(
                     title,
                     style: const TextStyle(
                       fontSize: 13.2,
@@ -460,7 +460,7 @@ class _AnnouncementCard extends StatelessWidget {
                       color: SamsUiTokens.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(
+                    child: SamsLocaleText(
                       badge,
                       style: const TextStyle(
                         color: SamsUiTokens.primary,
@@ -470,7 +470,7 @@ class _AnnouncementCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
+                  SamsLocaleText(
                     subtitle,
                     style: const TextStyle(
                       fontSize: 12,
@@ -583,7 +583,7 @@ class _SchedulePreviewCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      SamsLocaleText(
                         'Schedule',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.95),
@@ -592,7 +592,7 @@ class _SchedulePreviewCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
+                      SamsLocaleText(
                         '$monthName ${now.year}',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.8),
@@ -623,7 +623,7 @@ class _SchedulePreviewCard extends StatelessWidget {
                         .map(
                           (label) => Expanded(
                             child: Center(
-                              child: Text(
+                              child: SamsLocaleText(
                                 label,
                                 style: const TextStyle(
                                   fontSize: 10.5,
@@ -742,7 +742,7 @@ class _CalendarDayChip extends StatelessWidget {
               : const Color(0xFFE2E8F0),
         ),
       ),
-      child: Text(
+      child: SamsLocaleText(
         '$day',
         style: TextStyle(
           fontSize: 11.2,
@@ -778,7 +778,7 @@ class _ScheduleLegendPill extends StatelessWidget {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 6),
-          Text(
+          SamsLocaleText(
             label,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.95),
@@ -819,7 +819,7 @@ class _AttendanceProgress extends StatelessWidget {
             strokeWidth: 5,
           ),
           Center(
-            child: Text(
+            child: SamsLocaleText(
               '${(value * 100).round()}%',
               style: const TextStyle(
                 color: Colors.white,
@@ -841,7 +841,7 @@ class _AttendanceMeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
+    return SamsLocaleText(
       label,
       style: TextStyle(
         color: Colors.white.withValues(alpha: 0.92),
@@ -886,7 +886,7 @@ class _AttendanceMetaSection extends StatelessWidget {
                 ),
               ),
               icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
-              label: const Text('Mark Today\'s Attendance'),
+              label: const SamsLocaleText('Mark Today\'s Attendance'),
             ),
           ),
         ],
@@ -911,7 +911,7 @@ class _AttendanceMetaSection extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.check_circle_outline_rounded, size: 15),
-            label: const Text('Mark Today\'s Attendance'),
+            label: const SamsLocaleText('Mark Today\'s Attendance'),
           ),
         ),
       ],
@@ -931,7 +931,7 @@ class _DateSeparator extends StatelessWidget {
         const Expanded(child: Divider(color: Color(0xFFD8DEE7), thickness: 1)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
+          child: SamsLocaleText(
             label,
             style: const TextStyle(
               color: Color(0xFF6B7280),

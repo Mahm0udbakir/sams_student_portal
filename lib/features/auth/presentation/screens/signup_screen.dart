@@ -90,7 +90,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      const SamsLocaleText(
                         'Welcome.',
                         style: TextStyle(
                           color: SamsUiTokens.textPrimary,
@@ -99,7 +99,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      const SamsLocaleText(
                         'Create your SAMS account to continue.',
                         style: TextStyle(
                           color: SamsUiTokens.textSecondary,
@@ -112,7 +112,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         children: [
                           TextField(
                             decoration: InputDecoration(
-                              labelText: 'Name',
+                              labelText: context.tr('Name'),
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
@@ -125,7 +125,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           const SizedBox(height: 12),
                           TextField(
                             decoration: InputDecoration(
-                              labelText: 'Roll no.',
+                              labelText: context.tr('Roll no.'),
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
@@ -139,7 +139,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           TextField(
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
-                              labelText: 'Password',
+                              labelText: context.tr('Password'),
                               suffixIcon: IconButton(
                                 onPressed: () => setState(
                                   () => _obscurePassword = !_obscurePassword,
@@ -163,7 +163,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           TextField(
                             obscureText: _obscureConfirmPassword,
                             decoration: InputDecoration(
-                              labelText: 'Confirm Password',
+                              labelText: context.tr('Confirm Password'),
                               suffixIcon: IconButton(
                                 onPressed: () => setState(
                                   () => _obscureConfirmPassword =
@@ -196,7 +196,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 setState(() => _agreeTerms = value ?? false),
                             activeColor: SamsUiTokens.primary,
                             controlAffinity: ListTileControlAffinity.leading,
-                            title: const Text(
+                            title: const SamsLocaleText(
                               'I agree to the Terms and Conditions',
                               style: TextStyle(
                                 fontSize: 12.8,
@@ -225,7 +225,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     vertical: 13,
                                   ),
                                 ),
-                                child: const Text(
+                                child: const SamsLocaleText(
                                   'Sign up',
                                   style: TextStyle(
                                     fontSize: 15.5,
@@ -240,7 +240,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             child: TextButton(
                               onPressed: () =>
                                   context.goNamed(AppRouteNames.login),
-                              child: const Text(
+                              child: const SamsLocaleText(
                                 'Already have an account? Login',
                                 style: TextStyle(
                                   color: SamsUiTokens.primary,

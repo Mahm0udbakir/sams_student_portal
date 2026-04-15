@@ -75,22 +75,26 @@ class ModernSnackbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = _accentForType();
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFFFFFFF), Color(0xFFF5F8FD)],
+          colors: isDark
+              ? [colorScheme.surfaceContainerHighest, colorScheme.surface]
+              : const [Color(0xFFFFFFFF), Color(0xFFF5F8FD)],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: accent.withValues(alpha: 0.28)),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x2A001728),
+            color: Colors.black.withValues(alpha: isDark ? 0.38 : 0.16),
             blurRadius: 16,
-            offset: Offset(0, 6),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -107,12 +111,12 @@ class ModernSnackbar extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
+            child: SamsLocaleText(
               message,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: SamsUiTokens.textPrimary,
+              style: TextStyle(
+                color: colorScheme.onSurface,
                 fontSize: 12.9,
                 fontWeight: FontWeight.w700,
                 height: 1.28,

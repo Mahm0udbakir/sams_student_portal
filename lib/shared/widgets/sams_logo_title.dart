@@ -34,7 +34,7 @@ class SamsLogoTitle extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text(title, style: textStyle),
+        SamsLocaleText(title, style: textStyle),
       ],
     );
   }

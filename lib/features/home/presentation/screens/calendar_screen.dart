@@ -118,7 +118,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               color: colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 6),
-                            Text(
+                            SamsLocaleText(
                               'Swipe left or right to change month',
                               style: TextStyle(
                                 color: colorScheme.onSurfaceVariant,
@@ -172,7 +172,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 const SizedBox(height: 14),
                 _ScheduleLegend(),
                 const SizedBox(height: 14),
-                Text(
+                SamsLocaleText(
                   'Upcoming • ${_weekdayLabel(_selectedDate.weekday)}, ${_monthShortLabel(_selectedDate.month)} ${_selectedDate.day}',
                   style: textTheme.titleLarge?.copyWith(
                     fontSize: isDesktop ? 19 : 17,
@@ -262,7 +262,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
               SizedBox(width: 10),
               Expanded(
-                child: Text(
+                child: SamsLocaleText(
                   'No items planned for this date.',
                   style: TextStyle(
                     color: colorScheme.onSurfaceVariant,
@@ -350,7 +350,7 @@ class _CalendarHeaderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                SamsLocaleText(
                   'CALENDAR',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.66),
@@ -360,7 +360,7 @@ class _CalendarHeaderCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text(
+                SamsLocaleText(
                   monthLabel,
                   style: const TextStyle(
                     color: Colors.white,
@@ -370,7 +370,7 @@ class _CalendarHeaderCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 5),
-                Text(
+                SamsLocaleText(
                   'Exams, lectures, events & birthdays overview',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
@@ -428,7 +428,7 @@ class _MonthCalendarView extends StatelessWidget {
               .map(
                 (day) => Expanded(
                   child: Center(
-                    child: Text(
+                    child: SamsLocaleText(
                       day,
                       style: TextStyle(
                         fontSize: 10.4,
@@ -560,7 +560,7 @@ class _CalendarDayTile extends StatelessWidget {
                   ]
                 : null,
           ),
-          child: Text(
+          child: SamsLocaleText(
             '$dayNumber',
             style: TextStyle(
               color: textColor,
@@ -628,7 +628,7 @@ class _LegendChip extends StatelessWidget {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 7),
-          Text(
+          SamsLocaleText(
             label,
             style: TextStyle(
               color: color,
@@ -688,7 +688,7 @@ class _ScheduleItemCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                SamsLocaleText(
                   item.title,
                   style: textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w800,
@@ -696,7 +696,7 @@ class _ScheduleItemCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
+                SamsLocaleText(
                   '${item.timeRange} • ${item.location}',
                   style: textTheme.bodySmall?.copyWith(
                     fontSize: 11.6,
@@ -705,7 +705,7 @@ class _ScheduleItemCard extends StatelessWidget {
                 ),
                 if (item.note != null && item.note!.isNotEmpty) ...[
                   const SizedBox(height: 3),
-                  Text(
+                  SamsLocaleText(
                     item.note!,
                     style: textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
@@ -727,7 +727,7 @@ class _ScheduleItemCard extends StatelessWidget {
                   color: accentColor,
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: Text(
+                child: SamsLocaleText(
                   _compactTime(item.timeRange),
                   style: const TextStyle(
                     color: Colors.white,
@@ -740,7 +740,7 @@ class _ScheduleItemCard extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  SamsLocaleText(
                     _labelForType(item.type),
                     style: TextStyle(
                       color: accentColor,

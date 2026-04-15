@@ -59,7 +59,7 @@ class _MainShellState extends State<MainShell> {
           return NavigationDestination(
             icon: _NavItemIcon(icon: item.icon, selected: selected),
             selectedIcon: _NavItemIcon(icon: item.activeIcon, selected: true),
-            label: item.label,
+            label: context.tr(item.label),
           );
         })
         .toList(growable: false);
@@ -77,7 +77,7 @@ class _MainShellState extends State<MainShell> {
           return NavigationRailDestination(
             icon: _NavItemIcon(icon: item.icon, selected: selected),
             selectedIcon: _NavItemIcon(icon: item.activeIcon, selected: true),
-            label: Text(item.label),
+            label: SamsLocaleText(item.label),
           );
         })
         .toList(growable: false);

@@ -68,8 +68,8 @@ class _SessionScreenState extends State<SessionScreen> {
     ];
 
     if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: SamsUiTokens.scaffoldBackground,
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(
           child: SizedBox(
             width: 86,
@@ -88,13 +88,13 @@ class _SessionScreenState extends State<SessionScreen> {
     }
 
     return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const SamsAppBar(title: 'Session'),
       body: SafeArea(
         child: ListView(
           padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 20),
           children: [
-            const Text(
+            const SamsLocaleText(
               'Academic Overview',
               style: TextStyle(
                 color: SamsUiTokens.textPrimary,
@@ -103,7 +103,7 @@ class _SessionScreenState extends State<SessionScreen> {
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
+            const SamsLocaleText(
               'Track your active semester and previous academic progress.',
               style: TextStyle(
                 color: SamsUiTokens.textSecondary,
@@ -125,7 +125,7 @@ class _SessionScreenState extends State<SessionScreen> {
                 children: [
                   Row(
                     children: [
-                      const Text(
+                      const SamsLocaleText(
                         'Current Session',
                         style: TextStyle(
                           color: SamsUiTokens.textSecondary,
@@ -143,7 +143,7 @@ class _SessionScreenState extends State<SessionScreen> {
                           color: SamsUiTokens.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(999),
                         ),
-                        child: const Text(
+                        child: const SamsLocaleText(
                           'Active',
                           style: TextStyle(
                             color: SamsUiTokens.primary,
@@ -155,7 +155,7 @@ class _SessionScreenState extends State<SessionScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  const SamsLocaleText(
                     'Bachelor of Management Sciences – Semester 5',
                     style: TextStyle(
                       color: SamsUiTokens.textPrimary,
@@ -164,7 +164,7 @@ class _SessionScreenState extends State<SessionScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  const SamsLocaleText(
                     'Academic Year 2025-26 • 27 Sep 2025 – 29 Jan 2026',
                     style: TextStyle(
                       color: SamsUiTokens.primary,
@@ -175,7 +175,7 @@ class _SessionScreenState extends State<SessionScreen> {
                   const SizedBox(height: 10),
                   const Divider(height: 1, color: Color(0xFFE6ECF4)),
                   const SizedBox(height: 10),
-                  const Text(
+                  const SamsLocaleText(
                     'Programme: Bachelor of Management Sciences – Semester 5',
                     style: TextStyle(
                       color: SamsUiTokens.textSecondary,
@@ -185,7 +185,7 @@ class _SessionScreenState extends State<SessionScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
+                  const SamsLocaleText(
                     'Department: Business Administration • Campus: SAMS Cairo (Maadi)',
                     style: TextStyle(
                       color: SamsUiTokens.textSecondary,
@@ -197,7 +197,7 @@ class _SessionScreenState extends State<SessionScreen> {
                   const SizedBox(height: 10),
                   const Divider(height: 1, color: Color(0xFFE6ECF4)),
                   const SizedBox(height: 10),
-                  const Text(
+                  const SamsLocaleText(
                     'Semester Subjects',
                     style: TextStyle(
                       color: SamsUiTokens.textPrimary,
@@ -227,7 +227,7 @@ class _SessionScreenState extends State<SessionScreen> {
                                 ),
                               ),
                             ),
-                            child: Text(
+                            child: SamsLocaleText(
                               subject,
                               style: const TextStyle(
                                 color: SamsUiTokens.primary,
@@ -243,7 +243,7 @@ class _SessionScreenState extends State<SessionScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
+            const SamsLocaleText(
               'Past Semesters',
               style: TextStyle(
                 color: SamsUiTokens.textPrimary,
@@ -293,7 +293,7 @@ class _SessionScreenState extends State<SessionScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  SamsLocaleText(
                                     semester.title,
                                     style: const TextStyle(
                                       color: SamsUiTokens.textPrimary,
@@ -302,7 +302,7 @@ class _SessionScreenState extends State<SessionScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 2),
-                                  Text(
+                                  SamsLocaleText(
                                     semester.year,
                                     style: const TextStyle(
                                       color: SamsUiTokens.textSecondary,
@@ -311,7 +311,7 @@ class _SessionScreenState extends State<SessionScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 2),
-                                  Text(
+                                  SamsLocaleText(
                                     semester.dates,
                                     style: const TextStyle(
                                       color: SamsUiTokens.textSecondary,
@@ -334,7 +334,7 @@ class _SessionScreenState extends State<SessionScreen> {
                                 ),
                                 borderRadius: BorderRadius.circular(999),
                               ),
-                              child: Text(
+                              child: SamsLocaleText(
                                 semester.status,
                                 style: const TextStyle(
                                   color: SamsUiTokens.success,

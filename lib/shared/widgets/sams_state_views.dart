@@ -16,6 +16,8 @@ class SamsLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -43,20 +45,20 @@ class SamsLoadingView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            Text(
+            SamsLocaleText(
               title,
-              style: const TextStyle(
-                color: SamsUiTokens.textPrimary,
+              style: TextStyle(
+                color: colorScheme.onSurface,
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 6),
-            Text(
+            SamsLocaleText(
               message,
-              style: const TextStyle(
-                color: SamsUiTokens.textSecondary,
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 12.8,
                 fontWeight: FontWeight.w600,
               ),
@@ -87,6 +89,9 @@ class SamsErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -95,10 +100,18 @@ class SamsErrorState extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 420),
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-            border: Border.all(color: SamsUiTokens.divider),
-            boxShadow: SamsUiTokens.cardShadow,
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.8),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.36 : 0.12),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -113,20 +126,20 @@ class SamsErrorState extends StatelessWidget {
                 child: Icon(icon, color: SamsUiTokens.primary, size: 30),
               ),
               const SizedBox(height: 12),
-              Text(
+              SamsLocaleText(
                 title,
-                style: const TextStyle(
-                  color: SamsUiTokens.textPrimary,
+                style: TextStyle(
+                  color: colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 6),
-              Text(
+              SamsLocaleText(
                 message,
-                style: const TextStyle(
-                  color: SamsUiTokens.textSecondary,
+                style: TextStyle(
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   height: 1.35,
@@ -138,7 +151,7 @@ class SamsErrorState extends StatelessWidget {
                 SamsTapScale(
                   child: ElevatedButton(
                     onPressed: onRetry,
-                    child: Text(retryLabel),
+                    child: SamsLocaleText(retryLabel),
                   ),
                 ),
               ],
@@ -164,11 +177,16 @@ class SamsSkeletonBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return ShimmerWidget(
       width: width,
       height: height,
       borderRadius: BorderRadius.circular(radius),
-      baseColor: const Color(0xFFE2ECF5),
+      baseColor: isDark
+          ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.98)
+          : const Color(0xFFE2ECF5),
       highlightColor: SamsUiTokens.primary.withValues(alpha: 0.18),
     );
   }

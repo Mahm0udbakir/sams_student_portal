@@ -64,7 +64,7 @@ class AttendanceDetailScreen extends StatelessWidget {
 
             if (state.status == AttendanceStatus.failure || !state.hasData) {
               return Scaffold(
-                backgroundColor: SamsUiTokens.scaffoldBackground,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 appBar: const SamsAppBar(title: 'Attendance'),
                 body: SamsErrorState(
                   title: 'Couldn\'t load attendance',
@@ -80,7 +80,7 @@ class AttendanceDetailScreen extends StatelessWidget {
             }
 
             return Scaffold(
-              backgroundColor: SamsUiTokens.scaffoldBackground,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               appBar: const SamsAppBar(title: 'Attendance'),
               body: RefreshIndicator(
                 onRefresh: () => _refreshAttendance(context),
@@ -107,7 +107,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                           const SizedBox(height: 12),
                           const _AttendanceLegend(),
                           const SizedBox(height: 14),
-                          const Text(
+                          const SamsLocaleText(
                             'Class-wise Attendance',
                             style: TextStyle(
                               color: SamsUiTokens.textPrimary,
@@ -169,7 +169,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                                           ),
                                           const SizedBox(width: 10),
                                           Expanded(
-                                            child: Text(
+                                            child: SamsLocaleText(
                                               item.subject,
                                               style: const TextStyle(
                                                 color: SamsUiTokens.textPrimary,
@@ -195,7 +195,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                                                 ),
                                               ),
                                             ),
-                                            child: Text(
+                                            child: SamsLocaleText(
                                               '${item.percentage}%',
                                               style: TextStyle(
                                                 color: visual.accent,
@@ -207,7 +207,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                                         ],
                                       ),
                                       const SizedBox(height: 6),
-                                      Text(
+                                      SamsLocaleText(
                                         _bandLabel(item.percentage),
                                         style: TextStyle(
                                           color: visual.accent,
@@ -259,7 +259,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                                                             >(visual.accent),
                                                       ),
                                                     )
-                                                  : const Text(
+                                                  : const SamsLocaleText(
                                                       'Mark Attendance',
                                                     ),
                                             ),
@@ -350,7 +350,7 @@ class _OverallAttendanceCard extends StatelessWidget {
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  const SamsLocaleText(
                     'Overall Attendance',
                     style: TextStyle(
                       color: SamsUiTokens.textSecondary,
@@ -365,7 +365,7 @@ class _OverallAttendanceCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            SamsLocaleText(
                               '$percentage%',
                               style: TextStyle(
                                 color: visual.accent,
@@ -375,7 +375,7 @@ class _OverallAttendanceCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
+                            SamsLocaleText(
                               _bandLabel(percentage),
                               style: TextStyle(
                                 color: visual.accent,
@@ -421,7 +421,7 @@ class _OverallAttendanceCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        const SamsLocaleText(
                           'Overall Attendance',
                           style: TextStyle(
                             color: SamsUiTokens.textSecondary,
@@ -430,7 +430,7 @@ class _OverallAttendanceCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 3),
-                        Text(
+                        SamsLocaleText(
                           '$percentage%',
                           style: TextStyle(
                             color: visual.accent,
@@ -440,7 +440,7 @@ class _OverallAttendanceCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
+                        SamsLocaleText(
                           _bandLabel(percentage),
                           style: TextStyle(
                             color: visual.accent,
@@ -501,7 +501,7 @@ class _AttendanceLegend extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text(
+            SamsLocaleText(
               'Attendance Color Guide',
               style: TextStyle(
                 color: SamsUiTokens.textPrimary,
@@ -550,7 +550,7 @@ class _LegendChip extends StatelessWidget {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 6),
-          Text(
+          SamsLocaleText(
             label,
             style: TextStyle(
               color: color,
@@ -570,7 +570,7 @@ class _AttendanceLoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const SamsAppBar(title: 'Attendance'),
       body: ListView(
         padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 20),

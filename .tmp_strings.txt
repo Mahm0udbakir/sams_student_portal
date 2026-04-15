@@ -1,0 +1,714 @@
+../../../../core/bloc/theme/theme_bloc.dart
+../../../../core/data/repositories/fake_data_repository.dart
+../../../../core/routes/app_router.dart
+../../../../shared/bloc/locale_bloc.dart
+../../../../shared/bloc/student_bloc.dart
+../../../../shared/ui/sams_lottie_assets.dart
+../../../../shared/ui/sams_ui_tokens.dart
+../../../../shared/widgets/empty_state_widget.dart
+../../../../shared/widgets/modern_snackbar.dart
+../../../../shared/widgets/sams_app_bar.dart
+../../../../shared/widgets/sams_pressable.dart
+../../../../shared/widgets/sams_state_views.dart
+../../../../shared/widgets/shimmer_widget.dart
+../../data/repositories/fake_attendance_repository.dart
+../../data/repositories/fake_bus_repository.dart
+../../data/repositories/fake_calendar_repository.dart
+../../data/repositories/fake_help_desk_repository.dart
+../../data/repositories/fake_home_repository.dart
+../../data/repositories/fake_hostel_repository.dart
+../../data/repositories/fake_messages_repository.dart
+../../data/repositories/fake_profile_repository.dart
+../../data/repositories/fake_scan_repository.dart
+../../domain/entities/attendance_overview_entity.dart
+../../domain/entities/attendance_subject_entity.dart
+../../domain/entities/bus_live_info_entity.dart
+../../domain/entities/bus_route_stop_entity.dart
+../../domain/entities/bus_snapshot_entity.dart
+../../domain/entities/calendar_schedule_item_entity.dart
+../../domain/entities/complaint_entity.dart
+../../domain/entities/home_announcement_entity.dart
+../../domain/entities/home_dashboard_entity.dart
+../../domain/entities/hostel_menu_item_entity.dart
+../../domain/entities/message_thread_entity.dart
+../../domain/entities/profile_overview_entity.dart
+../../domain/entities/scan_option_entity.dart
+../../domain/repositories/attendance_repository.dart
+../../domain/repositories/bus_repository.dart
+../../domain/repositories/calendar_repository.dart
+../../domain/repositories/help_desk_repository.dart
+../../domain/repositories/home_repository.dart
+../../domain/repositories/hostel_repository.dart
+../../domain/repositories/messages_repository.dart
+../../domain/repositories/profile_repository.dart
+../../domain/repositories/scan_repository.dart
+../bloc/attendance_bloc.dart
+../bloc/bus_bloc.dart
+../bloc/change_password_bloc.dart
+../bloc/help_desk_bloc.dart
+../bloc/home_bloc.dart
+../bloc/hostel_bloc.dart
+../bloc/messages_bloc.dart
+../bloc/profile_bloc.dart
+../bloc/scan_bloc.dart
+../models/attendance_overview_model.dart
+../models/attendance_subject_model.dart
+../models/bus_snapshot_model.dart
+../models/calendar_schedule_item_model.dart
+../models/complaint_model.dart
+../models/home_announcement_model.dart
+../models/home_dashboard_model.dart
+../models/hostel_menu_item_model.dart
+../models/message_thread_model.dart
+../models/profile_overview_model.dart
+../models/scan_option_model.dart
+../ui/sams_lottie_assets.dart
+../ui/sams_ui_tokens.dart
+/help-desk
+/home
+/menu
+/messages
+/scan
++20 1XX XXX XXXX
+$_overallAttendance%
+${_concernController.text.length}/500
+${_monthLabel(_visibleMonth.month)} ${_visibleMonth.year}
+${(value * 100).round()}%
+${chat.name}-${chat.message}
+${context.tr(label)}: 
+${date.day} ${monthNames[date.month - 1]} ${date.year}
+${entry.$1} ${entry.$2}
+${item.department}-${item.message}
+${item.percentage}%
+${item.timeRange} • ${item.location}
+${item.title} is not available yet.
+${receipt.amount} • ${receipt.paidOn}
+${receipt.title} downloaded (demo).
+${receipt.title} share link copied (demo).
+${row.stop}-${row.time}
+${selected.title} PDF request sent to your SAMS email.
+$code • $issue
+$day
+$dayNumber
+$meal • $date
+$monthName ${now.year}
+$percentage%
+$title activated (demo).
+01:00 PM - 03:30 PM
+01:30 PM - 03:00 PM
+02 Mar 2026
+02:30 PM - 03:00 PM
+03 Apr 2026
+09:00 AM - 10:30 AM
+09:00 AM - 11:00 AM
+09:30 AM - 01:00 PM
+09:30 AM - 10:30 AM
+1. Acceptance of terms
+1. Data we collect
+10 Feb 2025 – 12 Jun 2025
+10:00 AM - 12:00 PM
+11:00 AM - 01:00 PM
+11:00 AM - 12:30 PM
+11:30 AM - 01:30 PM
+12 Feb 2024 – 13 Jun 2024
+12 mins
+12:00 PM - 01:00 PM
+12:30 PM - 02:00 PM
+13 Apr 2026
+14 Apr 2026
+2. How we use data
+2. Student account responsibility
+2025 - 2026 • Bachelor of Management Sciences – Semester 5
+28 Sep 2024 – 30 Jan 2025
+3. Acceptable use
+3. Data sharing
+30 Sep 2023 – 01 Feb 2024
+4. Information accuracy
+4. Security measures
+5. Data retention
+5. Service availability
+6. Updates to terms
+6. Your choices
+7:35 AM
+7. Contact
+7. Contact us
+8:00 AM
+8:18 AM
+8:32 AM
+8:52 AM
+8/11 lectures attended this week
+9:18 AM
+About App
+AC is running but not cooling since yesterday night.
+Academic
+Academic Cell
+Academic Overview
+Academic Year 2025-26 • 27 Sep 2025 – 29 Jan 2026
+Academic Year 2025/2026\nTotal paid: EGP 8,500 • Outstanding: EGP 4,250
+Academics
+Access gate pass, allotment and receipts
+Accounting Principles
+Accounting Principles • Dr. Ahmed Hassan
+Accounting Principles Lecture
+Accounts Office
+Active
+After lectures
+Allow anonymous analytics
+Allow classmates to see your registered contact details.
+Already have an account? Login
+announcements
+Announcements
+App Language
+App version
+Appearance
+Appearance, language, notifications and security
+Approval flow
+Apr
+April
+ar
+Arabic
+assets/images/auth_hero.jpg
+assets/images/sams_logo.png
+Assignment reminders
+Attendance
+Attendance Color Guide
+Attendance for Monday lecture will be taken in the first 15 minutes only.
+attendance_subject_model.dart
+attendancePercent
+attendanceSubtitle
+attendedClassesLabel
+Aug
+Aug 30, Saturday
+August
+Auto-generated on submit
+Available receipts
+Average response time: 2.5 hours • Emergency cases are prioritized.
+Awaiting payment
+Bachelor of Management Sciences – Semester 1
+Bachelor of Management Sciences – Semester 2
+Bachelor of Management Sciences – Semester 3
+Bachelor of Management Sciences – Semester 4
+Bachelor of Management Sciences – Semester 5
+Bachelor of Management Sciences – Semester 5 • Current term
+badge
+Bank transfer
+Bathroom leakage - Room B118
+Birthday
+birthday
+Breakfast
+Briefly explain your leave request...
+Bring SAMS ID and approved calculator
+Bus details are available in Menu > SAMS Bus.
+Bus Tracking
+Business Administration
+Business Administration • Dr. Fatima Ali
+Business Law
+Business Statistics
+Business Statistics • Dr. Mariam Mostafa
+busRouteLabel
+busStatusLabel
+By using SAMS Student Portal, you agree to follow these terms and all applicable campus policies.
+Cairo University
+CALENDAR
+Calendar
+Campus
+Campus Café Terrace
+Cancel
+Career Week: Banking & FMCG Talks
+Career Week: Banking Track
+Category
+Change Password
+Check Again
+Choose a quick QR sign-in or continue manually.
+Choose from gallery
+Choose the display language for the app interface.
+Choose your preferred app language.
+Class Advisor Birthday - Prof. Mohamed Salah
+Class-wise Attendance
+Classmates gathering
+Comments
+Community Service Day (Maadi)
+Completed
+Computer Lab 2
+Concern submitted successfully
+Concerned Department
+Conference Hall, Building A
+Confirm New Password
+Confirm Password
+Confirm switch
+contact
+Contact
+Continue
+Control alerts and update reminders.
+Controls visibility of your avatar in student directory.
+core/bloc/theme/theme_bloc.dart
+core/routes/app_router.dart
+core/theme/app_theme.dart
+Couldn\
+Create your SAMS account to continue.
+Critical Zone (< 60%)
+Current
+Current average rating: $avg / 5.0
+Current Hostel Status
+Current Password
+Current Session
+Current Status: 
+Current stop: ${snapshot.currentStop} • ${liveInfo.lastUpdated}
+currentStatus
+currentStop
+Daily Essentials
+Dark Mode
+Dark Mode enabled.
+dart:async
+Data may be shared with authorized campus departments only when needed to fulfill academic, hostel, transport, or support operations.
+day
+Dean office + Student Affairs
+Dec
+December
+department
+Department: Business Administration • Campus: SAMS Cairo (Maadi)
+Describe the issue and when it started...
+Describe your issue here...
+Designed to reduce paperwork and help students complete tasks faster.
+Dinner
+Do not misuse the service, attempt unauthorized access, upload harmful content, or interfere with other students using the platform.
+Done
+Download
+Dr. Ahmed Hassan
+Dr. Mariam Mostafa - Student Affairs
+Dr. Nourhan Adel
+Dr. Sara Ibrahim
+Due
+Economics discussion section will focus on Egypt inflation trends for 2025.
+Economics for Managers
+Economics for Managers • Prof. Karim Abdelrahman
+EGP 4,250
+Electrical
+Email
+Email updates
+Emergency
+en
+English
+Estimated response: within 24 hours
+eta
+ETA: Today 7:30 PM
+ETA: Tomorrow 9:00 AM
+Event
+event
+exam
+Exam
+Exam Hall B
+Exam Hall C
+Exams, lectures, events & birthdays overview
+F
+Faculty Lounge
+Failed to load attendance. Please try again.
+Failed to load bus tracking. Please try again.
+Failed to load help desk requests. Please try again.
+Failed to load home dashboard. Please try again.
+Failed to load hostel services. Please try again.
+Failed to load messages. Please try again.
+Failed to load profile. Please try again.
+Failed to load scan options. Please try again.
+Fall Semester Kickoff
+Family visit in Alexandria during the weekend.
+Feb
+February
+fee
+Fee Receipt
+feedback
+Feedback form
+Fetching attendance, bus status and announcements...
+Fetching your account details and settings...
+Fetching your latest complaints and help desk updates...
+Final check before departure
+Final Exam - Business Administration
+Financial Aid
+Financial Management
+Financial Management • Dr. Sara Ibrahim
+Financial Management case study rubric is now available on Moodle.
+Financial Management Tutorial
+Flutter
+For privacy-related concerns, please raise a Help Desk ticket or write to privacy@sams.edu.
+For questions regarding these terms, raise a concern through Help Desk or contact support@sams.edu.
+Fri
+Furniture
+gallery
+Gana Abdelrahman Birthday
+Gate office validation
+Get reminders before deadlines and upcoming class tasks.
+Getting your camera and gallery options ready...
+Giza Square
+Good quality, but dessert options were limited.
+Great! You have no active concerns at the moment.
+Guardian contact
+Guest sessions start Sunday at the Main Auditorium. Opening talk moderated by Dr. Ahmed Hassan and Dr. Sara Ibrahim.
+Hall M-203
+Help Desk
+Help Desk Team\nExt. 101
+Help improve the SAMS app experience and performance.
+helpdesk.it@sams.edu.eg\nExt. 214
+helpDeskMainList
+Helwan
+Hi, $name
+Hide manual login
+High
+History Hall, Building D
+Home
+home_announcement_model.dart
+Hosted with Banque Misr alumni
+Hostel
+Hostel Building B - Room 214
+Hostel Fee - April 2026
+Hostel Fee - February 2026
+Hostel Fee - March 2026
+Hostel Office
+Hostel services & requests
+Hostel Warden review
+HST-2026-02
+HST-2026-03
+HST-2026-04
+Human Resources Management
+Human Resources Management • Dr. Youssef Mahmoud
+Hygiene
+I agree to the Terms and Conditions
+I moved from Maadi to Nasr City. Please change my shuttle route from Line 03 to Line 06 starting next week.
+ID: $id
+Important
+In Campus
+In Progress
+Information is retained for the period necessary to provide services, comply with institutional policies, and meet legal obligations.
+Internet
+Internet / Network
+issue
+Issue description
+IT Support
+Jan
+January
+Jul
+July
+Jun
+June
+Keeps your attendance, schedule, messages, and campus updates in one place.
+label
+Language
+Language switched to $value.
+Last changed 2 months ago
+Last updated: April 15, 2026. Please review this page periodically for changes.
+lastUpdated
+leave
+Leave date
+Leave Permission
+Leave permission request submitted to Hostel Warden.
+Lecture
+lecture
+Lecture Hall B2
+Legal
+Library Extended Hours Before Midterms
+Library Services
+library.support@sams.edu.eg\nExt. 118
+Light Mode enabled.
+Live Route
+Loading hostel services
+Loading profile
+Loading your attendance...
+Loading your bus tracking...
+Loading your concerns...
+Loading your dashboard
+Loading your messages...
+location
+Location
+Login manually
+Look and feel of your SAMS app experience.
+Low
+Lunch
+M
+Maadi Campus (SAMS)
+Maadi Community Center
+Maadi Corniche
+Maadi Corniche → Tahrir Square → Giza Square → Cairo University → Ramses Station → Helwan
+Mahmoud Bakir
+Main Exam Hall A
+maintenance
+Maintenance Request
+Maintenance request submitted. Team will reach out shortly.
+Manage visibility, sharing, and data preferences.
+Management Information Systems
+Management Information Systems • Dr. Nourhan Adel
+Mar
+March
+Mark Attendance
+Mark Today\
+Marketing Management
+Marketing Management • Prof. Mohamed Salah
+May
+Meal type
+Medium
+Menu
+mess
+Mess Feedback
+Mess feedback submitted. Thanks for helping improve service.
+message
+Messages
+Midterm Exam - Economics for Managers
+Midterm Exam - Marketing Management
+MIS lab section has moved to Computer Lab 2 this Tuesday.
+MIS Lab Session
+Mon
+Mon - Sat, 8:00 AM - 6:00 PM
+Monday, Sept 1
+Morning Shuttle • 6 major stops • 33km • 1 hour 40 mins
+MR-4498
+MR-4521
+Mr. Hany Nabil\nTransport Office – Gate 1
+My student card is active for borrowing books but not for accessing EBSCO databases from the digital library lab.
+name
+Name
+New here? Create an account
+New Password
+Next stop: ${liveInfo.nextStop} • ETA ${liveInfo.eta}
+nextStop
+No announcements yet
+No complaints right now
+No items planned for this date.
+No messages yet
+note
+Notifications
+Nov
+November
+Oct
+October
+October Victory Commemoration Talk
+Official stamped receipts are generated within 1-2 minutes and sent to your registered email.
+Open a concern from the app
+Open Air Theater
+Open for all Semester 5 students
+Open requests
+Opened: ${entry.value.title}
+or
+Origin
+Overall Attendance
+Overall Attendance: 75%
+overallPercent
+package:flutter_bloc/flutter_bloc.dart
+package:flutter_localizations/flutter_localizations.dart
+package:flutter/cupertino.dart
+package:flutter/material.dart
+package:go_router/go_router.dart
+package:lottie/lottie.dart
+Paid
+Paper-based exam
+Pass type
+Passed
+Password
+Password updated successfully
+Past Semesters
+Pause non-critical notifications during study/sleep time.
+payment
+Payment summary
+Pending due 20 Apr 2026
+percentage
+Personalize appearance, language, notifications and account security in one place.
+photo
+Platform
+Please add a short comment before submitting feedback.
+Please add more grilled options and fresh fruit in dinner.
+Please complete location and issue description.
+Please fill reason and guardian contact before submitting.
+Please hold still while we verify your code.
+Please reduce oil in rice dishes.
+Please review your timetable on the SAMS portal. Any clash requests should be sent to Prof. Mohamed Salah before Wednesday 2:00 PM.
+Please select department and enter your concern.
+Plumbing
+Preferred visit slot
+Preparing overall and class-wise attendance for you...
+Preparing scanner
+Preparing your gate pass, receipts and allotment options...
+Priority
+Privacy & Security
+Privacy policy
+Privacy Policy
+privacy_policy_screen.dart
+Prof. Karim Abdelrahman
+Prof. Mohamed Salah (Class Advisor)
+Profile
+Programme: Bachelor of Management Sciences – Semester 5
+Provides quick access to hostel, transport, and support workflows.
+Push alerts
+Quiet hours
+Quiz - Operations Management
+Raise a complaint
+Raise your Concern
+Ramses Station
+Read usage terms and student responsibilities.
+Reason
+receipt
+Receipt unavailable until payment is completed.
+Receive instant notices for attendance and announcements.
+Receive periodic summaries and account updates by email.
+Recent submissions
+Refresh Inbox
+Refresh Updates
+Release
+Reminder: Accounting quiz starts 10:00 AM sharp in Hall M203. Bring your SAMS ID card.
+repair
+Report AC, plumbing, electrical, or furniture issues
+request
+Request created
+Request details
+Request form
+Request selected receipt PDF
+Request weekend leave and in/out movement approvals
+Retry
+Return date
+Review student platform terms and usage policy.
+Roll no.
+Room B-214 • Floor 2\nLast pass approved on 10 Apr 2026
+Room C-114
+routeSummary
+S
+Sadat Academy for\nManagement Sciences
+Safe Zone (≥ 80%)
+SAMS Central Library will be open until 9:00 PM (Sun–Thu). Floor supervisors include Dr. Nourhan Adel and Prof. Karim Abdelrahman.
+SAMS Home
+SAMS Hostel
+SAMS Main Auditorium
+SAMS Midterm Schedule (Semester 5) Published
+SAMS portal login keeps timing out on campus Wi-Fi between 8:00 PM and 10:00 PM in Building C.
+SAMS Shuttle 03 • Maadi → Ramses
+SAMS Student App • Version 1.0
+SAMS Student Portal
+SAMS Student Portal • v1.0.0
+SAMS University
+sams_logo_title.dart
+sams_pressable.dart
+Sat
+Scan
+Scan again
+Scan QR Code
+Scan SAMS ID from gallery
+Scan SAMS ID with camera
+Scan successful
+Scanning in progress...
+Scanning...
+Schedule
+Scheduled
+Search messages
+Security
+See how your data is handled and protected.
+Select leave date
+Select return date
+Semester 5 core requirement
+Semester Subjects
+Sep
+September
+Session
+sessionSubtitle
+Settings
+Share
+Share data with campus services
+Share what can be improved...
+shared/bloc/locale_bloc.dart
+shared/bloc/student_bloc.dart
+shimmer_widget.dart
+Short appreciation gathering
+Show contact information
+Show profile photo to classmates
+Sign up
+Sign-in with QR code
+Smart Settings
+Special lecture by Dr. Khaled Samir
+Spring Semester Orientation
+Start a new conversation and your chats will appear here.
+status
+Status: Arriving at Gate 2 (Maadi Campus)
+stop
+Student Activities Committee Meetup
+Student Affairs (Maadi Building A) will accept installment requests from 9:30 AM to 2:30 PM. Contact Dr. Fatima Ali for verification support.
+Student Union Hall
+studentId
+studentName
+subject
+subjects
+Submit
+Submit daily meal quality, variety, and hygiene feedback
+Submit leave request
+Submit maintenance request
+Submit mess feedback
+Submitting your concern...
+submitting-banner
+submitting-banner-hidden
+subtitle
+Sun
+Support and contact
+Support Email
+Support Hours
+support@sams.edu
+Swipe left or right to change month
+Switch
+Switch between light and dark app themes.
+Switch to 
+Switch to $destination in demo mode?
+Switch to SAMS Bus
+Switch to SAMS Hostel
+Syncing live bus location, route stops, and ETA...
+Syncing your latest conversations from SAMS...
+T
+Tahrir Square
+Take a photo
+Taste
+Terms & Conditions
+Terms may be revised from time to time. Continued use of the app after changes means you accept the updated terms.
+The app may be temporarily unavailable during maintenance, upgrades, or network issues. We aim to minimize downtime.
+Thu
+time
+timeRange
+title
+Today (6:00 PM - 8:00 PM)
+Today\
+Tomorrow (4:00 PM - 6:00 PM)
+Tomorrow (8:00 AM - 10:00 AM)
+Track route, stops and live bus status
+Track your active semester and previous academic progress.
+Track Your Bus
+Transport Department
+Try again
+Tue
+Tuition Installment Window – Spring 2026
+type
+Unavailable
+Understand how your data is collected and protected.
+Upcoming
+Upcoming • ${_weekdayLabel(_selectedDate.weekday)}, ${_monthShortLabel(_selectedDate.month)} ${_selectedDate.day}
+Update Password
+Update your account password
+Updated 2 mins ago
+Use a strong password with letters, numbers, and symbols.
+Used to personalize student features and recommendations.
+Usually within 2-4 hours
+Variety
+Version
+Version info, legal pages, and app details.
+View and download tuition and hostel payment receipts
+Visa •••• 2145
+Volunteer hours count toward activities record
+W
+Wardrobe door alignment - Room B214
+Watch Zone (60–79%)
+We are committed to protecting your student data and being clear about how it is used.
+We may collect profile details, student identifiers, app preferences, usage logs, and request data required to provide student services.
+We use administrative and technical safeguards to protect student information against unauthorized access, alteration, or disclosure.
+Wed
+Weekend
+Welcome back
+Welcome session for returning students
+Welcome.
+What SAMS Student Portal does
+You are all caught up. New updates from SAMS will appear here.
+You are responsible for maintaining the confidentiality of your login credentials and for all activity under your account.
+You can manage visibility settings, notification preferences, and language options from the Settings page at any time.
+You should provide accurate and current details in forms, profiles, requests, and support tickets to ensure correct processing.
+Your Concern
+Your data is used to deliver core features such as attendance tracking, notifications, help desk requests, and service personalization.
+Your internship letter is ready for collection from Building B counter 4.
+Your request has been verified by SAMS services.

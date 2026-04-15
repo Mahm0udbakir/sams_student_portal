@@ -102,7 +102,7 @@ class _LeavePermissionDetailScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const SamsAppBar(title: 'Leave Permission'),
       body: SafeArea(
         child: ListView(
@@ -129,7 +129,7 @@ class _LeavePermissionDetailScreenState
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  SamsLocaleText(
                     'Current Hostel Status',
                     style: TextStyle(
                       color: Color(0xFFD7EBFA),
@@ -137,7 +137,7 @@ class _LeavePermissionDetailScreenState
                     ),
                   ),
                   SizedBox(height: 8),
-                  Text(
+                  SamsLocaleText(
                     'Room B-214 • Floor 2\nLast pass approved on 10 Apr 2026',
                     style: TextStyle(
                       color: Colors.white,
@@ -155,7 +155,7 @@ class _LeavePermissionDetailScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  const SamsLocaleText(
                     'Pass type',
                     style: TextStyle(
                       color: SamsUiTokens.textSecondary,
@@ -169,7 +169,7 @@ class _LeavePermissionDetailScreenState
                     children: ['Weekend', 'Emergency', 'Academic']
                         .map(
                           (type) => ChoiceChip(
-                            label: Text(type),
+                            label: SamsLocaleText(type),
                             selected: _passType == type,
                             onSelected: (_) => setState(() => _passType = type),
                             selectedColor: SamsUiTokens.primary.withValues(
@@ -214,9 +214,9 @@ class _LeavePermissionDetailScreenState
                   TextField(
                     controller: _guardianContactController,
                     keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(
-                      labelText: 'Guardian contact',
-                      hintText: '+20 1XX XXX XXXX',
+                    decoration: InputDecoration(
+                      labelText: context.tr('Guardian contact'),
+                      hintText: context.tr('+20 1XX XXX XXXX'),
                       prefixIcon: Icon(Icons.call_outlined),
                     ),
                   ),
@@ -224,9 +224,11 @@ class _LeavePermissionDetailScreenState
                   TextField(
                     controller: _reasonController,
                     maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Reason',
-                      hintText: 'Briefly explain your leave request...',
+                    decoration: InputDecoration(
+                      labelText: context.tr('Reason'),
+                      hintText: context.tr(
+                        'Briefly explain your leave request...',
+                      ),
                       alignLabelWithHint: true,
                       prefixIcon: Icon(Icons.edit_note_rounded),
                     ),
@@ -269,7 +271,7 @@ class _LeavePermissionDetailScreenState
                   ),
                 ),
                 icon: const Icon(Icons.send_rounded),
-                label: const Text('Submit leave request'),
+                label: const SamsLocaleText('Submit leave request'),
               ),
             ),
           ],
@@ -300,7 +302,7 @@ class _SectionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            SamsLocaleText(
               title,
               style: const TextStyle(
                 color: SamsUiTokens.textPrimary,
@@ -343,7 +345,7 @@ class _DateTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            SamsLocaleText(
               label,
               style: const TextStyle(
                 fontSize: 12,
@@ -355,7 +357,7 @@ class _DateTile extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(
+                  child: SamsLocaleText(
                     value,
                     style: const TextStyle(
                       color: SamsUiTokens.textPrimary,
@@ -418,7 +420,7 @@ class _TimelineRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                SamsLocaleText(
                   title,
                   style: const TextStyle(
                     color: SamsUiTokens.textPrimary,
@@ -426,7 +428,7 @@ class _TimelineRow extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
+                SamsLocaleText(
                   subtitle,
                   style: const TextStyle(
                     color: SamsUiTokens.textSecondary,

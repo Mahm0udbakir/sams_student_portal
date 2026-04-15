@@ -71,7 +71,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           },
           builder: (context, state) {
             return Scaffold(
-              backgroundColor: SamsUiTokens.scaffoldBackground,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               appBar: const SamsAppBar(title: 'Change Password'),
               body: SafeArea(
                 child: ListView(
@@ -105,7 +105,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               ),
                               borderRadius: BorderRadius.circular(999),
                             ),
-                            child: const Text(
+                            child: const SamsLocaleText(
                               'Security',
                               style: TextStyle(
                                 color: SamsUiTokens.primary,
@@ -115,7 +115,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          const Text(
+                          const SamsLocaleText(
                             'Update your account password',
                             style: TextStyle(
                               color: SamsUiTokens.textPrimary,
@@ -124,7 +124,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             ),
                           ),
                           const SizedBox(height: 5),
-                          const Text(
+                          const SamsLocaleText(
                             'Use a strong password with letters, numbers, and symbols.',
                             style: TextStyle(
                               color: SamsUiTokens.textSecondary,
@@ -140,7 +140,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             controller: _currentController,
                             obscureText: _hideCurrent,
                             decoration: InputDecoration(
-                              labelText: 'Current Password',
+                              labelText: context.tr('Current Password'),
                               prefixIcon: const Icon(
                                 Icons.lock_outline_rounded,
                               ),
@@ -161,7 +161,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             controller: _newController,
                             obscureText: _hideNew,
                             decoration: InputDecoration(
-                              labelText: 'New Password',
+                              labelText: context.tr('New Password'),
                               prefixIcon: const Icon(Icons.password_rounded),
                               suffixIcon: IconButton(
                                 onPressed: () =>
@@ -179,7 +179,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             controller: _confirmController,
                             obscureText: _hideConfirm,
                             decoration: InputDecoration(
-                              labelText: 'Confirm New Password',
+                              labelText: context.tr('Confirm New Password'),
                               prefixIcon: const Icon(Icons.lock_reset_rounded),
                               suffixIcon: IconButton(
                                 onPressed: () => setState(
@@ -241,7 +241,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                               ),
                                         ),
                                       )
-                                    : const Text('Update Password'),
+                                    : const SamsLocaleText('Update Password'),
                               ),
                             ),
                           ),

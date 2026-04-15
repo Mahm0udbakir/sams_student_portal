@@ -8,9 +8,10 @@ class AppTheme {
   static const Color secondary = SamsUiTokens.secondary;
   static const Color background = SamsUiTokens.background;
   static const Color surface = SamsUiTokens.surface;
-  static const Color _darkScaffold = Color(0xFF0F141B);
-  static const Color _darkSurface = Color(0xFF18222C);
-  static const Color _darkNavSurface = Color(0xFF15202A);
+  static const Color _darkScaffold = Color(0xFF0C131A);
+  static const Color _darkSurface = Color(0xFF141D26);
+  static const Color _darkSurfaceRaised = Color(0xFF1A2631);
+  static const Color _darkNavSurface = Color(0xFF101A23);
 
   static final ColorScheme _lightColorScheme = ColorScheme(
     brightness: Brightness.light,
@@ -46,34 +47,34 @@ class AppTheme {
 
   static final ColorScheme _darkColorScheme = ColorScheme(
     brightness: Brightness.dark,
-    primary: const Color(0xFF8BC6F0),
-    onPrimary: const Color(0xFF03263F),
-    primaryContainer: const Color(0xFF0B3D60),
-    onPrimaryContainer: const Color(0xFFD6ECFF),
-    secondary: const Color(0xFF73B8EA),
-    onSecondary: const Color(0xFF042842),
-    secondaryContainer: const Color(0xFF133754),
-    onSecondaryContainer: const Color(0xFFD4EAFF),
-    tertiary: const Color(0xFF6EE2E2),
+    primary: primary,
+    onPrimary: Colors.white,
+    primaryContainer: const Color(0xFF0E466F),
+    onPrimaryContainer: const Color(0xFFD9ECFF),
+    secondary: const Color(0xFF84C0EB),
+    onSecondary: const Color(0xFF04253F),
+    secondaryContainer: const Color(0xFF16354D),
+    onSecondaryContainer: const Color(0xFFD8EBFF),
+    tertiary: const Color(0xFF67D6D6),
     onTertiary: const Color(0xFF003737),
-    tertiaryContainer: const Color(0xFF005555),
-    onTertiaryContainer: const Color(0xFFB6FFFF),
+    tertiaryContainer: const Color(0xFF0A4E50),
+    onTertiaryContainer: const Color(0xFFB7F2F2),
     error: const Color(0xFFFFB4AB),
     onError: const Color(0xFF690005),
     errorContainer: const Color(0xFF93000A),
     onErrorContainer: const Color(0xFFFFDAD6),
-    surface: const Color(0xFF111821),
-    onSurface: const Color(0xFFE8EDF3),
-    surfaceContainerHighest: const Color(0xFF1B2631),
-    onSurfaceVariant: const Color(0xFFB5C1CD),
-    outline: const Color(0xFF8090A0),
-    outlineVariant: const Color(0xFF32414F),
+    surface: _darkSurface,
+    onSurface: const Color(0xFFE6EDF4),
+    surfaceContainerHighest: _darkSurfaceRaised,
+    onSurfaceVariant: const Color(0xFFB2C1CE),
+    outline: const Color(0xFF73879A),
+    outlineVariant: const Color(0xFF2F3F4F),
     shadow: Colors.black,
     scrim: Colors.black,
-    inverseSurface: const Color(0xFFE8EDF3),
-    onInverseSurface: const Color(0xFF1A1F26),
-    inversePrimary: const Color(0xFF245A81),
-    surfaceTint: const Color(0xFF8BC6F0),
+    inverseSurface: const Color(0xFFE6EDF4),
+    onInverseSurface: const Color(0xFF17212A),
+    inversePrimary: const Color(0xFF6EAED9),
+    surfaceTint: primary,
   );
 
   static ThemeData get lightTheme {
@@ -287,7 +288,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: _darkSurface,
+        fillColor: _darkSurfaceRaised,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 13,
@@ -310,7 +311,7 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: _darkSurface,
+        color: _darkSurfaceRaised,
         elevation: 0,
         shadowColor: Colors.black45,
         surfaceTintColor: Colors.transparent,
@@ -318,7 +319,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
           side: BorderSide(
-            color: _darkColorScheme.outlineVariant.withValues(alpha: 0.7),
+            color: _darkColorScheme.outlineVariant.withValues(alpha: 0.84),
           ),
         ),
       ),
@@ -380,6 +381,52 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
         backgroundColor: _darkColorScheme.surfaceContainerHighest,
         contentTextStyle: TextStyle(color: _darkColorScheme.onSurface),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return selected ? Colors.white : _darkColorScheme.onSurfaceVariant;
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return selected
+              ? primary.withValues(alpha: 0.55)
+              : _darkColorScheme.outlineVariant;
+        }),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: _darkSurfaceRaised,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+          side: BorderSide(
+            color: _darkColorScheme.outlineVariant.withValues(alpha: 0.92),
+          ),
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: _darkSurfaceRaised,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: _darkColorScheme.surfaceContainerHighest,
+        selectedColor: primary.withValues(alpha: 0.24),
+        disabledColor: _darkColorScheme.outlineVariant,
+        side: BorderSide(
+          color: _darkColorScheme.outlineVariant.withValues(alpha: 0.9),
+        ),
+        labelStyle: TextStyle(
+          color: _darkColorScheme.onSurfaceVariant,
+          fontWeight: FontWeight.w600,
+        ),
+        secondaryLabelStyle: TextStyle(
+          color: _darkColorScheme.onSurface,
+          fontWeight: FontWeight.w700,
+        ),
+        brightness: Brightness.dark,
       ),
       textTheme: const TextTheme(
         headlineSmall: TextStyle(

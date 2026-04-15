@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/routes/app_router.dart';
 import '../../../../core/bloc/theme/theme_bloc.dart';
 import '../../../../shared/bloc/locale_bloc.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
@@ -26,12 +28,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _quietHours = false;
 
   void _onDarkModeChanged(bool value) {
-    context.read<ThemeBloc>().toggleDarkMode(value);
-    ModernSnackbars.show(
-      context,
-      message: value ? 'Dark Mode enabled.' : 'Light Mode enabled.',
-      type: ModernSnackbarType.success,
-    );
+    final themeBloc = context.read<ThemeBloc>();
+    if (themeBloc.state.isDarkMode == value) {
+      return;
+    }
+
+    themeBloc.add(ThemeModeChanged(value ? ThemeMode.dark : ThemeMode.light));
+
+    Future<void>.delayed(const Duration(milliseconds: 120), () {
+      if (!mounted) {
+        return;
+      }
+      ModernSnackbars.show(
+        context,
+        message: value ? 'Dark Mode enabled.' : 'Light Mode enabled.',
+        type: ModernSnackbarType.success,
+      );
+    });
   }
 
   void _onLanguageChanged(String? value) {
@@ -193,34 +206,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: 'App version',
                   subtitle: 'SAMS Student Portal • v1.0.0',
                   icon: Icons.verified_rounded,
-                  onTap: () => _showInfo('You are on the latest version.'),
+                  onTap: () => context.pushNamed(AppRouteNames.aboutApp),
                 ),
                 _AboutActionTile(
                   title: 'Terms & Conditions',
                   subtitle: 'Review student platform terms and usage policy.',
                   icon: Icons.description_outlined,
-                  onTap: () => _showInfo('Terms page will be connected soon.'),
+                  onTap: () =>
+                      context.pushNamed(AppRouteNames.termsAndConditions),
                 ),
                 _AboutActionTile(
                   title: 'Privacy policy',
                   subtitle: 'See how your data is handled and protected.',
                   icon: Icons.shield_outlined,
-                  onTap: () =>
-                      _showInfo('Privacy policy page will be connected soon.'),
+                  onTap: () => context.pushNamed(AppRouteNames.privacyPolicy),
                 ),
               ],
             ),
           ],
         ),
       ),
-    );
-  }
-
-  void _showInfo(String message) {
-    ModernSnackbars.show(
-      context,
-      message: message,
-      type: ModernSnackbarType.info,
     );
   }
 }
@@ -256,7 +261,7 @@ class _SettingsHeaderBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                SamsLocaleText(
                   'Smart Settings',
                   style: TextStyle(
                     color: Colors.white,
@@ -265,7 +270,7 @@ class _SettingsHeaderBanner extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 4),
-                Text(
+                SamsLocaleText(
                   'Personalize appearance, language, notifications and account security in one place.',
                   style: TextStyle(
                     color: Color(0xFFE1ECF7),
@@ -359,7 +364,7 @@ class _SettingsSection extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      SamsLocaleText(
                         title,
                         style: textTheme.titleMedium?.copyWith(
                           fontSize: 15.2,
@@ -367,7 +372,7 @@ class _SettingsSection extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
+                      SamsLocaleText(
                         subtitle,
                         style: textTheme.bodySmall?.copyWith(
                           fontSize: 12.1,
@@ -428,7 +433,7 @@ class _SettingSwitchTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                SamsLocaleText(
                   title,
                   style: textTheme.bodyLarge?.copyWith(
                     fontSize: 13.9,
@@ -436,7 +441,7 @@ class _SettingSwitchTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text(
+                SamsLocaleText(
                   subtitle,
                   style: textTheme.bodySmall?.copyWith(
                     fontSize: 12.1,
@@ -484,7 +489,7 @@ class _SettingDropdownTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                SamsLocaleText(
                   title,
                   style: textTheme.bodyLarge?.copyWith(
                     fontSize: 13.9,
@@ -492,7 +497,7 @@ class _SettingDropdownTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text(
+                SamsLocaleText(
                   subtitle,
                   style: textTheme.bodySmall?.copyWith(
                     fontSize: 12.1,
@@ -528,7 +533,7 @@ class _SettingDropdownTile extends StatelessWidget {
                     .map(
                       (option) => DropdownMenuItem<String>(
                         value: option,
-                        child: Text(option),
+                        child: SamsLocaleText(option),
                       ),
                     )
                     .toList(growable: false),
@@ -582,7 +587,7 @@ class _AboutActionTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  SamsLocaleText(
                     title,
                     style: textTheme.bodyLarge?.copyWith(
                       fontSize: 13.9,
@@ -590,7 +595,7 @@ class _AboutActionTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(
+                  SamsLocaleText(
                     subtitle,
                     style: textTheme.bodySmall?.copyWith(
                       fontSize: 12.1,

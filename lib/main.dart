@@ -16,12 +16,30 @@ class SamsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => ThemeBloc(),
+      child: const _SamsAppView(),
+    );
+  }
+}
+
+class _SamsAppView extends StatefulWidget {
+  const _SamsAppView();
+
+  @override
+  State<_SamsAppView> createState() => _SamsAppViewState();
+}
+
+class _SamsAppViewState extends State<_SamsAppView> {
+  late final _router = AppRouter.createRouter();
+
+  @override
+  Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (_) => StudentBloc()..add(const StudentRequested()),
         ),
-        BlocProvider(create: (_) => ThemeBloc()),
         BlocProvider(create: (_) => LocaleBloc()),
       ],
       child: BlocBuilder<ThemeBloc, ThemeState>(
@@ -29,11 +47,15 @@ class SamsApp extends StatelessWidget {
           return BlocBuilder<LocaleBloc, Locale>(
             builder: (context, locale) {
               return MaterialApp.router(
-                title: 'SAMS Student Portal',
+                title: locale.languageCode == 'ar'
+                    ? 'بوابة طلاب سامز'
+                    : 'SAMS Student Portal',
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,
                 themeMode: themeState.themeMode,
+                themeAnimationDuration: const Duration(milliseconds: 360),
+                themeAnimationCurve: Curves.easeInOutCubic,
                 locale: locale,
                 supportedLocales: const [Locale('en'), Locale('ar')],
                 localizationsDelegates: const [
@@ -41,7 +63,7 @@ class SamsApp extends StatelessWidget {
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                 ],
-                routerConfig: AppRouter.router,
+                routerConfig: _router,
               );
             },
           );

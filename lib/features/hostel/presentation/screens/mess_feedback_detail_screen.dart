@@ -50,7 +50,7 @@ class _MessFeedbackDetailScreenState extends State<MessFeedbackDetailScreen> {
     final avg = ((_taste + _hygiene + _variety) / 3).toStringAsFixed(1);
 
     return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const SamsAppBar(title: 'Mess Feedback'),
       body: SafeArea(
         child: ListView(
@@ -77,7 +77,7 @@ class _MessFeedbackDetailScreenState extends State<MessFeedbackDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  const SamsLocaleText(
                     'Today\'s food experience',
                     style: TextStyle(
                       color: Color(0xFFD8EBFB),
@@ -85,7 +85,7 @@ class _MessFeedbackDetailScreenState extends State<MessFeedbackDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text(
+                  SamsLocaleText(
                     'Current average rating: $avg / 5.0',
                     style: const TextStyle(
                       color: Colors.white,
@@ -102,7 +102,7 @@ class _MessFeedbackDetailScreenState extends State<MessFeedbackDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  const SamsLocaleText(
                     'Meal type',
                     style: TextStyle(
                       color: SamsUiTokens.textSecondary,
@@ -116,7 +116,7 @@ class _MessFeedbackDetailScreenState extends State<MessFeedbackDetailScreen> {
                     children: ['Breakfast', 'Lunch', 'Dinner']
                         .map(
                           (meal) => ChoiceChip(
-                            label: Text(meal),
+                            label: SamsLocaleText(meal),
                             selected: _mealType == meal,
                             selectedColor: SamsUiTokens.primary.withValues(
                               alpha: 0.14,
@@ -157,9 +157,9 @@ class _MessFeedbackDetailScreenState extends State<MessFeedbackDetailScreen> {
                   TextField(
                     controller: _notesController,
                     maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Comments',
-                      hintText: 'Share what can be improved...',
+                    decoration: InputDecoration(
+                      labelText: context.tr('Comments'),
+                      hintText: context.tr('Share what can be improved...'),
                       alignLabelWithHint: true,
                       prefixIcon: Icon(Icons.edit_note_rounded),
                     ),
@@ -201,7 +201,7 @@ class _MessFeedbackDetailScreenState extends State<MessFeedbackDetailScreen> {
                   ),
                 ),
                 icon: const Icon(Icons.rate_review_rounded),
-                label: const Text('Submit mess feedback'),
+                label: const SamsLocaleText('Submit mess feedback'),
               ),
             ),
           ],
@@ -232,7 +232,7 @@ class _FeedbackCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            SamsLocaleText(
               title,
               style: const TextStyle(
                 color: SamsUiTokens.textPrimary,
@@ -269,7 +269,7 @@ class _RatingSlider extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
+              SamsLocaleText(
                 label,
                 style: const TextStyle(
                   color: SamsUiTokens.textPrimary,
@@ -277,7 +277,7 @@ class _RatingSlider extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Text(
+              SamsLocaleText(
                 value.toStringAsFixed(1),
                 style: const TextStyle(
                   color: SamsUiTokens.primary,
@@ -337,7 +337,7 @@ class _RecentFeedbackRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              SamsLocaleText(
                 '$meal • $date',
                 style: const TextStyle(
                   color: SamsUiTokens.textPrimary,
@@ -345,7 +345,7 @@ class _RecentFeedbackRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
+              SamsLocaleText(
                 note,
                 style: const TextStyle(
                   color: SamsUiTokens.textSecondary,
@@ -358,7 +358,7 @@ class _RecentFeedbackRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text(
+        SamsLocaleText(
           score,
           style: const TextStyle(
             color: SamsUiTokens.primary,

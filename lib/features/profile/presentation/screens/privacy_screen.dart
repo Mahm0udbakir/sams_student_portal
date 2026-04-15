@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import 'settings_screen.dart';
+import 'privacy_policy_screen.dart';
 
 /// Legacy compatibility screen.
 ///
-/// Privacy controls were moved to `SettingsScreen` in Phase 9.
+/// Preserves backward compatibility for old privacy route names.
 class PrivacyScreen extends StatelessWidget {
   const PrivacyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const SettingsScreen();
+    return const PrivacyPolicyScreen();
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/ui/sams_ui_tokens.dart';
+
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
 
@@ -9,12 +11,14 @@ class LoginForm extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          TextField(decoration: InputDecoration(labelText: 'Email')),
-          SizedBox(height: 12),
+        children: [
+          TextField(
+            decoration: InputDecoration(labelText: context.tr('Email')),
+          ),
+          const SizedBox(height: 12),
           TextField(
             obscureText: true,
-            decoration: InputDecoration(labelText: 'Password'),
+            decoration: InputDecoration(labelText: context.tr('Password')),
           ),
         ],
       ),

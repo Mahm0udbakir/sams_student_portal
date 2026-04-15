@@ -47,7 +47,7 @@ class BusScreen extends StatelessWidget {
 
           if (state.status == BusStatus.failure || !state.hasData) {
             return Scaffold(
-              backgroundColor: SamsUiTokens.scaffoldBackground,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               appBar: const SamsAppBar(title: 'Bus Tracking'),
               body: SamsErrorState(
                 title: 'Couldn\'t load bus tracking',
@@ -76,7 +76,7 @@ class BusScreen extends StatelessWidget {
               : SamsUiTokens.secondary;
 
           return Scaffold(
-            backgroundColor: SamsUiTokens.scaffoldBackground,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             appBar: const SamsAppBar(title: 'Bus Tracking'),
             body: RefreshIndicator(
               onRefresh: () => _refreshBus(context),
@@ -101,7 +101,7 @@ class BusScreen extends StatelessWidget {
                       children: [
                         const Padding(
                           padding: EdgeInsets.only(left: 2, bottom: 8),
-                          child: Text(
+                          child: SamsLocaleText(
                             'Live Route',
                             style: TextStyle(
                               color: SamsUiTokens.primary,
@@ -136,7 +136,7 @@ class BusScreen extends StatelessWidget {
                               ),
                               SizedBox(width: 7),
                               Expanded(
-                                child: Text(
+                                child: SamsLocaleText(
                                   _cairoRouteLabel,
                                   style: TextStyle(
                                     color: SamsUiTokens.textSecondary,
@@ -260,7 +260,7 @@ class BusScreen extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 6),
                                       Expanded(
-                                        child: Text(
+                                        child: SamsLocaleText(
                                           'Next stop: ${liveInfo.nextStop} • ETA ${liveInfo.eta}',
                                           style: const TextStyle(
                                             fontSize: 12.2,
@@ -289,7 +289,7 @@ class BusScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                const SamsLocaleText(
                                   'Monday, Sept 1',
                                   style: TextStyle(
                                     fontSize: 15.5,
@@ -307,7 +307,7 @@ class BusScreen extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 6),
                                     Expanded(
-                                      child: Text(
+                                      child: SamsLocaleText(
                                         liveInfo.routeSummary,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -338,7 +338,7 @@ class BusScreen extends StatelessWidget {
                                           999,
                                         ),
                                       ),
-                                      child: const Text(
+                                      child: const SamsLocaleText(
                                         'Maadi Campus (SAMS)',
                                         style: TextStyle(
                                           color: SamsUiTokens.primary,
@@ -347,14 +347,14 @@ class BusScreen extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    const Text(
+                                    const SamsLocaleText(
                                       'Current Status: ',
                                       style: TextStyle(
                                         color: Color(0xFF374151),
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
-                                    Text(
+                                    SamsLocaleText(
                                       snapshot.currentStatus,
                                       style: TextStyle(
                                         color: statusColor,
@@ -364,7 +364,7 @@ class BusScreen extends StatelessWidget {
                                   ],
                                 ),
                                 const SizedBox(height: 6),
-                                Text(
+                                SamsLocaleText(
                                   'Current stop: ${snapshot.currentStop} • ${liveInfo.lastUpdated}',
                                   style: const TextStyle(
                                     color: SamsUiTokens.textSecondary,
@@ -429,7 +429,7 @@ class BusScreen extends StatelessWidget {
                                                 shape: BoxShape.circle,
                                               ),
                                               alignment: Alignment.center,
-                                              child: Text(
+                                              child: SamsLocaleText(
                                                 stopNumber,
                                                 style: TextStyle(
                                                   color: isCurrent
@@ -453,7 +453,7 @@ class BusScreen extends StatelessWidget {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text(
+                                              SamsLocaleText(
                                                 row.stop,
                                                 style: const TextStyle(
                                                   color: Color(0xFF111827),
@@ -462,7 +462,7 @@ class BusScreen extends StatelessWidget {
                                                 ),
                                               ),
                                               const SizedBox(height: 2),
-                                              Text(
+                                              SamsLocaleText(
                                                 row.status,
                                                 style: TextStyle(
                                                   color: isCurrent
@@ -475,7 +475,7 @@ class BusScreen extends StatelessWidget {
                                             ],
                                           ),
                                         ),
-                                        Text(
+                                        SamsLocaleText(
                                           row.time,
                                           style: const TextStyle(
                                             color: Color(0xFF6B7280),
@@ -609,7 +609,7 @@ class _MapPointChip extends StatelessWidget {
           ),
         ],
       ),
-      child: Text(
+      child: SamsLocaleText(
         label,
         style: TextStyle(
           color: textColor,
@@ -627,7 +627,7 @@ class _BusLoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const SamsAppBar(title: 'Bus Tracking'),
       body: ListView(
         padding: SamsUiTokens.pageInsets(

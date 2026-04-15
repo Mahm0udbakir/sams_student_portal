@@ -154,13 +154,13 @@ class _SplashScreenState extends State<SplashScreen> {
                             ),
                           ),
                           const SizedBox(height: 28),
-                          Text(
+                          SamsLocaleText(
                             'Sadat Academy for\nManagement Sciences',
                             textAlign: TextAlign.center,
                             style: titleStyle,
                           ),
                           const SizedBox(height: 10),
-                          Text(
+                          SamsLocaleText(
                             'SAMS Student Portal',
                             textAlign: TextAlign.center,
                             style: subtitleStyle,

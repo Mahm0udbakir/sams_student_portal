@@ -61,7 +61,7 @@ class SamsAppBar extends StatelessWidget implements PreferredSizeWidget {
                 fontWeight: FontWeight.w800,
               ),
             )
-          : Text(title),
+          : SamsLocaleText(title),
       actions: actions,
       flexibleSpace: Container(
         decoration: const BoxDecoration(

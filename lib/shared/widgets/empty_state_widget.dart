@@ -25,6 +25,9 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
@@ -32,10 +35,18 @@ class EmptyStateWidget extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-            boxShadow: SamsUiTokens.cardShadow,
-            border: Border.all(color: const Color(0xFFDCE4EE)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.34 : 0.12),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.82),
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -57,7 +68,7 @@ class EmptyStateWidget extends StatelessWidget {
                 child: Container(
                   margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: SamsUiTokens.primary.withValues(alpha: 0.16),
@@ -88,20 +99,20 @@ class EmptyStateWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 14),
-              Text(
+              SamsLocaleText(
                 title,
-                style: const TextStyle(
-                  color: SamsUiTokens.textPrimary,
+                style: TextStyle(
+                  color: colorScheme.onSurface,
                   fontSize: 16.5,
                   fontWeight: FontWeight.w800,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 6),
-              Text(
+              SamsLocaleText(
                 subtitle,
-                style: const TextStyle(
-                  color: SamsUiTokens.textSecondary,
+                style: TextStyle(
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   height: 1.35,
@@ -114,7 +125,7 @@ class EmptyStateWidget extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onAction,
                     icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                    label: Text(actionLabel!),
+                    label: SamsLocaleText(actionLabel!),
                   ),
                 ),
               ],

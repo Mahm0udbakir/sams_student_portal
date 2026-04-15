@@ -22,7 +22,7 @@ class AttendanceDetailScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: SamsUiTokens.scaffoldBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const SamsAppBar(title: 'Attendance'),
       body: SafeArea(
         child: ListView(
@@ -55,7 +55,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        SamsLocaleText(
                           'Overall Attendance',
                           style: TextStyle(
                             color: SamsUiTokens.textSecondary,
@@ -64,7 +64,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 4),
-                        Text(
+                        SamsLocaleText(
                           'Overall Attendance: 75%',
                           style: TextStyle(
                             color: SamsUiTokens.textPrimary,
@@ -86,7 +86,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                       ).withValues(alpha: 0.14),
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: Text(
+                    child: SamsLocaleText(
                       '$_overallAttendance%',
                       style: TextStyle(
                         color: _overallBadgeColor(_overallAttendance),
@@ -99,7 +99,7 @@ class AttendanceDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            const Text(
+            const SamsLocaleText(
               'Class-wise Attendance',
               style: TextStyle(
                 color: SamsUiTokens.textPrimary,
@@ -129,7 +129,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       Expanded(
-                        child: Text(
+                        child: SamsLocaleText(
                           item.subject,
                           style: const TextStyle(
                             color: Colors.white,
@@ -150,7 +150,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                             color: Colors.white.withValues(alpha: 0.24),
                           ),
                         ),
-                        child: Text(
+                        child: SamsLocaleText(
                           '${item.percentage}%',
                           style: const TextStyle(
                             color: Colors.white,

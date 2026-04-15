@@ -108,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
+                        const SamsLocaleText(
                           'Welcome back',
                           style: TextStyle(
                             color: SamsUiTokens.textPrimary,
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
+                        const SamsLocaleText(
                           'Choose a quick QR sign-in or continue manually.',
                           style: TextStyle(
                             color: SamsUiTokens.textSecondary,
@@ -176,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     color: Colors.white,
                                   ),
                                 ),
-                                label: const Text(
+                                label: const SamsLocaleText(
                                   'Sign-in with QR code',
                                   style: TextStyle(
                                     fontSize: 15.8,
@@ -188,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 14),
-                        const Text(
+                        const SamsLocaleText(
                           'or',
                           style: TextStyle(
                             fontSize: 16,
@@ -199,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SamsTapScale(
                           child: TextButton(
                             onPressed: _toggleManualForm,
-                            child: Text(
+                            child: SamsLocaleText(
                               _showManualForm
                                   ? 'Hide manual login'
                                   : 'Login manually',
@@ -223,7 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     children: [
                                       TextField(
                                         decoration: InputDecoration(
-                                          labelText: 'Roll no.',
+                                          labelText: context.tr('Roll no.'),
                                           filled: true,
                                           fillColor: const Color(0xFFF8FAFC),
                                           border: OutlineInputBorder(
@@ -237,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       TextField(
                                         obscureText: true,
                                         decoration: InputDecoration(
-                                          labelText: 'Password',
+                                          labelText: context.tr('Password'),
                                           filled: true,
                                           fillColor: const Color(0xFFF8FAFC),
                                           border: OutlineInputBorder(
@@ -259,7 +259,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                               minimumSize:
                                                   const Size.fromHeight(50),
                                             ),
-                                            child: const Text('Continue'),
+                                            child: const SamsLocaleText(
+                                              'Continue',
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -273,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: TextButton(
                             onPressed: () =>
                                 context.goNamed(AppRouteNames.signup),
-                            child: const Text(
+                            child: const SamsLocaleText(
                               'New here? Create an account',
                               style: TextStyle(
                                 color: SamsUiTokens.primary,

@@ -15,11 +15,14 @@ import '../../features/home/presentation/screens/main_shell.dart';
 import '../../features/messages/presentation/screens/messages_screen.dart';
 import '../../features/scan/presentation/screens/scan_screen.dart';
 import '../../features/help_desk/presentation/screens/help_desk_screen.dart';
+import '../../features/profile/presentation/screens/about_app_screen.dart';
 import '../../features/profile/presentation/screens/change_password_screen.dart';
+import '../../features/profile/presentation/screens/privacy_policy_screen.dart';
 import '../../features/profile/presentation/screens/privacy_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/settings_screen.dart';
 import '../../features/profile/presentation/screens/session_screen.dart';
+import '../../features/profile/presentation/screens/terms_and_conditions_screen.dart';
 import '../../features/home/presentation/screens/calendar_screen.dart';
 
 const Duration _kRouteTransitionDuration = Duration(milliseconds: 300);
@@ -39,6 +42,9 @@ class AppRouteNames {
   static const helpDeskRaise = 'helpDeskRaise';
   static const menu = 'menu';
   static const settings = 'settings';
+  static const aboutApp = 'aboutApp';
+  static const termsAndConditions = 'termsAndConditions';
+  static const privacyPolicy = 'privacyPolicy';
   static const session = 'session';
   static const changePassword = 'changePassword';
   static const privacy = 'privacy';
@@ -64,6 +70,9 @@ class AppRoutePaths {
   static const helpDeskRaise = '/help-desk/raise-concern';
   static const menu = '/menu';
   static const settings = '/menu/settings';
+  static const aboutApp = '/menu/settings/about-app';
+  static const termsAndConditions = '/menu/settings/terms-and-conditions';
+  static const privacyPolicy = '/menu/settings/privacy-policy';
   static const session = '/menu/session';
   static const changePassword = '/menu/change-password';
   static const privacy = '/menu/privacy';
@@ -76,7 +85,7 @@ class AppRoutePaths {
 }
 
 class AppRouter {
-  static GoRouter get router => GoRouter(
+  static GoRouter createRouter() => GoRouter(
     initialLocation: AppRoutePaths.splash,
     routes: [
       GoRoute(
@@ -201,6 +210,30 @@ class AppRouter {
                     pageBuilder: (context, state) => _buildDetailTransitionPage(
                       state: state,
                       child: const SettingsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'settings/about-app',
+                    name: AppRouteNames.aboutApp,
+                    pageBuilder: (context, state) => _buildDetailTransitionPage(
+                      state: state,
+                      child: const AboutAppScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'settings/terms-and-conditions',
+                    name: AppRouteNames.termsAndConditions,
+                    pageBuilder: (context, state) => _buildDetailTransitionPage(
+                      state: state,
+                      child: const TermsAndConditionsScreen(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'settings/privacy-policy',
+                    name: AppRouteNames.privacyPolicy,
+                    pageBuilder: (context, state) => _buildDetailTransitionPage(
+                      state: state,
+                      child: const PrivacyPolicyScreen(),
                     ),
                   ),
                   GoRoute(

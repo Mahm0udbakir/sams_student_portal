@@ -45,14 +45,14 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               const Expanded(
-                child: Text(
+                child: SamsLocaleText(
                   'Confirm switch',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
           ),
-          content: Text(
+          content: SamsLocaleText(
             'Switch to $destination in demo mode?',
             style: const TextStyle(
               color: SamsUiTokens.textSecondary,
@@ -64,7 +64,7 @@ class ProfileScreen extends StatelessWidget {
             SamsTapScale(
               child: TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel'),
+                child: const SamsLocaleText('Cancel'),
               ),
             ),
             SamsTapScale(
@@ -74,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
                   backgroundColor: SamsUiTokens.primary,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Switch'),
+                child: const SamsLocaleText('Switch'),
               ),
             ),
           ],
@@ -135,8 +135,8 @@ class ProfileScreen extends StatelessWidget {
         builder: (context, state) {
           if (state.status == ProfileStatus.loading ||
               state.status == ProfileStatus.initial) {
-            return const Scaffold(
-              backgroundColor: SamsUiTokens.scaffoldBackground,
+            return Scaffold(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               body: SamsLoadingView(
                 title: 'Loading profile',
                 message: 'Fetching your account details and settings...',
@@ -146,7 +146,7 @@ class ProfileScreen extends StatelessWidget {
 
           if (state.status == ProfileStatus.failure || state.overview == null) {
             return Scaffold(
-              backgroundColor: SamsUiTokens.scaffoldBackground,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               appBar: const SamsAppBar(title: 'Profile'),
               body: SamsErrorState(
                 title: 'Couldn\'t load profile',
@@ -197,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
           ];
 
           return Scaffold(
-            backgroundColor: SamsUiTokens.scaffoldBackground,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             appBar: const SamsAppBar(title: 'Profile'),
             body: SafeArea(
               child: Center(
@@ -286,7 +286,7 @@ class ProfileScreen extends StatelessWidget {
 
                                 return Column(
                                   children: [
-                                    Text(
+                                    SamsLocaleText(
                                       name,
                                       style: TextStyle(
                                         color: SamsUiTokens.textPrimary,
@@ -296,7 +296,7 @@ class ProfileScreen extends StatelessWidget {
                                       textAlign: TextAlign.center,
                                     ),
                                     const SizedBox(height: 6),
-                                    Text(
+                                    SamsLocaleText(
                                       'ID: $id',
                                       style: TextStyle(
                                         color: SamsUiTokens.textSecondary,
@@ -305,7 +305,7 @@ class ProfileScreen extends StatelessWidget {
                                       ),
                                     ),
                                     const SizedBox(height: 6),
-                                    const Text(
+                                    const SamsLocaleText(
                                       'SAMS Student Portal',
                                       style: TextStyle(
                                         color: SamsUiTokens.primary,
@@ -355,7 +355,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Center(
-                        child: Text(
+                        child: SamsLocaleText(
                           'SAMS Student App • Version 1.0',
                           style: TextStyle(
                             color: SamsUiTokens.textSecondary.withValues(
@@ -426,7 +426,7 @@ class _ProfileOptionRow extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        SamsLocaleText(
                           title,
                           style: const TextStyle(
                             color: SamsUiTokens.textPrimary,
@@ -435,7 +435,7 @@ class _ProfileOptionRow extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 3),
-                        Text(
+                        SamsLocaleText(
                           subtitle,
                           style: const TextStyle(
                             color: SamsUiTokens.textSecondary,
