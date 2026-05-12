@@ -7,6 +7,8 @@ class SignupParams {
     required this.name,
     required this.email,
     required this.password,
+    this.firstName,
+    this.lastName,
     this.studentId,
     this.department,
   });
@@ -14,6 +16,8 @@ class SignupParams {
   final String name;
   final String email;
   final String password;
+  final String? firstName;
+  final String? lastName;
   final String? studentId;
   final String? department;
 }
@@ -28,6 +32,8 @@ class SignupUseCase {
       name: params.name,
       email: params.email,
       password: params.password,
+      firstName: params.firstName,
+      lastName: params.lastName,
       studentId: params.studentId,
       department: params.department,
     );

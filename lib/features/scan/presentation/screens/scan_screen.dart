@@ -1,33 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../../core/constants/portal_courses.dart';
+import '../../../../core/routes/app_router.dart';
+import '../../../../core/services/camera_permission_service.dart';
 import '../../../../shared/ui/sams_lottie_assets.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
-import '../../../../shared/widgets/sams_app_bar.dart';
 import '../../../../shared/widgets/modern_snackbar.dart';
+import '../../../../shared/widgets/sams_app_bar.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
-import '../../data/repositories/fake_scan_repository.dart';
-import '../../domain/entities/scan_option_entity.dart';
-import '../bloc/scan_bloc.dart';
-import '../../../../shared/widgets/sams_state_views.dart';
+import '../../../attendance/data/repositories/firestore_attendance_repository.dart';
+import '../../../attendance/domain/exceptions/attendance_scan_exception.dart';
+import '../../../attendance/domain/usecases/scan_attendance_usecase.dart';
+import '../../../attendance/presentation/screens/attendance_scanner_screen.dart';
 
-class ScanScreen extends StatelessWidget {
+/// Scan tab: pick one of four courses → camera only → record attendance → success → Attendance screen.
+class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
 
-  static const Color _samsPrimary = SamsUiTokens.primary;
+  @override
+  State<ScanScreen> createState() => _ScanScreenState();
+}
 
-  bool _hasOption(List<ScanOptionEntity> options, String keyword) {
-    return options.any(
-      (option) => option.label.toLowerCase().contains(keyword),
-    );
-  }
+class _ScanScreenState extends State<ScanScreen> {
+  final _repository = FirestoreAttendanceRepository();
+  bool _recording = false;
 
-  Future<bool?> _showSuccessDialog(BuildContext context, String message) {
+  Future<void> _showRecordedDialog(String courseName) async {
     final colorScheme = Theme.of(context).colorScheme;
-
-    return showDialog<bool>(
+    await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
         return Dialog(
           insetPadding: const EdgeInsets.symmetric(horizontal: 24),
@@ -49,15 +53,12 @@ class ScanScreen extends StatelessWidget {
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Container(
-                  width: double.infinity,
                   padding: const EdgeInsets.fromLTRB(16, 13, 16, 13),
                   decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(22),
-                    ),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -66,14 +67,10 @@ class ScanScreen extends StatelessWidget {
                   ),
                   child: const Row(
                     children: [
-                      Icon(
-                        Icons.verified_rounded,
-                        color: Color(0xFFD7E9FB),
-                        size: 22,
-                      ),
+                      Icon(Icons.verified_rounded, color: Color(0xFFD7E9FB), size: 22),
                       SizedBox(width: 8),
                       SamsLocaleText(
-                        'Scan successful',
+                        'Attendance recorded',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -84,14 +81,13 @@ class ScanScreen extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
                         child: SizedBox(
-                          width: 84,
-                          height: 84,
+                          width: 100,
+                          height: 100,
                           child: RepaintBoundary(
                             child: Lottie.asset(
                               SamsLottieAssets.successCheckLight,
@@ -104,7 +100,7 @@ class ScanScreen extends StatelessWidget {
                               errorBuilder: (_, __, ___) => const Icon(
                                 Icons.check_circle_rounded,
                                 color: SamsUiTokens.success,
-                                size: 36,
+                                size: 44,
                               ),
                             ),
                           ),
@@ -112,66 +108,56 @@ class ScanScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       SamsLocaleText(
-                        message,
+                        'Your attendance for $courseName was saved.',
+                        textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
+                          height: 1.35,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      const SamsLocaleText(
-                        'Your request has been verified by SAMS services.',
+                      const SizedBox(height: 8),
+                      SamsLocaleText(
+                        'You can review percentages and scan history on the Attendance screen.',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: SamsUiTokens.textSecondary,
+                          color: colorScheme.onSurfaceVariant,
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
                           height: 1.35,
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SamsTapScale(
-                              child: OutlinedButton(
-                                onPressed: () =>
-                                    Navigator.of(dialogContext).pop(true),
-                                style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(
-                                    color: SamsUiTokens.primary,
-                                  ),
-                                  foregroundColor: SamsUiTokens.primary,
-                                  minimumSize: const Size.fromHeight(44),
-                                  textStyle: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                child: const SamsLocaleText('Scan again'),
-                              ),
+                      const SizedBox(height: 18),
+                      SamsTapScale(
+                        child: FilledButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop();
+                            if (context.mounted) {
+                              context.goNamed(AppRouteNames.attendanceDetail);
+                            }
+                          },
+                          style: FilledButton.styleFrom(
+                            backgroundColor: SamsUiTokens.primary,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size.fromHeight(48),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: SamsTapScale(
-                              child: ElevatedButton(
-                                onPressed: () =>
-                                    Navigator.of(dialogContext).pop(false),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: SamsUiTokens.primary,
-                                  foregroundColor: Colors.white,
-                                  minimumSize: const Size.fromHeight(44),
-                                  elevation: 0,
-                                  textStyle: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                child: const SamsLocaleText('Done'),
-                              ),
-                            ),
+                          child: const SamsLocaleText(
+                            'View attendance',
+                            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
                           ),
-                        ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: const SamsLocaleText(
+                          'Scan another course',
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                        ),
                       ),
                     ],
                   ),
@@ -184,545 +170,258 @@ class ScanScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _onCourseSelected(String course) async {
+    if (_recording) return;
+
+    final granted = await CameraPermissionService().ensureCameraPermission();
+    if (!mounted) return;
+    if (!granted) {
+      ModernSnackbars.show(
+        context,
+        message: 'Camera permission is required to scan attendance QR codes.',
+        type: ModernSnackbarType.info,
+      );
+      return;
+    }
+
+    final raw = await Navigator.of(context).push<String?>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => AttendanceScannerScreen(courseTitle: course),
+      ),
+    );
+
+    if (!mounted || raw == null || raw.trim().isEmpty) return;
+
+    setState(() => _recording = true);
+    try {
+      await ScanAttendanceUseCase(repository: _repository).execute(
+        raw.trim(),
+        courseSubject: course,
+      );
+      if (!mounted) return;
+      await _showRecordedDialog(course);
+    } on AttendanceDuplicateScanException catch (e) {
+      if (mounted) {
+        ModernSnackbars.show(context, message: e.message, type: ModernSnackbarType.info);
+      }
+    } on AttendanceScanException catch (e) {
+      if (mounted) {
+        ModernSnackbars.show(context, message: e.message, type: ModernSnackbarType.error);
+      }
+    } catch (_) {
+      if (mounted) {
+        ModernSnackbars.show(
+          context,
+          message: 'Could not record attendance. Please try again.',
+          type: ModernSnackbarType.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _recording = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          ScanBloc(repository: FakeScanRepository())
-            ..add(const ScanRequested()),
-      child: BlocListener<ScanBloc, ScanState>(
-        listenWhen: (previous, current) =>
-            previous.feedbackMessage != current.feedbackMessage &&
-            current.feedbackMessage != null,
-        listener: (context, state) async {
-          final message = state.feedbackMessage;
-          if (message == null || message.isEmpty) {
-            return;
-          }
+    final cs = Theme.of(context).colorScheme;
 
-          if (state.status == ScanStatus.success) {
-            final action = state.activeAction;
-            final shouldScanAgain = await _showSuccessDialog(context, message);
-
-            if (!context.mounted) {
-              return;
-            }
-
-            if (shouldScanAgain == true) {
-              if (action == ScanAction.gallery) {
-                context.read<ScanBloc>().add(const ScanGalleryPicked());
-              } else {
-                context.read<ScanBloc>().add(const ScanStarted());
-              }
-            }
-          } else if (state.status == ScanStatus.failure) {
-            ModernSnackbars.show(
-              context,
-              message: message,
-              type: ModernSnackbarType.error,
-            );
-          }
-
-          context.read<ScanBloc>().add(const ScanFeedbackCleared());
-        },
-        child: BlocBuilder<ScanBloc, ScanState>(
-          buildWhen: (previous, current) {
-            return previous.status != current.status ||
-                previous.options != current.options ||
-                previous.activeAction != current.activeAction ||
-                previous.feedbackMessage != current.feedbackMessage;
-          },
-          builder: (context, state) {
-            final width = MediaQuery.sizeOf(context).width;
-            final frameSize = (width - 72).clamp(236.0, 310.0);
-            final options = state.options;
-            final canUseGallery = _hasOption(options, 'gallery');
-            final canUseCamera =
-                _hasOption(options, 'camera') || _hasOption(options, 'photo');
-
-            if (state.status == ScanStatus.initial ||
-                state.status == ScanStatus.loading) {
-              return Scaffold(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                body: SamsLoadingView(
-                  title: 'Preparing scanner',
-                  message: 'Getting your camera and gallery options ready...',
-                ),
-              );
-            }
-
-            if (state.status == ScanStatus.failure && state.options.isEmpty) {
-              return Scaffold(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                appBar: const SamsAppBar(title: 'Scan'),
-                body: SamsErrorState(
-                  title: 'Couldn\'t open scanner',
-                  message:
-                      state.feedbackMessage ??
-                      'Failed to load scan options. Please try again.',
-                  retryLabel: 'Retry',
-                  onRetry: () =>
-                      context.read<ScanBloc>().add(const ScanRequested()),
-                ),
-              );
-            }
-
-            final isProcessing = state.isProcessing;
-
-            return Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              appBar: const SamsAppBar(title: 'Scan'),
-              body: Stack(
-                children: [
-                  const Positioned(
-                    top: -88,
-                    right: -72,
-                    child: _ScanBackdropBubble(),
-                  ),
-                  const Positioned(
-                    bottom: 110,
-                    left: -82,
-                    child: _ScanBackdropBubble(),
-                  ),
-                  SafeArea(
-                    child: Padding(
-                      padding: SamsUiTokens.pageInsets(
-                        context,
-                        top: 14,
-                        bottom: 18,
-                        regularHorizontal: 20,
-                        compactHorizontal: 14,
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: const SamsAppBar(title: 'Scan'),
+      body: Stack(
+        children: [
+          const Positioned(top: -88, right: -72, child: _ScanBackdropBubble()),
+          const Positioned(bottom: 96, left: -82, child: _ScanBackdropBubble()),
+          SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: SamsUiTokens.contentMaxWidth),
+                child: ListView(
+                  padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 24),
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(SamsUiTokens.radiusXl),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF063454), Color(0xFF0A5F93)],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF063454).withValues(alpha: 0.26),
+                            blurRadius: 18,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return Column(
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              const _ScanHeroCard(),
-                              const SizedBox(height: 12),
+                              Icon(Icons.school_rounded, color: Color(0xFFD9EBFB), size: 22),
+                              SizedBox(width: 8),
                               Expanded(
-                                child: Center(
-                                  child: _ScannerFrame(
-                                    size: frameSize,
-                                    isProcessing: isProcessing,
+                                child: SamsLocaleText(
+                                  'Mark attendance',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w800,
                                   ),
-                                ),
-                              ),
-                              if (isProcessing)
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 8, bottom: 6),
-                                  child: SamsLocaleText(
-                                    'Scanning in progress...',
-                                    style: TextStyle(
-                                      color: SamsUiTokens.textSecondary,
-                                      fontSize: 12.8,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: SamsTapScale(
-                                      enabled: !isProcessing && canUseGallery,
-                                      child: OutlinedButton.icon(
-                                        onPressed:
-                                            (isProcessing || !canUseGallery)
-                                            ? null
-                                            : () =>
-                                                  context.read<ScanBloc>().add(
-                                                    const ScanGalleryPicked(),
-                                                  ),
-                                        icon: const Icon(
-                                          Icons.photo_library_rounded,
-                                        ),
-                                        label: const SamsLocaleText(
-                                          'Choose from gallery',
-                                        ),
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: _samsPrimary,
-                                          side: const BorderSide(
-                                            color: _samsPrimary,
-                                            width: 1.1,
-                                          ),
-                                          minimumSize: const Size.fromHeight(
-                                            50,
-                                          ),
-                                          textStyle: const TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 13.6,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              14,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: SamsTapScale(
-                                      enabled: !isProcessing && canUseCamera,
-                                      child: ElevatedButton.icon(
-                                        onPressed:
-                                            (isProcessing || !canUseCamera)
-                                            ? null
-                                            : () => context
-                                                  .read<ScanBloc>()
-                                                  .add(const ScanStarted()),
-                                        icon: const Icon(
-                                          Icons.camera_alt_rounded,
-                                        ),
-                                        label: const SamsLocaleText(
-                                          'Use camera',
-                                        ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: _samsPrimary,
-                                          foregroundColor: Colors.white,
-                                          elevation: 0,
-                                          minimumSize: const Size.fromHeight(
-                                            50,
-                                          ),
-                                          textStyle: const TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 13.8,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              14,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              const SamsLocaleText(
-                                'Please hold still while we verify your code.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: SamsUiTokens.textSecondary,
-                                  fontSize: 12.3,
-                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
-                          );
-                        },
+                          ),
+                          SizedBox(height: 8),
+                          SamsLocaleText(
+                            'Choose your course, then point the camera at any QR code. Your scan is saved for that course.',
+                            style: TextStyle(
+                              color: Color(0xFFE1ECF8),
+                              fontSize: 12.8,
+                              fontWeight: FontWeight.w600,
+                              height: 1.38,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  if (isProcessing) const _ProcessingOverlayCard(),
-                ],
+                    const SizedBox(height: 20),
+                    SamsLocaleText(
+                      'Select a course',
+                      style: TextStyle(
+                        color: cs.onSurface,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    SamsLocaleText(
+                      'Camera opens immediately after you tap a course. Gallery is not used.',
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    ...PortalCourses.curriculum.map(
+                      (name) => Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: _CoursePickTile(
+                          courseName: name,
+                          enabled: !_recording,
+                          onTap: () => _onCourseSelected(name),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            );
-          },
-        ),
+            ),
+          ),
+          if (_recording)
+            Positioned.fill(
+              child: ColoredBox(
+                color: Colors.black.withValues(alpha: 0.35),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(22, 18, 22, 18),
+                    margin: const EdgeInsets.symmetric(horizontal: 32),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.75)),
+                    ),
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 32,
+                          height: 32,
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        ),
+                        SizedBox(height: 14),
+                        SamsLocaleText(
+                          'Saving attendance…',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 }
 
-class _ScanHeroCard extends StatelessWidget {
-  const _ScanHeroCard();
+class _CoursePickTile extends StatelessWidget {
+  const _CoursePickTile({
+    required this.courseName,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final String courseName;
+  final bool enabled;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF063454), Color(0xFF0A5F93)],
+    final cs = Theme.of(context).colorScheme;
+    return SamsPressable(
+      onTap: enabled ? onTap : null,
+      borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.75)),
+          boxShadow: SamsUiTokens.cardShadow,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF063454).withValues(alpha: 0.24),
-            blurRadius: 20,
-            offset: const Offset(0, 7),
-          ),
-        ],
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.qr_code_2_rounded, color: Color(0xFFD9EBFB)),
-              SizedBox(width: 8),
-              SamsLocaleText(
-                'Scan QR Code',
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: SamsUiTokens.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.menu_book_rounded, color: SamsUiTokens.primary, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: SamsLocaleText(
+                courseName,
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
+                  color: cs.onSurface,
+                  fontSize: 15,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-            ],
-          ),
-          SizedBox(height: 4),
-          SamsLocaleText(
-            'Please hold still while we verify your code.',
-            style: TextStyle(
-              color: Color(0xFFE1ECF8),
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-              height: 1.32,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ScannerFrame extends StatelessWidget {
-  const _ScannerFrame({required this.size, required this.isProcessing});
-
-  final double size;
-  final bool isProcessing;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0A5A88), Color(0xFF1E88E5)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0A4D78).withValues(alpha: 0.24),
-            blurRadius: 22,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: Theme.of(
-              context,
-            ).colorScheme.outlineVariant.withValues(alpha: 0.64),
-          ),
-        ),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      const Color(0xFF0A4D78).withValues(alpha: 0.10),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
+            Icon(
+              Icons.photo_camera_outlined,
+              color: enabled ? SamsUiTokens.primary : cs.onSurfaceVariant.withValues(alpha: 0.5),
+              size: 22,
             ),
-            const Align(
-              alignment: Alignment.center,
-              child: Icon(
-                Icons.qr_code_scanner_rounded,
-                color: SamsUiTokens.primary,
-                size: 120,
-              ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: cs.onSurfaceVariant,
             ),
-            const _FrameCorner(alignment: Alignment.topLeft),
-            const _FrameCorner(alignment: Alignment.topRight),
-            const _FrameCorner(alignment: Alignment.bottomLeft),
-            const _FrameCorner(alignment: Alignment.bottomRight),
-            if (isProcessing)
-              Positioned.fill(
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: 1),
-                  duration: const Duration(milliseconds: 720),
-                  curve: Curves.easeOut,
-                  builder: (context, value, child) {
-                    return Opacity(
-                      opacity: 0.16 + (value * 0.16),
-                      child: child,
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: const Color(0xFF0A4D78),
-                    ),
-                  ),
-                ),
-              ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FrameCorner extends StatelessWidget {
-  const _FrameCorner({required this.alignment});
-
-  final Alignment alignment;
-
-  @override
-  Widget build(BuildContext context) {
-    final isTop =
-        alignment == Alignment.topLeft || alignment == Alignment.topRight;
-    final isBottom =
-        alignment == Alignment.bottomLeft || alignment == Alignment.bottomRight;
-    final isLeft =
-        alignment == Alignment.topLeft || alignment == Alignment.bottomLeft;
-    final isRight =
-        alignment == Alignment.topRight || alignment == Alignment.bottomRight;
-
-    return Align(
-      alignment: alignment,
-      child: Container(
-        width: 28,
-        height: 28,
-        margin: const EdgeInsets.all(14),
-        child: Stack(
-          children: [
-            if (isTop)
-              Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  width: 28,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0A5A88),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-            if (isBottom)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: 28,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0A5A88),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-            if (isLeft)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  width: 3,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0A5A88),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-            if (isRight)
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  width: 3,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0A5A88),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProcessingOverlayCard extends StatelessWidget {
-  const _ProcessingOverlayCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: IgnorePointer(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: const Color(0xFF052941).withValues(alpha: 0.44),
-          ),
-          child: Center(
-            child: Container(
-              width: 244,
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outlineVariant.withValues(alpha: 0.72),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.22),
-                    blurRadius: 18,
-                    offset: const Offset(0, 7),
-                  ),
-                ],
-              ),
-              child: const Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    height: 28,
-                    width: 28,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.8,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        SamsUiTokens.primary,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  SamsLocaleText(
-                    'Scanning...',
-                    style: TextStyle(
-                      color: SamsUiTokens.textPrimary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  SamsLocaleText(
-                    'Please hold still while we verify your code.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: SamsUiTokens.textSecondary,
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
     );

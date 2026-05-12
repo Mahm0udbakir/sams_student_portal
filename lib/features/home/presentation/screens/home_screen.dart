@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/runtime/app_runtime.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../data/repositories/firestore_home_repository.dart';
 import '../bloc/home_bloc.dart';
@@ -34,7 +35,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => HomeBloc(repository: FirestoreHomeRepository())..add(const HomeRequested()),
+      create: (_) => HomeBloc(
+        repository: AppRuntime.homeRepositoryOverride ?? FirestoreHomeRepository(),
+      )..add(const HomeRequested()),
       child: BlocBuilder<HomeBloc, HomeState>(
         buildWhen: (previous, current) {
           return previous.status != current.status ||
@@ -44,6 +47,7 @@ class HomeScreen extends StatelessWidget {
               previous.overallAttendance != current.overallAttendance ||
               previous.attendanceSubtitle != current.attendanceSubtitle ||
               previous.attendedClassesLabel != current.attendedClassesLabel ||
+              previous.courseAttendance != current.courseAttendance ||
               previous.busRouteLabel != current.busRouteLabel ||
               previous.busStatusLabel != current.busStatusLabel ||
               previous.announcements != current.announcements ||

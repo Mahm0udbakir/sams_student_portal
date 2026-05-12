@@ -10,8 +10,10 @@ class FakeAttendanceRepository implements AttendanceRepository {
   }
 
   @override
-  Future<void> recordAttendance({required String sessionId}) async {
-    // Fake: do nothing (simulate success)
+  Future<void> recordAttendance({
+    required String sessionId,
+    required String courseSubject,
+  }) async {
     await Future<void>.delayed(const Duration(milliseconds: 120));
   }
 

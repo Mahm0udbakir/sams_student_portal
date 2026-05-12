@@ -1,3 +1,4 @@
+import '../../../../core/constants/portal_courses.dart';
 import '../../domain/entities/home_dashboard_entity.dart';
 import 'home_announcement_model.dart';
 
@@ -11,9 +12,13 @@ class HomeDashboardModel extends HomeDashboardEntity {
     required super.busRouteLabel,
     required super.busStatusLabel,
     required super.announcements,
+    super.courseAttendance = const [],
   });
 
   factory HomeDashboardModel.fake() {
+    final courseAttendance = PortalCourses.curriculum
+        .map((name) => {'subject': name, 'percentage': 75})
+        .toList(growable: false);
     return HomeDashboardModel(
       studentName: 'Student',
       studentId: '',
@@ -23,6 +28,7 @@ class HomeDashboardModel extends HomeDashboardEntity {
       attendedClassesLabel: '8/11 lectures attended this week',
       busRouteLabel: 'SAMS Shuttle 03 • Maadi → Ramses',
       busStatusLabel: 'Status: Arriving at Gate 2 (Maadi Campus)',
+      courseAttendance: courseAttendance,
       announcements: const [
         HomeAnnouncementModel(
           title: 'SAMS Midterm Schedule (Semester 5) Published',

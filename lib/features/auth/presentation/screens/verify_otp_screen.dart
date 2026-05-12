@@ -189,8 +189,16 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: TextButton(
-                                onPressed: () => context.goNamed(AppRouteNames.login),
-                                child: const Text('Back to login'),
+                                onPressed: () {
+                                  final auth = context.read<AuthCubit>();
+                                  final s = auth.state;
+                                  if (s is AuthOtpRequired && s.purpose == 'signup') {
+                                    context.goNamed(AppRouteNames.signup);
+                                  } else {
+                                    context.goNamed(AppRouteNames.login);
+                                  }
+                                },
+                                child: const Text('Back'),
                               ),
                             ),
                           ],

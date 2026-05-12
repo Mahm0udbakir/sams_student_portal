@@ -6,10 +6,12 @@ class VerifyOtpParams {
   const VerifyOtpParams({
     required this.verificationId,
     required this.otp,
+    this.purposeHint,
   });
 
   final String verificationId;
   final String otp;
+  final String? purposeHint;
 }
 
 class VerifyOtpUseCase {
@@ -21,6 +23,7 @@ class VerifyOtpUseCase {
     return _repository.verifyOtp(
       verificationId: params.verificationId,
       otp: params.otp,
+      purposeHint: params.purposeHint,
     );
   }
 }

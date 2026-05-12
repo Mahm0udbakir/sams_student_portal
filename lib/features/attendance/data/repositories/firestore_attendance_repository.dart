@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../core/constants/portal_courses.dart';
 import '../../../../core/services/current_user_service.dart';
 import '../../domain/entities/attendance_overview_entity.dart';
 import '../../domain/entities/attendance_session_entity.dart';
@@ -99,17 +100,22 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
     }
 
     final sessionsSnap = await _firestore.collection(sessionsCollection).get();
-    final sessions = sessionsSnap.docs;
-    final totalSessions = sessions.length;
+    final sessionSubjects = <String, String>{};
+    final totalBySubject = <String, int>{};
 
-    final Map<String, String> sessionSubjects = {};
-    final Map<String, int> totalBySubject = {};
-
-    for (final session in sessions) {
+    for (final session in sessionsSnap.docs) {
       final id = session.id;
-      final subject = (session.data()['subject'] as String?)?.trim() ?? 'General';
-      sessionSubjects[id] = subject;
+      final data = session.data();
+      final sid = (data['sessionId'] as String?)?.trim().isNotEmpty == true
+          ? (data['sessionId'] as String).trim()
+          : id;
+      final subject = (data['subject'] as String?)?.trim() ?? 'General';
+      sessionSubjects[sid] = subject;
       totalBySubject[subject] = (totalBySubject[subject] ?? 0) + 1;
+    }
+
+    for (final course in PortalCourses.curriculum) {
+      totalBySubject.putIfAbsent(course, () => 0);
     }
 
     final recordsSnap = await _firestore
@@ -117,19 +123,20 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
         .where('studentUid', isEqualTo: user.uid)
         .get();
 
-    final attendedSessionIds = recordsSnap.docs
-        .map((doc) => doc.data()['sessionId'] as String?)
-        .whereType<String>()
-        .toSet();
+    final attendedBySubject = <String, int>{};
+    final scanDatesBySubject = <String, List<DateTime>>{};
 
-
-    // Map subject -> List<DateTime> of scan dates
-    final Map<String, List<DateTime>> scanDatesBySubject = {};
     for (final doc in recordsSnap.docs) {
-      final sid = doc.data()['sessionId'] as String?;
-      if (sid == null) continue;
-      final subject = sessionSubjects[sid] ?? 'General';
-      final timestamp = doc.data()['timestamp'];
+      final data = doc.data();
+      final sid = data['sessionId'] as String?;
+      final recordSubject = (data['subject'] as String?)?.trim();
+      final subject = (recordSubject != null && recordSubject.isNotEmpty)
+          ? recordSubject
+          : (sid != null ? (sessionSubjects[sid] ?? 'General') : 'General');
+
+      attendedBySubject[subject] = (attendedBySubject[subject] ?? 0) + 1;
+
+      final timestamp = data['timestamp'];
       DateTime? scanDate;
       if (timestamp is Timestamp) {
         scanDate = timestamp.toDate();
@@ -142,22 +149,60 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
     }
 
     final subjects = <AttendanceSubjectModel>[];
-    for (final entry in totalBySubject.entries) {
-      final total = entry.value;
-      final attended = attendedBySubject[entry.key] ?? 0;
-      final percentage = total == 0 ? 0 : ((attended / total) * 100).round();
-      // We'll extend AttendanceSubjectModel later to include attendedCount and scanDates
-      subjects.add(AttendanceSubjectModel(
-        subject: entry.key,
-        percentage: percentage,
-        // Custom fields for UI: attendedCount and scanDates
-        attendedCount: attended,
-        scanDates: scanDatesBySubject[entry.key] ?? [],
-      ));
+    for (final course in PortalCourses.curriculum) {
+      final total = totalBySubject[course] ?? 0;
+      final attended = attendedBySubject[course] ?? 0;
+      final denominator = total > 0 ? total : (attended > 0 ? attended : 1);
+      final percentage = ((attended / denominator) * 100).round().clamp(0, 100);
+      final dates = scanDatesBySubject[course] ?? [];
+      dates.sort((a, b) => b.compareTo(a));
+      subjects.add(
+        AttendanceSubjectModel(
+          subject: course,
+          percentage: percentage,
+          attendedCount: attended,
+          scheduledSessionCount: total,
+          scanDates: List<DateTime>.unmodifiable(dates),
+        ),
+      );
     }
 
-    final attendedTotal = attendedSessionIds.length;
-    final overall = totalSessions == 0 ? 0 : ((attendedTotal / totalSessions) * 100).round();
+    for (final entry in totalBySubject.entries) {
+      if (PortalCourses.curriculum.contains(entry.key)) {
+        continue;
+      }
+      final total = entry.value;
+      final attended = attendedBySubject[entry.key] ?? 0;
+      final denominator = total > 0 ? total : (attended > 0 ? attended : 1);
+      final percentage = ((attended / denominator) * 100).round().clamp(0, 100);
+      final dates = scanDatesBySubject[entry.key] ?? [];
+      dates.sort((a, b) => b.compareTo(a));
+      subjects.add(
+        AttendanceSubjectModel(
+          subject: entry.key,
+          percentage: percentage,
+          attendedCount: attended,
+          scheduledSessionCount: total,
+          scanDates: List<DateTime>.unmodifiable(dates),
+        ),
+      );
+    }
+
+    final totalSessions = sessionsSnap.docs.length;
+    final attendedTotal = recordsSnap.docs.length;
+
+    var overallFromCurriculum = 0;
+    if (subjects.isNotEmpty) {
+      final coreLen = PortalCourses.curriculum.length.clamp(0, subjects.length);
+      final core = subjects.take(coreLen).toList(growable: false);
+      overallFromCurriculum = core.isEmpty
+          ? 0
+          : (core.map((s) => s.percentage).fold<int>(0, (a, b) => a + b) ~/ core.length);
+    }
+
+    final overall = totalSessions == 0
+        ? overallFromCurriculum
+        : ((attendedTotal / totalSessions) * 100).round().clamp(0, 100);
 
     return AttendanceOverviewModel(
       overallPercent: overall,
@@ -166,25 +211,31 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
   }
 
   @override
-  Future<void> recordAttendance({required String sessionId}) async {
+  Future<void> recordAttendance({
+    required String sessionId,
+    required String courseSubject,
+  }) async {
     final user = await _currentUserService.loadCurrentUser();
     if (user == null) {
       throw StateError('No signed-in user');
     }
 
-    final sessionDoc = await _firestore.collection(sessionsCollection).doc(sessionId).get();
-    if (!sessionDoc.exists) {
-      throw const AttendanceSessionNotFoundException();
+    final trimmedSession = sessionId.trim();
+    if (trimmedSession.isEmpty) {
+      throw const AttendanceScanException('Invalid scan (empty code).');
     }
 
-    final recordDoc = _firestore.collection(recordsCollection).doc('${user.uid}_$sessionId');
+    final subject = courseSubject.trim();
+    final recordId = '${user.uid}_${trimmedSession}_$subject';
+    final recordDoc = _firestore.collection(recordsCollection).doc(recordId);
     final existing = await recordDoc.get();
     if (existing.exists) {
       throw const AttendanceDuplicateScanException();
     }
 
     await recordDoc.set({
-      'sessionId': sessionId,
+      'sessionId': trimmedSession,
+      'subject': subject,
       'studentUid': user.uid,
       'studentId': user.studentId,
       'timestamp': FieldValue.serverTimestamp(),
@@ -284,4 +335,3 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
     return null;
   }
 }
-

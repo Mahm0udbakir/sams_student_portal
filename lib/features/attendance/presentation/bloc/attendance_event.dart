@@ -21,12 +21,16 @@ class AttendanceMarkRequested extends AttendanceEvent {
 }
 
 class AttendanceRecordRequested extends AttendanceEvent {
-  const AttendanceRecordRequested({required this.sessionId});
+  const AttendanceRecordRequested({
+    required this.sessionId,
+    required this.courseSubject,
+  });
 
   final String sessionId;
+  final String courseSubject;
 
   @override
-  List<Object?> get props => [sessionId];
+  List<Object?> get props => [sessionId, courseSubject];
 }
 
 class AttendanceFeedbackCleared extends AttendanceEvent {

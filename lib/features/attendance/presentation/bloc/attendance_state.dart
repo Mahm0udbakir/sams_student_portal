@@ -28,6 +28,7 @@ class AttendanceClassItem extends Equatable {
     required this.percentage,
     required this.band,
     required this.attendedCount,
+    required this.scheduledSessionCount,
     required this.scanDates,
   });
 
@@ -35,10 +36,18 @@ class AttendanceClassItem extends Equatable {
   final int percentage;
   final AttendanceBand band;
   final int attendedCount;
+  final int scheduledSessionCount;
   final List<DateTime> scanDates;
 
   @override
-  List<Object?> get props => [subject, percentage, band, attendedCount, scanDates];
+  List<Object?> get props => [
+        subject,
+        percentage,
+        band,
+        attendedCount,
+        scheduledSessionCount,
+        scanDates,
+      ];
 }
 
 class AttendanceState extends Equatable {

@@ -38,9 +38,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
-    final fullName = '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}';
     context.read<AuthCubit>().signUp(
-      name: fullName,
+      firstName: _firstNameController.text,
+      lastName: _lastNameController.text,
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
@@ -176,7 +176,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             const SizedBox(height: 4),
                             const Text(
-                              'Use your university email and password.',
+                              'Create your password, then verify your email with the OTP we send you.',
                               style: TextStyle(
                                 color: SamsUiTokens.textSecondary,
                                 fontSize: 13,
@@ -292,7 +292,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                           ),
                                         )
                                       : const Text(
-                                          'Create account',
+                                          'Send verification code',
                                           style: TextStyle(
                                             fontSize: 15.2,
                                             fontWeight: FontWeight.w800,

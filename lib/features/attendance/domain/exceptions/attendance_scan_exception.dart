@@ -9,7 +9,7 @@ class AttendanceScanException implements Exception {
 
 class AttendanceDuplicateScanException extends AttendanceScanException {
   const AttendanceDuplicateScanException()
-      : super('You already scanned attendance for this session.');
+      : super('You already recorded attendance for this course and scan.');
 }
 
 class AttendanceSessionNotFoundException extends AttendanceScanException {

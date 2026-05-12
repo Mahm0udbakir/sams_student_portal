@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/constants/portal_courses.dart';
 import '../../domain/exceptions/attendance_scan_exception.dart';
 import '../../domain/entities/attendance_session_entity.dart';
 import '../../domain/repositories/attendance_repository.dart';
@@ -40,16 +41,31 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
     try {
       _overviewSub = _repository.watchAttendanceOverview().listen((overview) {
-        final classes = overview.subjects
-            .map(
-              (subject) => AttendanceClassItem(
+        final bySubject = {
+          for (final s in overview.subjects) s.subject: s,
+        };
+        final classes = PortalCourses.curriculum
+            .map((name) {
+              final subject = bySubject[name];
+              if (subject == null) {
+                return AttendanceClassItem(
+                  subject: name,
+                  percentage: 0,
+                  band: AttendanceBand.fromPercentage(0),
+                  attendedCount: 0,
+                  scheduledSessionCount: 0,
+                  scanDates: const [],
+                );
+              }
+              return AttendanceClassItem(
                 subject: subject.subject,
                 percentage: subject.percentage,
                 band: AttendanceBand.fromPercentage(subject.percentage),
                 attendedCount: subject.attendedCount,
+                scheduledSessionCount: subject.scheduledSessionCount,
                 scanDates: subject.scanDates,
-              ),
-            )
+              );
+            })
             .toList(growable: false);
 
         add(_AttendanceOverviewUpdated(overview.overallPercent, classes));
@@ -94,9 +110,18 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     AttendanceRecordRequested event,
     Emitter<AttendanceState> emit,
   ) async {
-    emit(state.copyWith(actionStatus: AttendanceActionStatus.processing, clearFeedback: true));
+    emit(
+      state.copyWith(
+        actionStatus: AttendanceActionStatus.processing,
+        actionSubject: event.courseSubject,
+        clearFeedback: true,
+      ),
+    );
     try {
-      await ScanAttendanceUseCase(repository: _repository).execute(event.sessionId);
+      await ScanAttendanceUseCase(repository: _repository).execute(
+        event.sessionId,
+        courseSubject: event.courseSubject,
+      );
       emit(state.copyWith(actionStatus: AttendanceActionStatus.success, feedbackMessage: 'Attendance recorded'));
     } on AttendanceDuplicateScanException catch (error) {
       emit(state.copyWith(actionStatus: AttendanceActionStatus.failure, feedbackMessage: error.message));

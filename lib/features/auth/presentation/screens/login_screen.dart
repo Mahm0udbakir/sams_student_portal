@@ -114,40 +114,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Form(
                       key: _formKey,
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: InputDecoration(labelText: 'University Email'),
-                            validator: (value) {
-                              if ((value ?? '').trim().isEmpty) {
-                                return 'Enter your university email';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 18),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: isLoading ? null : _submit,
-                              child: isLoading
-                                  ? const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text('Send OTP'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                      key: _formKey,
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             const SizedBox(height: 4),
                             const Text(
-                              'Sign in with your university email and password.',
+                              'Sign in with your university email. We will email you a one-time code.',
                               style: TextStyle(
                                 color: SamsUiTokens.textSecondary,
                                 fontSize: 13,
@@ -194,41 +160,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 return null;
                               },
                             ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _passwordController,
-                              obscureText: _obscurePassword,
-                              decoration: InputDecoration(
-                                labelText: 'Password',
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    SamsUiTokens.radiusMd,
-                                  ),
-                                ),
-                                suffixIcon: IconButton(
-                                  onPressed: () => setState(
-                                    () => _obscurePassword = !_obscurePassword,
-                                  ),
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                  ),
-                                ),
-                              ),
-                              validator: (value) {
-                                if ((value ?? '').trim().isEmpty) {
-                                  return 'Enter your password';
-                                }
-                                return null;
-                              },
-                            ),
                             const SizedBox(height: 18),
                             SizedBox(
                               width: double.infinity,
                               child: SamsTapScale(
+                                enabled: !isLoading,
                                 child: ElevatedButton(
                                   onPressed: isLoading ? null : _submit,
                                   style: ElevatedButton.styleFrom(
@@ -247,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                         )
                                       : const Text(
-                                          'Login',
+                                          'Send OTP',
                                           style: TextStyle(
                                             fontSize: 15.4,
                                             fontWeight: FontWeight.w800,

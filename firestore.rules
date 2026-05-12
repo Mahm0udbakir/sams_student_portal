@@ -53,6 +53,16 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    // OTP challenges (Brevo flow). Document ID is unguessable; tighten rules in production as needed.
+    match /auth_otps/{challengeId} {
+      allow create: if request.resource.data.verificationId is string
+        && request.resource.data.email is string
+        && request.resource.data.purpose is string
+        && request.resource.data.otp is string
+        && request.resource.data.consumed == false;
+      allow read, update: if true;
+    }
+
     // Default deny.
     match /{document=**} {
       allow read, write: if false;

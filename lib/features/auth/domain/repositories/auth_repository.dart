@@ -6,6 +6,8 @@ abstract class AuthRepository {
     required String name,
     required String email,
     required String password,
+    String? firstName,
+    String? lastName,
     String? studentId,
     String? department,
   });
@@ -24,6 +26,7 @@ abstract class AuthRepository {
   Future<AuthResult<AuthUser>> verifyOtp({
     required String verificationId,
     required String otp,
+    String? purposeHint,
   });
 
   Future<AuthResult<AuthUser>> createUserDocument({

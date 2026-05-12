@@ -1,3 +1,4 @@
+import '../../../../core/constants/portal_courses.dart';
 import '../../domain/entities/attendance_overview_entity.dart';
 import 'attendance_subject_model.dart';
 
@@ -8,32 +9,33 @@ class AttendanceOverviewModel extends AttendanceOverviewEntity {
   });
 
   factory AttendanceOverviewModel.fake() {
-    return const AttendanceOverviewModel(
-      overallPercent: 75,
+    return AttendanceOverviewModel(
+      overallPercent: 78,
       subjects: [
         AttendanceSubjectModel(
-          subject: 'Accounting Principles',
+          subject: PortalCourses.curriculum[0],
           percentage: 92,
-        ),
-        AttendanceSubjectModel(subject: 'Marketing Management', percentage: 84),
-        AttendanceSubjectModel(subject: 'Financial Management', percentage: 78),
-        AttendanceSubjectModel(
-          subject: 'Business Administration',
-          percentage: 74,
+          attendedCount: 11,
+          scheduledSessionCount: 12,
         ),
         AttendanceSubjectModel(
-          subject: 'Human Resources Management',
-          percentage: 65,
+          subject: PortalCourses.curriculum[1],
+          percentage: 84,
+          attendedCount: 9,
+          scheduledSessionCount: 12,
         ),
         AttendanceSubjectModel(
-          subject: 'Management Information Systems',
-          percentage: 59,
+          subject: PortalCourses.curriculum[2],
+          percentage: 76,
+          attendedCount: 8,
+          scheduledSessionCount: 12,
         ),
         AttendanceSubjectModel(
-          subject: 'Economics for Managers',
-          percentage: 52,
+          subject: PortalCourses.curriculum[3],
+          percentage: 71,
+          attendedCount: 7,
+          scheduledSessionCount: 12,
         ),
-        AttendanceSubjectModel(subject: 'Business Statistics', percentage: 38),
       ],
     );
   }

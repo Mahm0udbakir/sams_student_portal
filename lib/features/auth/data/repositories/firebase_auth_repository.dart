@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -36,12 +37,11 @@ class FirebaseAuthRepository implements AuthRepository {
     required String name,
     required String email,
     required String password,
+    String? firstName,
+    String? lastName,
     String? studentId,
     String? department,
   }) async {
-    if (!_isAllowedEmail(email)) {
-      return const AuthFailure<AuthUser>(
-        // Password login removed. OTP-only login enforced.
     if (!_isAllowedEmail(email)) {
       return const AuthFailure<AuthUser>(
         type: AuthErrorType.emailNotAllowed,
@@ -50,7 +50,7 @@ class FirebaseAuthRepository implements AuthRepository {
     }
 
     try {
-      final credential = await _firebaseAuth.signInWithEmailAndPassword(
+      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
@@ -59,60 +59,58 @@ class FirebaseAuthRepository implements AuthRepository {
       if (user == null) {
         return const AuthFailure<AuthUser>(
           type: AuthErrorType.unknown,
-          message: 'Could not sign you in. Please try again.',
+          message: 'Could not create your account. Please try again.',
         );
       }
 
-      final current = await getCurrentUser();
-      if (current == null) {
-        final created = await createUserDocument(
-          uid: user.uid,
-          email: user.email ?? email.trim(),
-          name: user.displayName?.trim().isNotEmpty == true
-              ? user.displayName!.trim()
-              : email.trim().split('@').first,
-          emailVerified: user.emailVerified,
-        );
-
-        if (created is AuthFailure<AuthUser>) {
-          return created;
-        }
+      final trimmedName = name.trim();
+      if (trimmedName.isNotEmpty) {
+        await user.updateDisplayName(trimmedName);
+        await user.reload();
       }
 
-      final profile = await getCurrentUser();
-      if (profile == null) {
-        return const AuthFailure<AuthUser>(
-          type: AuthErrorType.userNotFound,
-          message: 'Your account profile was not found.',
+      final created = await createUserDocument(
+        uid: user.uid,
+        email: user.email ?? email.trim(),
+        name: trimmedName.isNotEmpty ? trimmedName : email.trim().split('@').first,
+        firstName: firstName,
+        lastName: lastName,
+        studentId: studentId,
+        department: department,
+        emailVerified: false,
+      );
+
+      if (created is AuthFailure<AuthUser>) {
+        return created;
+      }
+
+      final otpResult = await sendOtp(
+        email: email.trim(),
+        name: trimmedName.isNotEmpty ? trimmedName : 'Student',
+        purpose: 'signup',
+      );
+
+      if (otpResult is AuthFailure<void>) {
+        return AuthFailure<AuthUser>(
+          type: otpResult.type,
+          message: otpResult.message,
         );
       }
 
-      if (!profile.emailVerified) {
-        final otpResult = await sendOtp(
-          email: profile.email,
-          name: profile.name,
-          purpose: 'login',
+      if (otpResult is AuthOtpChallenge<void>) {
+        return AuthOtpChallenge<AuthUser>(
+          verificationId: otpResult.verificationId,
+          email: otpResult.email,
+          name: otpResult.name,
+          expiresAt: otpResult.expiresAt,
+          attemptsRemaining: otpResult.attemptsRemaining,
         );
-
-        if (otpResult is AuthFailure<void>) {
-          return AuthFailure<AuthUser>(
-            type: otpResult.type,
-            message: otpResult.message,
-          );
-        }
-
-        if (otpResult is AuthOtpChallenge<void>) {
-          return AuthOtpChallenge<AuthUser>(
-            verificationId: otpResult.verificationId,
-            email: otpResult.email,
-            name: otpResult.name,
-            expiresAt: otpResult.expiresAt,
-            attemptsRemaining: otpResult.attemptsRemaining,
-          );
-        }
       }
 
-      return AuthSuccess<AuthUser>(profile);
+      return const AuthFailure<AuthUser>(
+        type: AuthErrorType.unknown,
+        message: 'Could not start email verification.',
+      );
     } on FirebaseAuthException catch (error) {
       return AuthFailure<AuthUser>(
         type: _mapAuthException(error),
@@ -121,14 +119,25 @@ class FirebaseAuthRepository implements AuthRepository {
     } on FirebaseException catch (error) {
       return AuthFailure<AuthUser>(
         type: _mapFirestoreException(error),
-        message: error.message ?? 'Could not sign you in. Please try again.',
+        message: error.message ?? 'Could not create your account. Please try again.',
       );
     } catch (_) {
       return const AuthFailure<AuthUser>(
         type: AuthErrorType.unknown,
-        message: 'Could not sign you in. Please try again.',
+        message: 'Could not create your account. Please try again.',
       );
     }
+  }
+
+  @override
+  Future<AuthResult<AuthUser>> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    return const AuthFailure<AuthUser>(
+      type: AuthErrorType.operationNotAllowed,
+      message: 'Password sign-in is disabled. Use university email and OTP.',
+    );
   }
 
   @override
@@ -157,7 +166,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
       await _sendBrevoOtpEmail(
         email: email.trim(),
-        name: name.trim(),
+        name: name.trim().isNotEmpty ? name.trim() : 'Student',
         otp: otp,
         purpose: purpose,
         expiresAt: expiresAt,
@@ -199,7 +208,13 @@ class FirebaseAuthRepository implements AuthRepository {
   Future<AuthResult<AuthUser>> verifyOtp({
     required String verificationId,
     required String otp,
+    String? purposeHint,
   }) async {
+    final hint = purposeHint?.trim().toLowerCase();
+    if (hint == 'login') {
+      return _verifyLoginOtpWithCallable(verificationId: verificationId, otp: otp);
+    }
+
     try {
       final docRef = _otpChallenges.doc(verificationId.trim());
       final snapshot = await docRef.get();
@@ -212,6 +227,12 @@ class FirebaseAuthRepository implements AuthRepository {
       }
 
       final data = snapshot.data() ?? <String, dynamic>{};
+      final purpose = (data['purpose'] as String?)?.trim().toLowerCase() ?? 'signup';
+
+      if (purpose == 'login') {
+        return _verifyLoginOtpWithCallable(verificationId: verificationId, otp: otp);
+      }
+
       if (data['consumed'] == true) {
         return const AuthFailure<AuthUser>(
           type: AuthErrorType.otpAlreadyUsed,
@@ -258,7 +279,7 @@ class FirebaseAuthRepository implements AuthRepository {
       if (user == null) {
         return const AuthFailure<AuthUser>(
           type: AuthErrorType.userNotFound,
-          message: 'Signed in user was not found. Please log in again.',
+          message: 'Signed in user was not found. Please try signing up again.',
         );
       }
 
@@ -294,6 +315,74 @@ class FirebaseAuthRepository implements AuthRepository {
       return const AuthFailure<AuthUser>(
         type: AuthErrorType.unknown,
         message: 'Could not verify the code. Please try again.',
+      );
+    }
+  }
+
+  Future<AuthResult<AuthUser>> _verifyLoginOtpWithCallable({
+    required String verificationId,
+    required String otp,
+  }) async {
+    try {
+      final callable = FirebaseFunctions.instance.httpsCallable('exchangeLoginOtp');
+      final result = await callable.call({
+        'verificationId': verificationId.trim(),
+        'otp': otp.trim(),
+      });
+
+      final raw = result.data;
+      if (raw is! Map) {
+        return const AuthFailure<AuthUser>(
+          type: AuthErrorType.unknown,
+          message: 'Login service returned an unexpected response.',
+        );
+      }
+      final token = raw['customToken'] as String?;
+      if (token == null || token.isEmpty) {
+        return const AuthFailure<AuthUser>(
+          type: AuthErrorType.unknown,
+          message: 'Login service returned an empty token.',
+        );
+      }
+
+      await _firebaseAuth.signInWithCustomToken(token);
+
+      final currentUser = await getCurrentUser();
+      if (currentUser == null) {
+        return const AuthFailure<AuthUser>(
+          type: AuthErrorType.userNotFound,
+          message: 'Your account profile was not found after sign-in.',
+        );
+      }
+
+      final refreshed = await createUserDocument(
+        uid: currentUser.uid,
+        email: currentUser.email,
+        name: currentUser.name,
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        studentId: currentUser.studentId,
+        department: currentUser.department,
+        emailVerified: true,
+      );
+
+      if (refreshed is AuthSuccess<AuthUser>) {
+        return AuthSuccess<AuthUser>(refreshed.data);
+      }
+
+      return AuthSuccess<AuthUser>(currentUser);
+    } on FirebaseFunctionsException catch (error) {
+      return AuthFailure<AuthUser>(
+        type: _mapFunctionsException(error),
+        message: error.message ?? 'Could not complete OTP login.',
+      );
+    } catch (error) {
+      return AuthFailure<AuthUser>(
+        type: AuthErrorType.unknown,
+        message:
+            'OTP login requires the exchangeLoginOtp Cloud Function. '
+            'Deploy functions/ (see repository docs) or check your connection. '
+            '(${error.toString()})',
       );
     }
   }
@@ -598,6 +687,29 @@ class FirebaseAuthRepository implements AuthRepository {
       default:
         return AuthErrorType.unknown;
     }
+  }
+
+  AuthErrorType _mapFunctionsException(FirebaseFunctionsException exception) {
+    final code = exception.code.toLowerCase();
+    if (code.contains('not-found')) {
+      return AuthErrorType.userNotFound;
+    }
+    if (code.contains('permission-denied')) {
+      return AuthErrorType.otpInvalid;
+    }
+    if (code.contains('deadline-exceeded')) {
+      return AuthErrorType.otpExpired;
+    }
+    if (code.contains('resource-exhausted')) {
+      return AuthErrorType.otpTooManyAttempts;
+    }
+    if (code.contains('failed-precondition')) {
+      return AuthErrorType.otpAlreadyUsed;
+    }
+    if (code.contains('invalid-argument')) {
+      return AuthErrorType.invalidEmail;
+    }
+    return AuthErrorType.unknown;
   }
 
   String _messageForAuthException(FirebaseAuthException exception) {

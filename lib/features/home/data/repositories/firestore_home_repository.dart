@@ -1,5 +1,8 @@
+import '../../../../core/constants/portal_courses.dart';
 import '../../../../core/services/current_user_service.dart';
 import '../../../announcements/repositories/announcement_repository.dart';
+import '../../../attendance/data/models/attendance_overview_model.dart';
+import '../../../attendance/data/models/attendance_subject_model.dart';
 import '../../../attendance/data/repositories/firestore_attendance_repository.dart';
 import '../../../attendance/domain/entities/attendance_overview_entity.dart';
 import '../../../attendance/domain/repositories/attendance_repository.dart';
@@ -26,11 +29,32 @@ class FirestoreHomeRepository implements HomeRepository {
   static const int _maxHomeAnnouncements = 5;
   static const int _maxPreviewMessageLength = 120;
 
+  Future<AttendanceOverviewEntity> _loadAttendanceOverviewSafe() async {
+    try {
+      return await _attendanceRepository.getAttendanceOverview();
+    } catch (_) {
+      return AttendanceOverviewModel(
+        overallPercent: 0,
+        subjects: PortalCourses.curriculum
+            .map(
+              (name) => AttendanceSubjectModel(
+                subject: name,
+                percentage: 0,
+                attendedCount: 0,
+                scheduledSessionCount: 0,
+                scanDates: const [],
+              ),
+            )
+            .toList(growable: false),
+      );
+    }
+  }
+
   @override
   Future<HomeDashboardEntity> getDashboard() async {
     final currentUser = await _currentUserService.loadCurrentUser();
     final results = await Future.wait<Object?>([
-      _attendanceRepository.getAttendanceOverview(),
+      _loadAttendanceOverviewSafe(),
       _loadLatestAnnouncements(),
     ]);
 
@@ -45,13 +69,16 @@ class FirestoreHomeRepository implements HomeRepository {
         ? 'No attendance records yet'
         : '${overview.subjects.length} tracked subjects • $attendancePercent% overall';
 
-    // Prepare up to 4 course attendance records
-    final courseAttendance = overview.subjects
-        .take(4)
-        .map((s) => {
-              'subject': s.subject,
-              'percentage': s.percentage,
-            })
+    final bySubject = {
+      for (final s in overview.subjects) s.subject: s,
+    };
+    final courseAttendance = PortalCourses.curriculum
+        .map(
+          (name) => {
+            'subject': name,
+            'percentage': bySubject[name]?.percentage ?? 0,
+          },
+        )
         .toList(growable: false);
 
     return HomeDashboardModel(

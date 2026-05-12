@@ -85,6 +85,7 @@ class HomeState extends Equatable {
     busRouteLabel,
     busStatusLabel,
     announcements,
+    courseAttendance,
     errorMessage,
   ];
 }

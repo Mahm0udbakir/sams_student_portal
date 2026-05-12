@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sams_student_portal/core/constants/portal_courses.dart';
+import 'package:sams_student_portal/core/runtime/app_runtime.dart';
+import 'package:sams_student_portal/features/home/data/models/home_dashboard_model.dart';
+import 'package:sams_student_portal/features/home/domain/entities/home_dashboard_entity.dart';
+import 'package:sams_student_portal/features/home/domain/repositories/home_repository.dart';
 import 'package:sams_student_portal/main.dart';
 
 import 'package:sams_student_portal/features/auth/domain/entities/auth_error.dart';
@@ -33,7 +38,10 @@ class _TestAuthRepository implements AuthRepository {
   Future<void> signOut() async {}
 
   @override
-  Future<AuthResult<AuthUser>> signInWithEmailAndPassword({required String email, required String password}) async {
+  Future<AuthResult<AuthUser>> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
     return const AuthFailure<AuthUser>(
       type: AuthErrorType.unknown,
       message: 'Not implemented in widget tests.',
@@ -45,6 +53,8 @@ class _TestAuthRepository implements AuthRepository {
     required String name,
     required String email,
     required String password,
+    String? firstName,
+    String? lastName,
     String? studentId,
     String? department,
   }) async {
@@ -55,7 +65,11 @@ class _TestAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<AuthResult<void>> sendOtp({required String email, required String name, required String purpose}) async {
+  Future<AuthResult<void>> sendOtp({
+    required String email,
+    required String name,
+    required String purpose,
+  }) async {
     return const AuthFailure<void>(
       type: AuthErrorType.unknown,
       message: 'Not implemented in widget tests.',
@@ -63,10 +77,113 @@ class _TestAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<AuthResult<AuthUser>> verifyOtp({required String verificationId, required String otp}) async {
+  Future<AuthResult<AuthUser>> verifyOtp({
+    required String verificationId,
+    required String otp,
+    String? purposeHint,
+  }) async {
     return const AuthFailure<AuthUser>(
       type: AuthErrorType.unknown,
       message: 'Not implemented in widget tests.',
+    );
+  }
+}
+
+class _AuthedTestAuthRepository implements AuthRepository {
+  static final _user = AuthUser(
+    uid: 'test-uid',
+    email: 'student@sams.edu.eg',
+    name: 'Mahmoud Bakir',
+    firstName: 'Mahmoud',
+    lastName: 'Bakir',
+    studentId: 'SAM-1001',
+    role: 'student',
+    emailVerified: true,
+    isActive: true,
+    createdAt: DateTime.utc(2024, 1, 1),
+    updatedAt: DateTime.utc(2024, 1, 2),
+  );
+
+  @override
+  Future<AuthResult<AuthUser>> createUserDocument({
+    required String uid,
+    required String email,
+    required String name,
+    String? firstName,
+    String? lastName,
+    String? studentId,
+    String? department,
+    bool emailVerified = false,
+  }) async {
+    return AuthSuccess<AuthUser>(_user);
+  }
+
+  @override
+  Future<AuthUser?> getCurrentUser() async => _user;
+
+  @override
+  Future<void> signOut() async {}
+
+  @override
+  Future<AuthResult<AuthUser>> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    return AuthSuccess<AuthUser>(_user);
+  }
+
+  @override
+  Future<AuthResult<AuthUser>> signUpWithEmailAndPassword({
+    required String name,
+    required String email,
+    required String password,
+    String? firstName,
+    String? lastName,
+    String? studentId,
+    String? department,
+  }) async {
+    return AuthSuccess<AuthUser>(_user);
+  }
+
+  @override
+  Future<AuthResult<void>> sendOtp({
+    required String email,
+    required String name,
+    required String purpose,
+  }) async {
+    return const AuthFailure<void>(
+      type: AuthErrorType.unknown,
+      message: 'Not implemented in widget tests.',
+    );
+  }
+
+  @override
+  Future<AuthResult<AuthUser>> verifyOtp({
+    required String verificationId,
+    required String otp,
+    String? purposeHint,
+  }) async {
+    return AuthSuccess<AuthUser>(_user);
+  }
+}
+
+/// In-memory home dashboard so widget tests do not require Firestore.
+class _WidgetTestHomeRepository implements HomeRepository {
+  @override
+  Future<HomeDashboardEntity> getDashboard() async {
+    final courseAttendance = PortalCourses.curriculum
+        .map((name) => {'subject': name, 'percentage': 82})
+        .toList(growable: false);
+    return HomeDashboardModel(
+      studentName: 'Mahmoud Bakir',
+      studentId: 'SAM-1001',
+      attendancePercent: 78,
+      attendanceSubtitle: 'Management Sciences • Live term overview',
+      attendedClassesLabel: '4 tracked subjects • 78% overall',
+      busRouteLabel: 'SAMS Shuttle 03 • Maadi → Ramses',
+      busStatusLabel: 'Status: Arriving at Gate 2 (Maadi Campus)',
+      announcements: HomeDashboardModel.fake().announcements,
+      courseAttendance: courseAttendance,
     );
   }
 }
@@ -77,7 +194,21 @@ Future<AuthCubit> _createTestAuthCubit() async {
   return cubit;
 }
 
+Future<AuthCubit> _createAuthedTestAuthCubit() async {
+  final cubit = AuthCubit(repository: _AuthedTestAuthRepository());
+  await cubit.bootstrap();
+  return cubit;
+}
+
 void main() {
+  setUp(() {
+    AppRuntime.homeRepositoryOverride = _WidgetTestHomeRepository();
+  });
+
+  tearDown(() {
+    AppRuntime.homeRepositoryOverride = null;
+  });
+
   Future<void> pumpToLogin(WidgetTester tester) async {
     final authCubit = await _createTestAuthCubit();
     await tester.pumpWidget(SamsApp(authCubit: authCubit));
@@ -86,7 +217,14 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Splash shows branding then auto-navigates to Login in ~3s', (
+  Future<void> pumpToHome(WidgetTester tester) async {
+    final authCubit = await _createAuthedTestAuthCubit();
+    await tester.pumpWidget(SamsApp(authCubit: authCubit));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('Splash shows branding then navigates to OTP login', (
     WidgetTester tester,
   ) async {
     final authCubit = await _createTestAuthCubit();
@@ -98,27 +236,22 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
 
-    expect(find.text('Sign-in with QR code'), findsOneWidget);
-    expect(find.text('Login manually'), findsOneWidget);
+    expect(find.text('Send OTP'), findsOneWidget);
+    expect(find.text('University email'), findsOneWidget);
   });
 
   testWidgets('Login can navigate to Sign Up', (WidgetTester tester) async {
     await pumpToLogin(tester);
 
-    await tester.tap(find.text('New here? Create an account'));
+    await tester.tap(find.text('Create a new account'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Welcome.'), findsOneWidget);
-    expect(find.text('Sign up'), findsOneWidget);
+    expect(find.text('Create account'), findsOneWidget);
+    expect(find.text('Send verification code'), findsOneWidget);
   });
 
-  testWidgets('Dummy login goes to MainShell Home as initial tab', (
-    WidgetTester tester,
-  ) async {
-    await pumpToLogin(tester);
-
-    await tester.tap(find.text('Sign-in with QR code'));
-    await tester.pumpAndSettle();
+  testWidgets('Authed user lands on MainShell Home', (WidgetTester tester) async {
+    await pumpToHome(tester);
 
     expect(find.text('Daily Essentials'), findsOneWidget);
     expect(find.text('Announcements'), findsWidgets);
@@ -128,9 +261,7 @@ void main() {
   testWidgets('Bottom navigation switches across all tabs smoothly', (
     WidgetTester tester,
   ) async {
-    await pumpToLogin(tester);
-    await tester.tap(find.text('Sign-in with QR code'));
-    await tester.pumpAndSettle();
+    await pumpToHome(tester);
 
     await tester.tap(find.text('Messages'));
     await tester.pumpAndSettle();
@@ -138,7 +269,7 @@ void main() {
 
     await tester.tap(find.text('Scan'));
     await tester.pumpAndSettle();
-    expect(find.text('Scan QR Code'), findsOneWidget);
+    expect(find.text('Mark attendance'), findsOneWidget);
 
     await tester.tap(find.text('Help Desk'));
     await tester.pumpAndSettle();
@@ -149,7 +280,7 @@ void main() {
 
     await tester.tap(find.text('Menu'));
     await tester.pumpAndSettle();
-    expect(find.text('Mahmoud Bakir'), findsOneWidget);
+    expect(find.text('SAMS Student Portal'), findsWidgets);
 
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
@@ -159,9 +290,7 @@ void main() {
   testWidgets('Help Desk can push Raise Concern form and return', (
     WidgetTester tester,
   ) async {
-    await pumpToLogin(tester);
-    await tester.tap(find.text('Sign-in with QR code'));
-    await tester.pumpAndSettle();
+    await pumpToHome(tester);
 
     await tester.tap(find.text('Help Desk'));
     await tester.pumpAndSettle();
@@ -187,14 +316,19 @@ void main() {
   testWidgets('Home Schedule card opens Calendar screen', (
     WidgetTester tester,
   ) async {
-    await pumpToLogin(tester);
-    await tester.tap(find.text('Sign-in with QR code'));
+    await pumpToHome(tester);
+
+    await tester.tap(find.text('Home').last);
     await tester.pumpAndSettle();
 
-    final scheduleCard = find.text('Schedule').first;
-    expect(scheduleCard, findsOneWidget);
-
-    await tester.tap(scheduleCard);
+    final scheduleFinder = find.text('Schedule').first;
+    await tester.dragUntilVisible(
+      scheduleFinder,
+      find.byType(Scrollable).first,
+      const Offset(0, -120),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(scheduleFinder);
     await tester.pumpAndSettle();
 
     expect(find.text('Calendar'), findsWidgets);
@@ -207,9 +341,7 @@ void main() {
   testWidgets('Profile Settings route opens Settings screen', (
     WidgetTester tester,
   ) async {
-    await pumpToLogin(tester);
-    await tester.tap(find.text('Sign-in with QR code'));
-    await tester.pumpAndSettle();
+    await pumpToHome(tester);
 
     await tester.tap(find.text('Menu'));
     await tester.pumpAndSettle();
@@ -227,9 +359,7 @@ void main() {
   testWidgets('Hostel detail routes open all detail screens', (
     WidgetTester tester,
   ) async {
-    await pumpToLogin(tester);
-    await tester.tap(find.text('Sign-in with QR code'));
-    await tester.pumpAndSettle();
+    await pumpToHome(tester);
 
     await tester.tap(find.text('Menu'));
     await tester.pumpAndSettle();
@@ -287,9 +417,7 @@ void main() {
   testWidgets(
     'Profile internal navigations to Bus and Hostel work without errors',
     (WidgetTester tester) async {
-      await pumpToLogin(tester);
-      await tester.tap(find.text('Sign-in with QR code'));
-      await tester.pumpAndSettle();
+      await pumpToHome(tester);
 
       await tester.tap(find.text('Menu'));
       await tester.pumpAndSettle();
@@ -326,9 +454,7 @@ void main() {
   testWidgets('Settings dark mode applies app theme immediately', (
     WidgetTester tester,
   ) async {
-    await pumpToLogin(tester);
-    await tester.tap(find.text('Sign-in with QR code'));
-    await tester.pumpAndSettle();
+    await pumpToHome(tester);
 
     await tester.tap(find.text('Menu'));
     await tester.pumpAndSettle();
@@ -350,9 +476,7 @@ void main() {
   testWidgets('Settings language change applies locale immediately', (
     WidgetTester tester,
   ) async {
-    await pumpToLogin(tester);
-    await tester.tap(find.text('Sign-in with QR code'));
-    await tester.pumpAndSettle();
+    await pumpToHome(tester);
 
     await tester.tap(find.text('Menu'));
     await tester.pumpAndSettle();
@@ -375,9 +499,7 @@ void main() {
   testWidgets('Announcements tab is read-only without create action', (
     WidgetTester tester,
   ) async {
-    await pumpToLogin(tester);
-    await tester.tap(find.text('Sign-in with QR code'));
-    await tester.pumpAndSettle();
+    await pumpToHome(tester);
 
     await tester.tap(find.text('Announcements').last);
     await tester.pumpAndSettle();

@@ -1,4 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import 'core/bootstrap/url_strategy_stub.dart'
+    if (dart.library.html) 'core/bootstrap/url_strategy_web.dart' as url_strategy;
 import 'core/services/env_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,14 +17,17 @@ import 'shared/bloc/student_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    url_strategy.configureWebUrlStrategy();
+  }
   await loadEnvSafe(); // Loads .env safely for all platforms
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  } catch (e, stack) {
+  } catch (e) {
     runApp(MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Text('Failed to initialize Firebase: \n\$e'),
+          child: Text('Failed to initialize Firebase: $e'),
         ),
       ),
     ));

@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
@@ -98,7 +100,7 @@ class AppRoutePaths {
 
 class AppRouter {
   static GoRouter createRouter(AuthCubit authCubit) => GoRouter(
-    initialLocation: AppRoutePaths.splash,
+    initialLocation: kIsWeb ? AppRoutePaths.login : AppRoutePaths.splash,
     refreshListenable: _AuthCubitRefreshListenable(authCubit),
     redirect: (context, state) {
       final location = state.matchedLocation;
@@ -110,19 +112,35 @@ class AppRouter {
 
       final currentState = authCubit.state;
       if (currentState is AuthLoading) {
-        return isSplash ? null : AppRoutePaths.splash;
+        // Avoid an indefinite splash if auth is mid-flight (web router timing).
+        if (isSplash) {
+          return AppRoutePaths.login;
+        }
+        final isAuthFlow = isLogin || isSignup || isVerifyOtp;
+        if (isAuthFlow) {
+          return null;
+        }
+        return AppRoutePaths.splash;
       }
 
       if (currentState is AuthSignedOut || currentState is AuthInitial) {
-        return isLogin || isSignup || isSplash ? null : AppRoutePaths.login;
+        if (isSplash) {
+          return AppRoutePaths.login;
+        }
+        return isLogin || isSignup ? null : AppRoutePaths.login;
       }
 
       if (currentState is AuthOtpRequired) {
         return isVerifyOtp ? null : AppRoutePaths.verifyOtp;
       }
 
-      if (currentState is AuthError && currentState.isOtpRelated) {
-        return isVerifyOtp ? null : AppRoutePaths.verifyOtp;
+      if (currentState is AuthError) {
+        if (currentState.isOtpRelated) {
+          return isVerifyOtp ? null : AppRoutePaths.verifyOtp;
+        }
+        if (isSplash) {
+          return AppRoutePaths.login;
+        }
       }
 
       if (currentState is AuthAuthenticated) {
@@ -405,6 +423,8 @@ class AppRouter {
 class _AuthCubitRefreshListenable extends ChangeNotifier {
   _AuthCubitRefreshListenable(AuthCubit authCubit) {
     _subscription = authCubit.stream.listen((_) => notifyListeners());
+    // Re-run redirect after first frame (covers state set before this listener attached).
+    SchedulerBinding.instance.addPostFrameCallback((_) => notifyListeners());
   }
 
   late final StreamSubscription<dynamic> _subscription;

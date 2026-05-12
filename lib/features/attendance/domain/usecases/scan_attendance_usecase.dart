@@ -7,8 +7,8 @@ class ScanAttendanceUseCase {
 
   final AttendanceRepository _repository;
 
-  /// Accepts a raw QR payload, tries to extract `sessionId`, then records attendance.
-  Future<void> execute(String qrPayload) async {
+  /// Accepts a raw QR payload, tries to extract `sessionId`, then records attendance for [courseSubject].
+  Future<void> execute(String qrPayload, {required String courseSubject}) async {
     String sessionId = qrPayload;
     try {
       final decoded = jsonDecode(qrPayload);
@@ -23,6 +23,9 @@ class ScanAttendanceUseCase {
       throw ArgumentError('Invalid QR payload');
     }
 
-    await _repository.recordAttendance(sessionId: sessionId);
+    await _repository.recordAttendance(
+      sessionId: sessionId,
+      courseSubject: courseSubject,
+    );
   }
 }

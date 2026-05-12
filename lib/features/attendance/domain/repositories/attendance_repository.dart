@@ -14,8 +14,11 @@ abstract class AttendanceRepository {
 
   Stream<List<AttendanceSessionEntity>> watchActiveSessions();
 
-  /// Record attendance for the currently signed-in user for [sessionId].
-  Future<void> recordAttendance({required String sessionId});
+  /// Record attendance for the signed-in user. [courseSubject] is the course the student selected before scanning.
+  Future<void> recordAttendance({
+    required String sessionId,
+    required String courseSubject,
+  });
 
   /// Stream real-time attendance overview for the currently signed-in user.
   Stream<AttendanceOverviewEntity> watchAttendanceOverview();

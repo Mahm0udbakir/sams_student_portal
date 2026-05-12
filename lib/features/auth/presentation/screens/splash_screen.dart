@@ -1,5 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+
+import '../../../../core/routes/app_router.dart';
+import '../cubit/auth_cubit.dart';
+import '../cubit/auth_state.dart';
 import '../../../../shared/ui/sams_lottie_assets.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
 
@@ -12,6 +20,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   bool _animateIn = false;
+  Timer? _navigationFailsafe;
 
   @override
   void initState() {
@@ -23,10 +32,38 @@ class _SplashScreenState extends State<SplashScreen> {
       setState(() => _animateIn = true);
     });
 
+    // If routing/auth refresh misses an edge case, never leave the user on splash indefinitely.
+    _navigationFailsafe = Timer(const Duration(seconds: 7), _leaveSplashIfStillHere);
+  }
+
+  void _leaveSplashIfStillHere() {
+    if (!mounted) return;
+    if (GoRouterState.of(context).matchedLocation != AppRoutePaths.splash) {
+      return;
+    }
+
+    final auth = context.read<AuthCubit>();
+    final s = auth.state;
+    if (s is AuthAuthenticated) {
+      context.go(AppRoutePaths.home);
+      return;
+    }
+    if (s is AuthOtpRequired) {
+      context.go(AppRoutePaths.verifyOtp);
+      return;
+    }
+    if (s is AuthSignedOut || s is AuthInitial || s is AuthLoading) {
+      context.go(AppRoutePaths.login);
+      return;
+    }
+    if (s is AuthError) {
+      context.go(s.isOtpRelated ? AppRoutePaths.verifyOtp : AppRoutePaths.login);
+    }
   }
 
   @override
   void dispose() {
+    _navigationFailsafe?.cancel();
     super.dispose();
   }
 
