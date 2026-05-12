@@ -122,10 +122,23 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
         .whereType<String>()
         .toSet();
 
-    final Map<String, int> attendedBySubject = {};
-    for (final sid in attendedSessionIds) {
+
+    // Map subject -> List<DateTime> of scan dates
+    final Map<String, List<DateTime>> scanDatesBySubject = {};
+    for (final doc in recordsSnap.docs) {
+      final sid = doc.data()['sessionId'] as String?;
+      if (sid == null) continue;
       final subject = sessionSubjects[sid] ?? 'General';
-      attendedBySubject[subject] = (attendedBySubject[subject] ?? 0) + 1;
+      final timestamp = doc.data()['timestamp'];
+      DateTime? scanDate;
+      if (timestamp is Timestamp) {
+        scanDate = timestamp.toDate();
+      } else if (timestamp is DateTime) {
+        scanDate = timestamp;
+      }
+      if (scanDate != null) {
+        scanDatesBySubject.putIfAbsent(subject, () => []).add(scanDate);
+      }
     }
 
     final subjects = <AttendanceSubjectModel>[];
@@ -133,7 +146,14 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
       final total = entry.value;
       final attended = attendedBySubject[entry.key] ?? 0;
       final percentage = total == 0 ? 0 : ((attended / total) * 100).round();
-      subjects.add(AttendanceSubjectModel(subject: entry.key, percentage: percentage));
+      // We'll extend AttendanceSubjectModel later to include attendedCount and scanDates
+      subjects.add(AttendanceSubjectModel(
+        subject: entry.key,
+        percentage: percentage,
+        // Custom fields for UI: attendedCount and scanDates
+        attendedCount: attended,
+        scanDates: scanDatesBySubject[entry.key] ?? [],
+      ));
     }
 
     final attendedTotal = attendedSessionIds.length;

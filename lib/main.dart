@@ -1,5 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/services/env_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -14,16 +14,27 @@ import 'shared/bloc/student_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await loadEnvSafe(); // Loads .env safely for all platforms
   try {
-    await dotenv.load(fileName: '.env');
-  } catch (_) {
-    // Local development can run without a committed .env file.
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (e, stack) {
+    runApp(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text('Failed to initialize Firebase: \n\$e'),
+        ),
+      ),
+    ));
+    return;
   }
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final authRepository = FirebaseAuthRepository();
   final authCubit = AuthCubit(repository: authRepository);
-  await authCubit.bootstrap();
+  try {
+    await authCubit.bootstrap();
+  } catch (e) {
+    // Optionally show error UI or log
+  }
 
   runApp(SamsApp(authCubit: authCubit));
 }

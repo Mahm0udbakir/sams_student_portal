@@ -19,13 +19,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
 
   @override
   void dispose() {
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -33,10 +30,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
-
-    context.read<AuthCubit>().login(
+    context.read<AuthCubit>().sendLoginOtp(
       email: _emailController.text.trim(),
-      password: _passwordController.text,
     );
   }
 
@@ -118,6 +113,40 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(labelText: 'University Email'),
+                            validator: (value) {
+                              if ((value ?? '').trim().isEmpty) {
+                                return 'Enter your university email';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 18),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: isLoading ? null : _submit,
+                              child: isLoading
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('Send OTP'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                       key: _formKey,
                       child: SingleChildScrollView(
                         child: Column(

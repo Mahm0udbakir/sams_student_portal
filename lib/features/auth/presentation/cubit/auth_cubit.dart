@@ -44,35 +44,53 @@ class AuthCubit extends Cubit<AuthState> {
     required String name,
     required String email,
     required String password,
-    String? studentId,
-    String? department,
   }) async {
     emit(const AuthLoading(message: 'Creating your account...'));
-
     final result = await _signupUseCase(
       SignupParams(
         name: name,
         email: email,
         password: password,
-        studentId: studentId,
-        department: department,
       ),
     );
-
-    _emitResult(result, purpose: 'signup');
+    if (result is AuthSuccess<AuthUser>) {
+      // Auto-login after signup
+      emit(AuthAuthenticated(user: result.data));
+    } else {
+      _emitResult(result, purpose: 'signup');
+    }
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
-    emit(const AuthLoading(message: 'Signing you in...'));
 
-    final result = await _loginUseCase(
-      LoginParams(email: email, password: password),
+  Future<void> sendLoginOtp({required String email}) async {
+    emit(const AuthLoading(message: 'Sending OTP...'));
+    final result = await _repository.sendOtp(
+      email: email.trim(),
+      name: '',
+      purpose: 'login',
     );
-
-    _emitResult(result, purpose: 'login');
+    if (result is AuthOtpChallenge<void>) {
+      _pendingVerificationId = result.verificationId;
+      _pendingEmail = result.email;
+      _pendingName = result.name;
+      _pendingPurpose = 'login';
+      emit(AuthOtpRequired(
+        verificationId: result.verificationId,
+        email: result.email,
+        name: result.name,
+        expiresAt: result.expiresAt,
+        attemptsRemaining: result.attemptsRemaining,
+        purpose: 'login',
+      ));
+    } else if (result is AuthFailure<void>) {
+      emit(AuthError(
+        type: result.type,
+        message: result.message,
+        email: email,
+        verificationId: _pendingVerificationId,
+        purpose: 'login',
+      ));
+    }
   }
 
   Future<void> verifyOtp(String otp) async {

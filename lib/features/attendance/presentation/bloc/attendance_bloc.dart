@@ -46,6 +46,8 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
                 subject: subject.subject,
                 percentage: subject.percentage,
                 band: AttendanceBand.fromPercentage(subject.percentage),
+                attendedCount: subject.attendedCount,
+                scanDates: subject.scanDates,
               ),
             )
             .toList(growable: false);

@@ -72,6 +72,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         busRouteLabel: dashboard.busRouteLabel,
         busStatusLabel: dashboard.busStatusLabel,
         announcements: dashboard.announcements,
+        courseAttendance: dashboard.courseAttendance,
         clearError: true,
       ),
     );

@@ -13,12 +13,18 @@ class LoginForm extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
-            decoration: InputDecoration(labelText: context.tr('Email')),
+            keyboardType: TextInputType.emailAddress,
+            decoration: InputDecoration(labelText: context.tr('University Email')),
           ),
-          const SizedBox(height: 12),
-          TextField(
-            obscureText: true,
-            decoration: InputDecoration(labelText: context.tr('Password')),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                // TODO: Implement send OTP and navigate to OTP screen
+              },
+              child: const Text('Send OTP'),
+            ),
           ),
         ],
       ),

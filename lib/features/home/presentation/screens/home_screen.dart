@@ -129,17 +129,55 @@ class HomeScreen extends StatelessWidget {
                               value: attendanceValue,
                             ),
                             leadingIcon: Icons.fact_check_rounded,
-                            child: _AttendanceMetaSection(
-                              label: state.attendedClassesLabel!,
-                              onMarkToday: () {
-                                ModernSnackbars.show(
-                                  context,
-                                  message:
-                                      'Today\'s attendance marked successfully.',
-                                  type: ModernSnackbarType.success,
-                                );
-                              },
-                            ),
+                            child: state.courseAttendance.isEmpty
+                                ? Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    child: SamsLocaleText(
+                                      'No attendance records yet',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.92),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14.2,
+                                      ),
+                                    ),
+                                  )
+                                : Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ...state.courseAttendance.map((course) => Padding(
+                                            padding: const EdgeInsets.only(bottom: 6),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: SamsLocaleText(
+                                                    course['subject'] ?? '-',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.w700,
+                                                      fontSize: 14.2,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white.withOpacity(0.13),
+                                                    borderRadius: BorderRadius.circular(12),
+                                                  ),
+                                                  child: SamsLocaleText(
+                                                    '${course['percentage'] ?? '--'}%',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.w800,
+                                                      fontSize: 13.2,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )),
+                                    ],
+                                  ),
                             onTap: () {
                               context.pushNamed(AppRouteNames.attendanceDetail);
                             },

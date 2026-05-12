@@ -12,6 +12,7 @@ class HomeDashboardEntity extends Equatable {
     required this.busRouteLabel,
     required this.busStatusLabel,
     required this.announcements,
+    required this.courseAttendance,
   });
 
   final String studentName;
@@ -22,6 +23,7 @@ class HomeDashboardEntity extends Equatable {
   final String busRouteLabel;
   final String busStatusLabel;
   final List<HomeAnnouncementEntity> announcements;
+  final List<Map<String, dynamic>> courseAttendance; // [{subject: ..., percentage: ...}]
 
   @override
   List<Object?> get props => [
@@ -33,5 +35,6 @@ class HomeDashboardEntity extends Equatable {
     busRouteLabel,
     busStatusLabel,
     announcements,
+    courseAttendance,
   ];
 }

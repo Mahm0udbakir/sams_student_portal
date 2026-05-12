@@ -2,6 +2,7 @@ part of 'home_bloc.dart';
 
 enum HomeStatus { initial, loading, success, failure }
 
+
 class HomeState extends Equatable {
   const HomeState({
     this.status = HomeStatus.initial,
@@ -14,6 +15,7 @@ class HomeState extends Equatable {
     this.busRouteLabel,
     this.busStatusLabel,
     this.announcements = const <HomeAnnouncementEntity>[],
+    this.courseAttendance = const <Map<String, dynamic>>[],
     this.errorMessage,
   });
 
@@ -28,6 +30,7 @@ class HomeState extends Equatable {
   final String? busStatusLabel;
   final List<HomeAnnouncementEntity> announcements;
   final String? errorMessage;
+  final List<Map<String, dynamic>> courseAttendance;
 
   bool get hasCoreData {
     return studentName != null &&
@@ -50,6 +53,7 @@ class HomeState extends Equatable {
     String? busRouteLabel,
     String? busStatusLabel,
     List<HomeAnnouncementEntity>? announcements,
+    List<Map<String, dynamic>>? courseAttendance,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -64,7 +68,8 @@ class HomeState extends Equatable {
       busRouteLabel: busRouteLabel ?? this.busRouteLabel,
       busStatusLabel: busStatusLabel ?? this.busStatusLabel,
       announcements: announcements ?? this.announcements,
-      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      courseAttendance: courseAttendance ?? this.courseAttendance,
+      errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
   }
 

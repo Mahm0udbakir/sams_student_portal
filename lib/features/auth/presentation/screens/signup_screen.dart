@@ -19,21 +19,18 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _studentIdController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
-    _studentIdController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -41,12 +38,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
-
+    final fullName = '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}';
     context.read<AuthCubit>().signUp(
-      name: _nameController.text.trim(),
+      name: fullName,
       email: _emailController.text.trim(),
       password: _passwordController.text,
-      studentId: _studentIdController.text.trim(),
     );
   }
 
@@ -180,7 +176,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             const SizedBox(height: 4),
                             const Text(
-                              'Use your name, university email, and password.',
+                              'Use your university email and password.',
                               style: TextStyle(
                                 color: SamsUiTokens.textSecondary,
                                 fontSize: 13,
@@ -189,46 +185,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             const SizedBox(height: 18),
                             TextFormField(
-                              controller: _nameController,
+                              controller: _firstNameController,
                               decoration: InputDecoration(
-                                labelText: 'Full name',
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    SamsUiTokens.radiusMd,
-                                  ),
-                                ),
-                              ),
-                              validator: (value) {
-                                if ((value ?? '').trim().length < 3) {
-                                  return 'Enter your full name';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _emailController,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                labelText: 'University email',
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    SamsUiTokens.radiusMd,
-                                  ),
-                                ),
-                              ),
-                              validator: _validateUniversityEmail,
-                            ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _studentIdController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Student ID',
+                                labelText: 'First Name',
                                 filled: true,
                                 fillColor: Colors.white,
                                 border: OutlineInputBorder(
@@ -239,10 +198,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                               validator: (value) {
                                 if ((value ?? '').trim().isEmpty) {
-                                  return 'Enter your student ID';
+                                  return 'Enter your first name';
                                 }
                                 return null;
                               },
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _lastNameController,
+                              decoration: InputDecoration(
+                                labelText: 'Last Name',
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    SamsUiTokens.radiusMd,
+                                  ),
+                                ),
+                              ),
+                              validator: (value) {
+                                if ((value ?? '').trim().isEmpty) {
+                                  return 'Enter your last name';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: InputDecoration(
+                                labelText: 'University Email',
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    SamsUiTokens.radiusMd,
+                                  ),
+                                ),
+                              ),
+                              validator: _validateUniversityEmail,
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
@@ -271,38 +266,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               validator: (value) {
                                 if ((value ?? '').length < 6) {
                                   return 'Password must be at least 6 characters';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _confirmPasswordController,
-                              obscureText: _obscureConfirmPassword,
-                              decoration: InputDecoration(
-                                labelText: 'Confirm password',
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    SamsUiTokens.radiusMd,
-                                  ),
-                                ),
-                                suffixIcon: IconButton(
-                                  onPressed: () => setState(
-                                    () => _obscureConfirmPassword =
-                                        !_obscureConfirmPassword,
-                                  ),
-                                  icon: Icon(
-                                    _obscureConfirmPassword
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                  ),
-                                ),
-                              ),
-                              validator: (value) {
-                                if (value != _passwordController.text) {
-                                  return 'Passwords do not match';
                                 }
                                 return null;
                               },

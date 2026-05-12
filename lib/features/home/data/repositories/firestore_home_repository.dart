@@ -45,6 +45,15 @@ class FirestoreHomeRepository implements HomeRepository {
         ? 'No attendance records yet'
         : '${overview.subjects.length} tracked subjects • $attendancePercent% overall';
 
+    // Prepare up to 4 course attendance records
+    final courseAttendance = overview.subjects
+        .take(4)
+        .map((s) => {
+              'subject': s.subject,
+              'percentage': s.percentage,
+            })
+        .toList(growable: false);
+
     return HomeDashboardModel(
       studentName: currentUser?.fullName ?? 'Student',
       studentId: currentUser?.studentId ?? '',
@@ -54,6 +63,7 @@ class FirestoreHomeRepository implements HomeRepository {
       busRouteLabel: 'SAMS Shuttle 03 • Maadi → Ramses',
       busStatusLabel: 'Status: Arriving at Gate 2 (Maadi Campus)',
       announcements: announcements,
+      courseAttendance: courseAttendance,
     );
   }
 

@@ -9,101 +9,178 @@ import '../bloc/attendance_bloc.dart';
 import 'attendance_scanner_screen.dart';
 import '../../../../core/services/camera_permission_service.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
-import '../../../../shared/ui/sams_ui_tokens.dart';
-import '../../../../shared/widgets/sams_app_bar.dart';
-import '../../../../shared/widgets/modern_snackbar.dart';
-import '../../../../shared/widgets/sams_pressable.dart';
-import '../../../../shared/widgets/shimmer_widget.dart';
-import '../../../../shared/widgets/sams_state_views.dart';
-
-class AttendanceDetailScreen extends StatelessWidget {
-  const AttendanceDetailScreen({super.key});
-
-  Future<void> _refreshAttendance(BuildContext context) async {
-    final bloc = context.read<AttendanceBloc>();
-    bloc.add(const AttendanceRequested());
-    try {
-      await bloc.stream
-          .firstWhere((state) => state.status != AttendanceStatus.loading)
-          .timeout(const Duration(seconds: 6));
-    } catch (_) {}
-    await Future<void>.delayed(const Duration(milliseconds: 180));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          AttendanceBloc(repository: FirestoreAttendanceRepository())
-            ..add(const AttendanceRequested()),
-      child: BlocListener<AttendanceBloc, AttendanceState>(
-        listenWhen: (previous, current) =>
-            previous.feedbackMessage != current.feedbackMessage &&
-            current.feedbackMessage != null,
-        listener: (context, state) {
-          final message = state.feedbackMessage;
-          if (message == null || message.isEmpty) {
-            return;
-          }
-
-          ModernSnackbars.show(
-            context,
-            message: message,
-            type: ModernSnackbarType.info,
-          );
-          context.read<AttendanceBloc>().add(const AttendanceFeedbackCleared());
-        },
-        child: BlocBuilder<AttendanceBloc, AttendanceState>(
-          buildWhen: (previous, current) {
-            return previous.status != current.status ||
-                previous.overallPercent != current.overallPercent ||
-                previous.classes != current.classes ||
-                previous.actionStatus != current.actionStatus ||
-                previous.actionSubject != current.actionSubject ||
-                previous.errorMessage != current.errorMessage;
-          },
-          builder: (context, state) {
-            if (state.status == AttendanceStatus.loading ||
-                state.status == AttendanceStatus.initial) {
-              return const _AttendanceLoadingSkeleton();
-            }
-
-            if (state.status == AttendanceStatus.failure) {
-              return Scaffold(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                appBar: const SamsAppBar(title: 'Attendance'),
-                body: SamsErrorState(
-                  title: 'Couldn\'t load attendance',
-                  message:
-                      state.errorMessage ??
-                      'Failed to load attendance. Please try again.',
-                  retryLabel: 'Retry',
-                  onRetry: () => context.read<AttendanceBloc>().add(
-                    const AttendanceRequested(),
-                  ),
-                ),
-              );
-            }
-
-            if (state.classes.isEmpty) {
-              return Scaffold(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                appBar: const SamsAppBar(title: 'Attendance'),
-                body: SafeArea(
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics(),
-                    ),
-                    padding: SamsUiTokens.pageInsets(
-                      context,
-                      top: 18,
-                      bottom: 20,
-                    ),
-                    children: const [
-                      EmptyStateWidget(
-                        icon: Icons.fact_check_rounded,
-                        title: 'No attendance data yet',
-                        subtitle:
+                                      // --- Start new layout ---
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 5,
+                                            height: 38,
+                                            decoration: BoxDecoration(
+                                              color: visual.accent,
+                                              borderRadius: BorderRadius.circular(999),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: SamsLocaleText(
+                                              item.subject,
+                                              style: const TextStyle(
+                                                color: SamsUiTokens.textPrimary,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: visual.accent.withValues(alpha: 0.14),
+                                              borderRadius: BorderRadius.circular(999),
+                                              border: Border.all(
+                                                color: visual.accent.withValues(alpha: 0.32),
+                                              ),
+                                            ),
+                                            child: SamsLocaleText(
+                                              '${item.percentage}%',
+                                              style: TextStyle(
+                                                color: visual.accent,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.qr_code_2_rounded, size: 16, color: visual.accent),
+                                          const SizedBox(width: 6),
+                                          SamsLocaleText(
+                                            'Attended: ${item.attendedCount}',
+                                            style: TextStyle(
+                                              color: visual.accent,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12.5,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      if (item.scanDates.isNotEmpty) ...[
+                                        const SizedBox(height: 6),
+                                        SamsLocaleText(
+                                          'Scan History:',
+                                          style: TextStyle(
+                                            color: SamsUiTokens.textSecondary,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        SizedBox(
+                                          height: 28,
+                                          child: ListView.separated(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: item.scanDates.length,
+                                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                                            itemBuilder: (context, idx) {
+                                              final date = item.scanDates[idx];
+                                              return Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: visual.accent.withValues(alpha: 0.10),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: SamsLocaleText(
+                                                  '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}',
+                                                  style: TextStyle(
+                                                    color: visual.accent,
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 11.5,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                      const SizedBox(height: 6),
+                                      SamsLocaleText(
+                                        _bandLabel(item.percentage),
+                                        style: TextStyle(
+                                          color: visual.accent,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      if (isActionClass) ...[
+                                        const SizedBox(height: 8),
+                                        SizedBox(
+                                          height: 38,
+                                          child: SamsTapScale(
+                                            enabled: !isMarking,
+                                            child: OutlinedButton(
+                                              onPressed: isMarking
+                                                  ? null
+                                                  : () async {
+                                                      final permissionGranted = await CameraPermissionService().ensureCameraPermission();
+                                                      if (!permissionGranted) {
+                                                        if (context.mounted) {
+                                                          ModernSnackbars.show(
+                                                            context,
+                                                            message: 'Camera permission is required to scan attendance QR codes.',
+                                                            type: ModernSnackbarType.info,
+                                                          );
+                                                        }
+                                                        return;
+                                                      }
+                                                      final scanned = await Navigator.of(context).push<String?>(
+                                                        MaterialPageRoute(
+                                                          builder: (_) => const AttendanceScannerScreen(),
+                                                        ),
+                                                      );
+                                                      if (scanned != null && scanned.isNotEmpty) {
+                                                        String sessionId = scanned;
+                                                        try {
+                                                          final decoded = jsonDecode(scanned);
+                                                          if (decoded is Map && decoded['sessionId'] is String) {
+                                                            sessionId = decoded['sessionId'] as String;
+                                                          }
+                                                        } catch (_) {}
+                                                        context.read<AttendanceBloc>().add(
+                                                          AttendanceRecordRequested(sessionId: sessionId),
+                                                        );
+                                                      }
+                                                    },
+                                              style: OutlinedButton.styleFrom(
+                                                side: BorderSide(
+                                                  color: visual.accent.withValues(alpha: 0.75),
+                                                ),
+                                                foregroundColor: visual.accent,
+                                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                                textStyle: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                              child: isMarking
+                                                  ? SizedBox(
+                                                      height: 14,
+                                                      width: 14,
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        valueColor: AlwaysStoppedAnimation<Color>(visual.accent),
+                                                      ),
+                                                    )
+                                                  : const SamsLocaleText('Scan QR Code'),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                      // --- End new layout ---
                             'Once an admin creates the first attendance session, the live overview and QR actions will appear here.',
                       ),
                     ],
@@ -495,189 +572,10 @@ class _OverallAttendanceCard extends StatelessWidget {
     final visual = _visualForPercentage(percentage);
 
     return SamsPressable(
-      borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-          boxShadow: SamsUiTokens.cardShadow,
-          border: Border.all(color: visual.accent.withValues(alpha: 0.26)),
-        ),
-        child: compact
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SamsLocaleText(
-                    'Overall Attendance',
-                    style: TextStyle(
-                      color: SamsUiTokens.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SamsLocaleText(
-                              '$percentage%',
-                              style: TextStyle(
-                                color: visual.accent,
-                                fontSize: 34,
-                                height: 1,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            SamsLocaleText(
-                              _bandLabel(percentage),
-                              style: TextStyle(
-                                color: visual.accent,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12.5,
-                              ),
-                            ),
-                          ],
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: buildAttendanceCourseChildren(item, visual, isActionClass, isMarking, context),
                       ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        width: 68,
-                        height: 68,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            CircularProgressIndicator(
-                              value: percentage / 100,
-                              strokeWidth: 8,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                visual.accent,
-                              ),
-                              backgroundColor: visual.background,
-                            ),
-                            Center(
-                              child: Icon(
-                                Icons.fact_check_rounded,
-                                color: visual.accent,
-                                size: 22,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              )
-            : Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SamsLocaleText(
-                          'Overall Attendance',
-                          style: TextStyle(
-                            color: SamsUiTokens.textSecondary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-                        SamsLocaleText(
-                          '$percentage%',
-                          style: TextStyle(
-                            color: visual.accent,
-                            fontSize: 38,
-                            height: 1,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        SamsLocaleText(
-                          _bandLabel(percentage),
-                          style: TextStyle(
-                            color: visual.accent,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 12.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 74,
-                    height: 74,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        CircularProgressIndicator(
-                          value: percentage / 100,
-                          strokeWidth: 8,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            visual.accent,
-                          ),
-                          backgroundColor: visual.background,
-                        ),
-                        Center(
-                          child: Icon(
-                            Icons.fact_check_rounded,
-                            color: visual.accent,
-                            size: 24,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-}
-
-class _AttendanceLegend extends StatelessWidget {
-  const _AttendanceLegend();
-
-  @override
-  Widget build(BuildContext context) {
-    return SamsPressable(
-      borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-          boxShadow: SamsUiTokens.cardShadow,
-          border: Border.all(color: SamsUiTokens.divider),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            SamsLocaleText(
-              'Attendance Color Guide',
-              style: TextStyle(
-                color: SamsUiTokens.textPrimary,
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
-              ),
-            ),
-            SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _LegendChip(label: '≥ 80%', color: Color(0xFF0E8F54)),
-                _LegendChip(label: '60% – 79%', color: Color(0xFFB7791F)),
-                _LegendChip(label: '< 60%', color: Color(0xFFC0352B)),
-              ],
-            ),
-          ],
         ),
       ),
     );
@@ -686,6 +584,7 @@ class _AttendanceLegend extends StatelessWidget {
 
 class _LegendChip extends StatelessWidget {
   const _LegendChip({required this.label, required this.color});
+import './_attendance_course_helpers.dart';
 
   final String label;
   final Color color;
@@ -738,25 +637,32 @@ class _AttendanceLoadingSkeleton extends StatelessWidget {
             message: 'Preparing overall and class-wise attendance for you...',
           ),
           const SizedBox(height: 8),
-          const ShimmerWidget(
-            height: 84,
-            borderRadius: BorderRadius.all(Radius.circular(18)),
-          ),
-          const SizedBox(height: 14),
-          const ShimmerWidget.line(width: 170, height: 16),
-          const SizedBox(height: 10),
-          ...List.generate(
-            4,
-            (index) => Padding(
-              padding: EdgeInsets.only(bottom: index == 3 ? 0 : 10),
-              child: const ShimmerWidget(
-                height: 56,
-                borderRadius: BorderRadius.all(Radius.circular(18)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+                          const SamsLocaleText(
+                            'Class-wise Attendance',
+                            style: TextStyle(
+                              color: SamsUiTokens.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ...state.classes.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final item = entry.value;
+                            final visual = _visualForPercentage(item.percentage);
+                            final isActionClass = index == 0;
+                            final isMarking =
+                                state.actionStatus == AttendanceActionStatus.processing &&
+                                state.actionSubject == item.subject;
+                            return Padding(
+                              key: ValueKey(item.subject),
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: SamsPressable(
+                                borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: buildAttendanceCourseChildren(item, visual, isActionClass, isMarking, context),
+                                ),
+                              ),
+                            );
+                          }),
