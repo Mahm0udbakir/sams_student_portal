@@ -1,31 +1,6 @@
+@Deprecated('Use feature-specific repositories or Firestore-backed services instead.')
 class FakeDataRepository {
   const FakeDataRepository();
-
-  static const String studentName = 'Mahmoud Bakir';
-  static const String studentId = '11360';
-
-  Map<String, dynamic> getProfileOverview() {
-    return const {
-      'name': studentName,
-      'studentId': studentId,
-      'sessionSubtitle':
-          '2025 - 2026 • Bachelor of Management Sciences – Semester 5',
-    };
-  }
-
-  Map<String, dynamic> getHomeDashboard() {
-    return {
-      'studentName': studentName,
-      'studentId': studentId,
-      'attendancePercent': 75,
-      'attendanceSubtitle':
-          'Bachelor of Management Sciences – Semester 5 • Current term',
-      'attendedClassesLabel': '8/11 lectures attended this week',
-      'busRouteLabel': 'SAMS Shuttle 03 • Maadi → Ramses',
-      'busStatusLabel': 'Status: Arriving at Gate 2 (Maadi Campus)',
-      'announcements': getAnnouncements(),
-    };
-  }
 
   List<Map<String, dynamic>> getAnnouncements() {
     return const [
@@ -54,10 +29,6 @@ class FakeDataRepository {
         'badge': 'Campus',
       },
     ];
-  }
-
-  Map<String, dynamic> getAttendanceOverview() {
-    return {'overallPercent': 75, 'subjects': getAttendanceSubjects()};
   }
 
   List<Map<String, dynamic>> getAttendanceSubjects() {

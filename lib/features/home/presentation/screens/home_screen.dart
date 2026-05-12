@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routes/app_router.dart';
-import '../../data/repositories/fake_home_repository.dart';
+import '../../data/repositories/firestore_home_repository.dart';
 import '../bloc/home_bloc.dart';
 import '../../../../shared/widgets/sams_app_bar.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
@@ -21,7 +21,11 @@ class HomeScreen extends StatelessWidget {
     bloc.add(const HomeRequested());
     try {
       await bloc.stream
-          .firstWhere((state) => state.status != HomeStatus.loading)
+          .firstWhere(
+            (state) =>
+                !state.announcementsLoading &&
+                state.status != HomeStatus.loading,
+          )
           .timeout(const Duration(seconds: 6));
     } catch (_) {}
     await Future<void>.delayed(const Duration(milliseconds: 180));
@@ -30,12 +34,11 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          HomeBloc(repository: FakeHomeRepository())
-            ..add(const HomeRequested()),
+      create: (_) => HomeBloc(repository: FirestoreHomeRepository())..add(const HomeRequested()),
       child: BlocBuilder<HomeBloc, HomeState>(
         buildWhen: (previous, current) {
           return previous.status != current.status ||
+              previous.announcementsLoading != current.announcementsLoading ||
               previous.studentName != current.studentName ||
               previous.studentId != current.studentId ||
               previous.overallAttendance != current.overallAttendance ||
@@ -49,8 +52,9 @@ class HomeScreen extends StatelessWidget {
         builder: (context, state) {
           final colorScheme = Theme.of(context).colorScheme;
 
-          if (state.status == HomeStatus.loading ||
-              state.status == HomeStatus.initial) {
+          if ((state.status == HomeStatus.loading ||
+                  state.status == HomeStatus.initial) &&
+              !state.hasCoreData) {
             return const _HomeLoadingSkeleton();
           }
 
@@ -76,7 +80,10 @@ class HomeScreen extends StatelessWidget {
               : SamsUiTokens.pageHPadding;
           final attendancePercent = state.overallAttendance!;
           final attendanceValue = attendancePercent / 100;
-          final announcements = state.announcements;
+          final announcementsLoading = state.announcementsLoading;
+          final announcements = state.announcements
+              .take(5)
+              .toList(growable: false);
 
           return Scaffold(
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -172,19 +179,42 @@ class HomeScreen extends StatelessWidget {
                             },
                           ),
                           const SizedBox(height: 24),
-                          SamsLocaleText(
-                            'Announcements',
-                            style: TextStyle(
-                              color: colorScheme.onSurface,
-                              fontSize: isDesktop ? 21 : 19,
-                              fontWeight: FontWeight.w800,
-                              height: 1.2,
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SamsLocaleText(
+                                  'Announcements',
+                                  style: TextStyle(
+                                    color: colorScheme.onSurface,
+                                    fontSize: isDesktop ? 21 : 19,
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.2,
+                                  ),
+                                ),
+                              ),
+                              TextButton.icon(
+                                onPressed: () {
+                                  context.go(AppRoutePaths.announcements);
+                                },
+                                icon: const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 17,
+                                ),
+                                label: const SamsLocaleText('See More'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: SamsUiTokens.primary,
+                                  textStyle: const TextStyle(
+                                    fontSize: 12.8,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 10),
-                          const _DateSeparator(label: 'Aug 30, Saturday'),
-                          const SizedBox(height: 10),
-                          if (announcements.isEmpty)
+                          if (announcementsLoading)
+                            const _AnnouncementsSectionLoading()
+                          else if (announcements.isEmpty)
                             Padding(
                               padding: EdgeInsets.only(top: 10),
                               child: EmptyStateWidget(
@@ -208,15 +238,10 @@ class HomeScreen extends StatelessWidget {
                                 ),
                                 child: _AnnouncementCard(
                                   title: entry.value.title,
-                                  subtitle: entry.value.subtitle,
-                                  icon: _iconForBadge(entry.value.badge),
-                                  badge: entry.value.badge,
+                                  message: entry.value.subtitle,
+                                  dateLabel: entry.value.badge,
                                   onTap: () {
-                                    ModernSnackbars.show(
-                                      context,
-                                      message: 'Opened: ${entry.value.title}',
-                                      type: ModernSnackbarType.info,
-                                    );
+                                    context.go(AppRoutePaths.announcements);
                                   },
                                 ),
                               ),
@@ -280,18 +305,23 @@ class _HomeLoadingSkeleton extends StatelessWidget {
   }
 }
 
-IconData _iconForBadge(String badge) {
-  switch (badge) {
-    case 'Important':
-      return Icons.campaign_rounded;
-    case 'Financial Aid':
-      return Icons.school_rounded;
-    case 'Academics':
-      return Icons.event_note_rounded;
-    case 'Hostel':
-      return Icons.night_shelter_rounded;
-    default:
-      return Icons.notifications_active_rounded;
+class _AnnouncementsSectionLoading extends StatelessWidget {
+  const _AnnouncementsSectionLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(
+        3,
+        (index) => Padding(
+          padding: EdgeInsets.only(bottom: index == 2 ? 0 : 8),
+          child: const ShimmerWidget(
+            height: 84,
+            borderRadius: BorderRadius.all(Radius.circular(18)),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -398,16 +428,14 @@ class _InfoCard extends StatelessWidget {
 class _AnnouncementCard extends StatelessWidget {
   const _AnnouncementCard({
     required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.badge,
+    required this.message,
+    required this.dateLabel,
     required this.onTap,
   });
 
   final String title;
-  final String subtitle;
-  final IconData icon;
-  final String badge;
+  final String message;
+  final String dateLabel;
   final VoidCallback onTap;
 
   @override
@@ -464,28 +492,29 @@ class _AnnouncementCard extends StatelessWidget {
                       color: colorScheme.onSurface,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: SamsUiTokens.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: SamsLocaleText(
-                      badge,
-                      style: const TextStyle(
-                        color: SamsUiTokens.primary,
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
+                  const SizedBox(height: 3),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.schedule_rounded,
+                        size: 12.5,
+                        color: colorScheme.onSurfaceVariant,
                       ),
-                    ),
+                      const SizedBox(width: 4),
+                      SamsLocaleText(
+                        dateLabel,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 5),
                   SamsLocaleText(
-                    subtitle,
+                    message,
                     style: TextStyle(
                       fontSize: 12,
                       color: colorScheme.onSurfaceVariant,
@@ -495,8 +524,6 @@ class _AnnouncementCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Icon(icon, color: SamsUiTokens.primary, size: 20),
           ],
         ),
       ),
@@ -944,45 +971,6 @@ class _AttendanceMetaSection extends StatelessWidget {
             ),
             icon: const Icon(Icons.check_circle_outline_rounded, size: 15),
             label: const SamsLocaleText('Mark Today\'s Attendance'),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _DateSeparator extends StatelessWidget {
-  const _DateSeparator({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Row(
-      children: [
-        Expanded(
-          child: Divider(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.88),
-            thickness: 1,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: SamsLocaleText(
-            label,
-            style: TextStyle(
-              color: colorScheme.onSurfaceVariant,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Divider(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.88),
-            thickness: 1,
           ),
         ),
       ],

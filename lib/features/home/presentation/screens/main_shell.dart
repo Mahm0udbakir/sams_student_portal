@@ -14,6 +14,7 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   static const Set<String> _rootTabPaths = {
     '/home',
+    '/announcements',
     '/messages',
     '/scan',
     '/help-desk',
@@ -22,6 +23,11 @@ class _MainShellState extends State<MainShell> {
 
   static const _navItems = [
     (label: 'Home', icon: Icons.home_outlined, activeIcon: Icons.home_rounded),
+    (
+      label: 'Announcements',
+      icon: Icons.campaign_outlined,
+      activeIcon: Icons.campaign_rounded,
+    ),
     (
       label: 'Messages',
       icon: Icons.chat_bubble_outline_rounded,

@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/repositories/fake_attendance_repository.dart';
+import '../../data/repositories/firestore_attendance_repository.dart';
+import '../../domain/entities/attendance_session_entity.dart';
 import '../bloc/attendance_bloc.dart';
+import 'attendance_scanner_screen.dart';
+import '../../../../core/services/camera_permission_service.dart';
+import '../../../../shared/widgets/empty_state_widget.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
 import '../../../../shared/widgets/sams_app_bar.dart';
 import '../../../../shared/widgets/modern_snackbar.dart';
@@ -28,7 +34,7 @@ class AttendanceDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-          AttendanceBloc(repository: FakeAttendanceRepository())
+          AttendanceBloc(repository: FirestoreAttendanceRepository())
             ..add(const AttendanceRequested()),
       child: BlocListener<AttendanceBloc, AttendanceState>(
         listenWhen: (previous, current) =>
@@ -62,7 +68,7 @@ class AttendanceDetailScreen extends StatelessWidget {
               return const _AttendanceLoadingSkeleton();
             }
 
-            if (state.status == AttendanceStatus.failure || !state.hasData) {
+            if (state.status == AttendanceStatus.failure) {
               return Scaffold(
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 appBar: const SamsAppBar(title: 'Attendance'),
@@ -74,6 +80,33 @@ class AttendanceDetailScreen extends StatelessWidget {
                   retryLabel: 'Retry',
                   onRetry: () => context.read<AttendanceBloc>().add(
                     const AttendanceRequested(),
+                  ),
+                ),
+              );
+            }
+
+            if (state.classes.isEmpty) {
+              return Scaffold(
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                appBar: const SamsAppBar(title: 'Attendance'),
+                body: SafeArea(
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    padding: SamsUiTokens.pageInsets(
+                      context,
+                      top: 18,
+                      bottom: 20,
+                    ),
+                    children: const [
+                      EmptyStateWidget(
+                        icon: Icons.fact_check_rounded,
+                        title: 'No attendance data yet',
+                        subtitle:
+                            'Once an admin creates the first attendance session, the live overview and QR actions will appear here.',
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -101,6 +134,24 @@ class AttendanceDetailScreen extends StatelessWidget {
                           bottom: 20,
                         ),
                         children: [
+                          if (state.sessions.isNotEmpty) ...[
+                            const SamsLocaleText(
+                              'Active sessions',
+                              style: TextStyle(
+                                color: SamsUiTokens.textPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            ...state.sessions.map(
+                              (session) => Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: _ActiveSessionCard(session: session),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                          ],
                           _OverallAttendanceCard(
                             percentage: state.overallPercent!,
                           ),
@@ -222,16 +273,49 @@ class AttendanceDetailScreen extends StatelessWidget {
                                           child: SamsTapScale(
                                             enabled: !isMarking,
                                             child: OutlinedButton(
-                                              onPressed: isMarking
-                                                  ? null
-                                                  : () => context
-                                                        .read<AttendanceBloc>()
-                                                        .add(
-                                                          AttendanceMarkRequested(
-                                                            subject:
-                                                                item.subject,
-                                                          ),
-                                                        ),
+                                                  onPressed: isMarking
+                                                      ? null
+                                                      : () async {
+                                                          final permissionGranted =
+                                                              await CameraPermissionService()
+                                                                  .ensureCameraPermission();
+
+                                                          if (!permissionGranted) {
+                                                            if (context.mounted) {
+                                                              ModernSnackbars.show(
+                                                                context,
+                                                                message:
+                                                                    'Camera permission is required to scan attendance QR codes.',
+                                                                type:
+                                                                    ModernSnackbarType.info,
+                                                              );
+                                                            }
+                                                            return;
+                                                          }
+
+                                                          // Open scanner and submit scanned sessionId
+                                                          final scanned = await Navigator.of(context).push<String?>(
+                                                            MaterialPageRoute(
+                                                              builder: (_) => const AttendanceScannerScreen(),
+                                                            ),
+                                                          );
+
+                                                          if (scanned != null && scanned.isNotEmpty) {
+                                                            String sessionId = scanned;
+                                                            try {
+                                                              final decoded = jsonDecode(scanned);
+                                                              if (decoded is Map && decoded['sessionId'] is String) {
+                                                                sessionId = decoded['sessionId'] as String;
+                                                              }
+                                                            } catch (_) {
+                                                              // ignore - treat scanned value as raw sessionId
+                                                            }
+
+                                                            context.read<AttendanceBloc>().add(
+                                                              AttendanceRecordRequested(sessionId: sessionId),
+                                                            );
+                                                          }
+                                                        },
                                               style: OutlinedButton.styleFrom(
                                                 side: BorderSide(
                                                   color: visual.accent
@@ -260,7 +344,7 @@ class AttendanceDetailScreen extends StatelessWidget {
                                                       ),
                                                     )
                                                   : const SamsLocaleText(
-                                                      'Mark Attendance',
+                                                      'Scan QR Code',
                                                     ),
                                             ),
                                           ),
@@ -281,6 +365,80 @@ class AttendanceDetailScreen extends StatelessWidget {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class _ActiveSessionCard extends StatelessWidget {
+  const _ActiveSessionCard({required this.session});
+
+  final AttendanceSessionEntity session;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
+        border: Border.all(color: SamsUiTokens.divider),
+        boxShadow: SamsUiTokens.cardShadow,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: SamsUiTokens.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(Icons.qr_code_2_rounded, color: SamsUiTokens.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SamsLocaleText(
+                  session.subject,
+                  style: const TextStyle(
+                    color: SamsUiTokens.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                SamsLocaleText(
+                  '${session.room} • ${session.sessionId}',
+                  style: const TextStyle(
+                    color: SamsUiTokens.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: session.isActive
+                  ? const Color(0xFFE9F8EF)
+                  : const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              session.isActive ? 'Open' : 'Closed',
+              style: TextStyle(
+                color: session.isActive ? const Color(0xFF0E8F54) : const Color(0xFF6B7280),
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

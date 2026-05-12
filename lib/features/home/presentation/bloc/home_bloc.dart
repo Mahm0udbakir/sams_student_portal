@@ -21,14 +21,35 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeRequested event,
     Emitter<HomeState> emit,
   ) async {
-    emit(state.copyWith(status: HomeStatus.loading));
+    final hasCoreData = state.hasCoreData;
+    emit(
+      state.copyWith(
+        status: hasCoreData ? HomeStatus.success : HomeStatus.loading,
+        announcementsLoading: true,
+        clearError: true,
+      ),
+    );
+
     try {
       final dashboard = await _repository.getDashboard();
       _emitLoadedState(emit, dashboard);
     } catch (_) {
+      if (hasCoreData) {
+        emit(
+          state.copyWith(
+            status: HomeStatus.success,
+            announcementsLoading: false,
+            errorMessage:
+                'Failed to refresh announcements. Showing latest available data.',
+          ),
+        );
+        return;
+      }
+
       emit(
         state.copyWith(
           status: HomeStatus.failure,
+          announcementsLoading: false,
           errorMessage: 'Failed to load home dashboard. Please try again.',
         ),
       );
@@ -42,6 +63,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(
       state.copyWith(
         status: HomeStatus.success,
+        announcementsLoading: false,
         studentName: dashboard.studentName,
         studentId: dashboard.studentId,
         overallAttendance: dashboard.attendancePercent,
@@ -50,6 +72,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         busRouteLabel: dashboard.busRouteLabel,
         busStatusLabel: dashboard.busStatusLabel,
         announcements: dashboard.announcements,
+        clearError: true,
       ),
     );
   }

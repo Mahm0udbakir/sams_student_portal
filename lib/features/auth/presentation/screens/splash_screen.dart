@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'dart:async';
-import '../../../../core/routes/app_router.dart';
 import '../../../../shared/ui/sams_lottie_assets.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
 
@@ -14,7 +11,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  Timer? _timer;
   bool _animateIn = false;
 
   @override
@@ -27,16 +23,10 @@ class _SplashScreenState extends State<SplashScreen> {
       setState(() => _animateIn = true);
     });
 
-    // Navigate to login after 3 seconds.
-    _timer = Timer(const Duration(seconds: 3), () {
-      if (!mounted) return;
-      context.goNamed(AppRouteNames.login);
-    });
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
     super.dispose();
   }
 

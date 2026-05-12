@@ -2,9 +2,85 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sams_student_portal/main.dart';
 
+import 'package:sams_student_portal/features/auth/domain/entities/auth_error.dart';
+import 'package:sams_student_portal/features/auth/domain/entities/auth_result.dart';
+import 'package:sams_student_portal/features/auth/domain/entities/auth_user.dart';
+import 'package:sams_student_portal/features/auth/domain/repositories/auth_repository.dart';
+import 'package:sams_student_portal/features/auth/presentation/cubit/auth_cubit.dart';
+
+class _TestAuthRepository implements AuthRepository {
+  @override
+  Future<AuthResult<AuthUser>> createUserDocument({
+    required String uid,
+    required String email,
+    required String name,
+    String? firstName,
+    String? lastName,
+    String? studentId,
+    String? department,
+    bool emailVerified = false,
+  }) async {
+    return const AuthFailure<AuthUser>(
+      type: AuthErrorType.unknown,
+      message: 'Not implemented in widget tests.',
+    );
+  }
+
+  @override
+  Future<AuthUser?> getCurrentUser() async => null;
+
+  @override
+  Future<void> signOut() async {}
+
+  @override
+  Future<AuthResult<AuthUser>> signInWithEmailAndPassword({required String email, required String password}) async {
+    return const AuthFailure<AuthUser>(
+      type: AuthErrorType.unknown,
+      message: 'Not implemented in widget tests.',
+    );
+  }
+
+  @override
+  Future<AuthResult<AuthUser>> signUpWithEmailAndPassword({
+    required String name,
+    required String email,
+    required String password,
+    String? studentId,
+    String? department,
+  }) async {
+    return const AuthFailure<AuthUser>(
+      type: AuthErrorType.unknown,
+      message: 'Not implemented in widget tests.',
+    );
+  }
+
+  @override
+  Future<AuthResult<void>> sendOtp({required String email, required String name, required String purpose}) async {
+    return const AuthFailure<void>(
+      type: AuthErrorType.unknown,
+      message: 'Not implemented in widget tests.',
+    );
+  }
+
+  @override
+  Future<AuthResult<AuthUser>> verifyOtp({required String verificationId, required String otp}) async {
+    return const AuthFailure<AuthUser>(
+      type: AuthErrorType.unknown,
+      message: 'Not implemented in widget tests.',
+    );
+  }
+}
+
+Future<AuthCubit> _createTestAuthCubit() async {
+  final cubit = AuthCubit(repository: _TestAuthRepository());
+  await cubit.bootstrap();
+  return cubit;
+}
+
 void main() {
   Future<void> pumpToLogin(WidgetTester tester) async {
-    await tester.pumpWidget(const SamsApp());
+    final authCubit = await _createTestAuthCubit();
+    await tester.pumpWidget(SamsApp(authCubit: authCubit));
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
@@ -13,7 +89,8 @@ void main() {
   testWidgets('Splash shows branding then auto-navigates to Login in ~3s', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const SamsApp());
+    final authCubit = await _createTestAuthCubit();
+    await tester.pumpWidget(SamsApp(authCubit: authCubit));
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byType(Image), findsWidgets);
@@ -44,7 +121,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Daily Essentials'), findsOneWidget);
-    expect(find.text('Announcements'), findsOneWidget);
+    expect(find.text('Announcements'), findsWidgets);
     expect(find.text('Home'), findsWidgets);
   });
 
@@ -293,5 +370,18 @@ void main() {
       find.byType(Directionality).first,
     );
     expect(directionality.textDirection, TextDirection.rtl);
+  });
+
+  testWidgets('Announcements tab is read-only without create action', (
+    WidgetTester tester,
+  ) async {
+    await pumpToLogin(tester);
+    await tester.tap(find.text('Sign-in with QR code'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Announcements').last);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FloatingActionButton), findsNothing);
   });
 }

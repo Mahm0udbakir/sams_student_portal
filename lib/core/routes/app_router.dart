@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
+import '../../features/auth/presentation/cubit/auth_cubit.dart';
+import '../../features/auth/presentation/cubit/auth_state.dart';
+import '../../features/attendance/presentation/screens/attendance_admin_screen.dart';
 import '../../features/attendance/presentation/screens/attendance_detail_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
+import '../../features/auth/presentation/screens/verify_otp_screen.dart';
 import '../../features/bus/presentation/screens/bus_screen.dart';
 import '../../features/hostel/presentation/screens/fee_receipt_detail_screen.dart';
 import '../../features/hostel/presentation/screens/hostel_screen.dart';
@@ -13,6 +18,7 @@ import '../../features/hostel/presentation/screens/mess_feedback_detail_screen.d
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/home/presentation/screens/main_shell.dart';
 import '../../features/messages/presentation/screens/messages_screen.dart';
+import '../../features/announcements/presentation/screens/announcements_screen.dart';
 import '../../features/scan/presentation/screens/scan_screen.dart';
 import '../../features/help_desk/presentation/screens/help_desk_screen.dart';
 import '../../features/profile/presentation/screens/about_app_screen.dart';
@@ -32,8 +38,11 @@ class AppRouteNames {
   static const splash = 'splash';
   static const login = 'login';
   static const signup = 'signup';
+  static const verifyOtp = 'verifyOtp';
+  static const admin = 'admin';
 
   static const home = 'home';
+  static const announcements = 'announcements';
   static const attendanceDetail = 'attendanceDetail';
   static const calendar = 'calendar';
   static const messages = 'messages';
@@ -60,8 +69,11 @@ class AppRoutePaths {
   static const splash = '/splash';
   static const login = '/login';
   static const signup = '/signup';
+  static const verifyOtp = '/verify-otp';
+  static const admin = '/admin';
 
   static const home = '/home';
+  static const announcements = '/announcements';
   static const attendanceDetail = '/home/attendance';
   static const calendar = '/home/calendar';
   static const messages = '/messages';
@@ -85,8 +97,46 @@ class AppRoutePaths {
 }
 
 class AppRouter {
-  static GoRouter createRouter() => GoRouter(
+  static GoRouter createRouter(AuthCubit authCubit) => GoRouter(
     initialLocation: AppRoutePaths.splash,
+    refreshListenable: _AuthCubitRefreshListenable(authCubit),
+    redirect: (context, state) {
+      final location = state.matchedLocation;
+      final isSplash = location == AppRoutePaths.splash;
+      final isLogin = location == AppRoutePaths.login;
+      final isSignup = location == AppRoutePaths.signup;
+      final isVerifyOtp = location == AppRoutePaths.verifyOtp;
+      final isAdmin = location == AppRoutePaths.admin;
+
+      final currentState = authCubit.state;
+      if (currentState is AuthLoading) {
+        return isSplash ? null : AppRoutePaths.splash;
+      }
+
+      if (currentState is AuthSignedOut || currentState is AuthInitial) {
+        return isLogin || isSignup || isSplash ? null : AppRoutePaths.login;
+      }
+
+      if (currentState is AuthOtpRequired) {
+        return isVerifyOtp ? null : AppRoutePaths.verifyOtp;
+      }
+
+      if (currentState is AuthError && currentState.isOtpRelated) {
+        return isVerifyOtp ? null : AppRoutePaths.verifyOtp;
+      }
+
+      if (currentState is AuthAuthenticated) {
+        if (isAdmin && !currentState.user.isAdmin) {
+          return AppRoutePaths.home;
+        }
+
+        return isSplash || isLogin || isSignup || isVerifyOtp
+            ? AppRoutePaths.home
+            : null;
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutePaths.splash,
@@ -110,6 +160,22 @@ class AppRouter {
         pageBuilder: (context, state) => _buildPrimaryTransitionPage(
           state: state,
           child: const SignUpScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutePaths.verifyOtp,
+        name: AppRouteNames.verifyOtp,
+        pageBuilder: (context, state) => _buildPrimaryTransitionPage(
+          state: state,
+          child: const VerifyOtpScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutePaths.admin,
+        name: AppRouteNames.admin,
+        pageBuilder: (context, state) => _buildDetailTransitionPage(
+          state: state,
+          child: const AttendanceAdminScreen(),
         ),
       ),
 
@@ -145,6 +211,18 @@ class AppRouter {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutePaths.announcements,
+                name: AppRouteNames.announcements,
+                pageBuilder: (context, state) => _buildPrimaryTransitionPage(
+                  state: state,
+                  child: const AnnouncementsScreen(showCreateAction: false),
+                ),
               ),
             ],
           ),
@@ -322,6 +400,20 @@ class AppRouter {
       ),
     ],
   );
+}
+
+class _AuthCubitRefreshListenable extends ChangeNotifier {
+  _AuthCubitRefreshListenable(AuthCubit authCubit) {
+    _subscription = authCubit.stream.listen((_) => notifyListeners());
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
 }
 
 CustomTransitionPage<void> _buildPrimaryTransitionPage({

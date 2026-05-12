@@ -1,19 +1,22 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:async';
 
-import '../../core/data/repositories/fake_data_repository.dart';
+import '../../features/auth/domain/entities/auth_user.dart';
+import '../../core/services/current_user_service.dart';
 
 part 'student_event.dart';
 part 'student_state.dart';
 
 class StudentBloc extends Bloc<StudentEvent, StudentState> {
-  StudentBloc({FakeDataRepository? dataRepository})
-    : _dataRepository = dataRepository ?? const FakeDataRepository(),
+  StudentBloc({CurrentUserService? currentUserService})
+    : _currentUserService = currentUserService ?? CurrentUserService(),
       super(const StudentState()) {
     on<StudentRequested>(_onStudentRequested);
   }
 
-  final FakeDataRepository _dataRepository;
+  final CurrentUserService _currentUserService;
+  StreamSubscription<AuthUser?>? _userSubscription;
 
   Future<void> _onStudentRequested(
     StudentRequested event,
@@ -21,16 +24,33 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
   ) async {
     emit(state.copyWith(status: StudentStatus.loading));
     try {
-      await Future<void>.delayed(const Duration(milliseconds: 250));
-      final student = _dataRepository.getProfileOverview();
+      await _userSubscription?.cancel();
+      _userSubscription = _currentUserService.watchCurrentUser().listen((currentUser) {
+        if (currentUser == null) {
+          emit(
+            state.copyWith(
+              status: StudentStatus.failure,
+              errorMessage: 'No signed-in user was found. Please log in again.',
+            ),
+          );
+          return;
+        }
 
-      emit(
-        state.copyWith(
-          status: StudentStatus.success,
-          studentName: student['name'] as String,
-          studentId: student['studentId'] as String,
-        ),
-      );
+        emit(
+          state.copyWith(
+            status: StudentStatus.success,
+            studentName: currentUser.fullName,
+            studentId: currentUser.studentId,
+          ),
+        );
+      }, onError: (_) {
+        emit(
+          state.copyWith(
+            status: StudentStatus.failure,
+            errorMessage: 'Failed to load student profile. Please try again.',
+          ),
+        );
+      });
     } catch (_) {
       emit(
         state.copyWith(
@@ -39,5 +59,11 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
         ),
       );
     }
+  }
+
+  @override
+  Future<void> close() {
+    _userSubscription?.cancel();
+    return super.close();
   }
 }

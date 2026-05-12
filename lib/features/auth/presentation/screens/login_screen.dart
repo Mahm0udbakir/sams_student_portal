@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/routes/app_router.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
 import '../../../../shared/widgets/sams_pressable.dart';
+import '../utils/auth_feedback.dart';
+import '../cubit/auth_cubit.dart';
+import '../cubit/auth_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,287 +17,242 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _showManualForm = false;
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
-  void _toggleManualForm() {
-    setState(() => _showManualForm = !_showManualForm);
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    context.read<AuthCubit>().login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    final h = MediaQuery.sizeOf(context).height;
-    final compact = SamsUiTokens.isCompactWidth(context);
-    final useDesktopCard = size.width >= SamsUiTokens.desktopBreakpoint;
-    final horizontalPadding = compact ? 16.0 : 22.0;
-    final topPadding = compact ? 18.0 : 24.0;
-    final bottomPadding = compact ? 12.0 : 16.0;
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthOtpRequired) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Verification code sent.')),
+          );
+          context.goNamed(AppRouteNames.verifyOtp);
+        } else if (state is AuthAuthenticated) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Signed in successfully.')),
+          );
+          context.goNamed(AppRouteNames.home);
+        } else if (state is AuthError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${authErrorTitle(state.type)}: ${authErrorMessage(state.type, state.message)}',
+              ),
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/auth_hero.jpg',
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [SamsUiTokens.primary, Color(0xFF0A4F81)],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    SamsUiTokens.primary.withValues(alpha: 0.72),
-                    const Color(0xFF02253D).withValues(alpha: 0.82),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Align(
-            alignment: useDesktopCard
-                ? Alignment.center
-                : Alignment.bottomCenter,
-            child: SafeArea(
-              top: false,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                  useDesktopCard ? 20 : 0,
-                  useDesktopCard ? 20 : 0,
-                  useDesktopCard ? 20 : 0,
-                  0,
-                ),
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxHeight: useDesktopCard ? h * 0.86 : h * 0.62,
-                    maxWidth: 540,
-                  ),
-                  width: double.infinity,
-                  padding: EdgeInsets.fromLTRB(
-                    horizontalPadding,
-                    topPadding,
-                    horizontalPadding,
-                    bottomPadding,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF9FCFF),
-                    borderRadius: useDesktopCard
-                        ? BorderRadius.circular(30)
-                        : const BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(88),
-                          ),
-                    border: Border.all(
-                      color: SamsUiTokens.primary.withValues(alpha: 0.12),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF011B2D).withValues(alpha: 0.14),
-                        blurRadius: 18,
-                        offset: const Offset(0, -6),
+        return Scaffold(
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/auth_hero.jpg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [SamsUiTokens.primary, Color(0xFF0A4F81)],
                       ),
-                    ],
+                    ),
                   ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SamsLocaleText(
-                          'Welcome back',
-                          style: TextStyle(
-                            color: SamsUiTokens.textPrimary,
-                            fontSize: 21,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const SamsLocaleText(
-                          'Choose a quick QR sign-in or continue manually.',
-                          style: TextStyle(
-                            color: SamsUiTokens.textSecondary,
-                            fontSize: 12.8,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 14),
-                        SizedBox(
-                          width: double.infinity,
-                          child: SamsTapScale(
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(
-                                  SamsUiTokens.radiusLg,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: SamsUiTokens.primary.withValues(
-                                      alpha: 0.22,
-                                    ),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 7),
-                                  ),
-                                ],
-                              ),
-                              child: ElevatedButton.icon(
-                                onPressed: () =>
-                                    context.goNamed(AppRouteNames.home),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: SamsUiTokens.primary,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  minimumSize: const Size.fromHeight(52),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 18,
-                                    vertical: 16,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      SamsUiTokens.radiusLg,
-                                    ),
-                                  ),
-                                ),
-                                icon: Container(
-                                  width: 34,
-                                  height: 34,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.18),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(
-                                    Icons.qr_code_2_rounded,
-                                    size: 24,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                label: const SamsLocaleText(
-                                  'Sign-in with QR code',
-                                  style: TextStyle(
-                                    fontSize: 15.8,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        const SamsLocaleText(
-                          'or',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Color(0xFF666E7A),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SamsTapScale(
-                          child: TextButton(
-                            onPressed: _toggleManualForm,
-                            child: SamsLocaleText(
-                              _showManualForm
-                                  ? 'Hide manual login'
-                                  : 'Login manually',
-                              style: const TextStyle(
-                                color: Color(0xFF4B5563),
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                decoration: TextDecoration.underline,
-                                decorationColor: Color(0xFF4B5563),
-                              ),
-                            ),
-                          ),
-                        ),
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 280),
-                          curve: Curves.easeInOut,
-                          child: _showManualForm
-                              ? Padding(
-                                  padding: const EdgeInsets.only(top: 10),
-                                  child: Column(
-                                    children: [
-                                      TextField(
-                                        decoration: InputDecoration(
-                                          labelText: context.tr('Roll no.'),
-                                          filled: true,
-                                          fillColor: const Color(0xFFF8FAFC),
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              SamsUiTokens.radiusMd,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      TextField(
-                                        obscureText: true,
-                                        decoration: InputDecoration(
-                                          labelText: context.tr('Password'),
-                                          filled: true,
-                                          fillColor: const Color(0xFFF8FAFC),
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              SamsUiTokens.radiusMd,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 14),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: SamsTapScale(
-                                          child: ElevatedButton(
-                                            onPressed: () => context.goNamed(
-                                              AppRouteNames.home,
-                                            ),
-                                            style: ElevatedButton.styleFrom(
-                                              minimumSize:
-                                                  const Size.fromHeight(50),
-                                            ),
-                                            child: const SamsLocaleText(
-                                              'Continue',
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                        const SizedBox(height: 8),
-                        SamsTapScale(
-                          child: TextButton(
-                            onPressed: () =>
-                                context.goNamed(AppRouteNames.signup),
-                            child: const SamsLocaleText(
-                              'New here? Create an account',
-                              style: TextStyle(
-                                color: SamsUiTokens.primary,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
+                ),
+              ),
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        SamsUiTokens.primary.withValues(alpha: 0.74),
+                        const Color(0xFF02253D).withValues(alpha: 0.86),
                       ],
                     ),
                   ),
                 ),
               ),
-            ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SafeArea(
+                  top: false,
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FCFF),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(88),
+                      ),
+                      border: Border.all(
+                        color: SamsUiTokens.primary.withValues(alpha: 0.12),
+                      ),
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Welcome back',
+                              style: TextStyle(
+                                color: SamsUiTokens.textPrimary,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Sign in with your university email and password.',
+                              style: TextStyle(
+                                color: SamsUiTokens.textSecondary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            TextFormField(
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: InputDecoration(
+                                labelText: 'University email',
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    SamsUiTokens.radiusMd,
+                                  ),
+                                ),
+                              ),
+                              validator: (value) {
+                                final text = value?.trim() ?? '';
+                                if (text.isEmpty) {
+                                  return 'Enter your university email';
+                                }
+                                if (!text.contains('@')) {
+                                  return 'Enter a valid email address';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    SamsUiTokens.radiusMd,
+                                  ),
+                                ),
+                                suffixIcon: IconButton(
+                                  onPressed: () => setState(
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                  ),
+                                ),
+                              ),
+                              validator: (value) {
+                                if ((value ?? '').trim().isEmpty) {
+                                  return 'Enter your password';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 18),
+                            SizedBox(
+                              width: double.infinity,
+                              child: SamsTapScale(
+                                child: ElevatedButton(
+                                  onPressed: isLoading ? null : _submit,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: SamsUiTokens.primary,
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    minimumSize: const Size.fromHeight(52),
+                                  ),
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text(
+                                          'Login',
+                                          style: TextStyle(
+                                            fontSize: 15.4,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Center(
+                              child: TextButton(
+                                onPressed: isLoading
+                                    ? null
+                                    : () => context.goNamed(AppRouteNames.signup),
+                                child: const Text(
+                                  'Create a new account',
+                                  style: TextStyle(
+                                    color: SamsUiTokens.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

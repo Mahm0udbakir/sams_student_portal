@@ -9,8 +9,8 @@ class ProfileOverviewModel extends ProfileOverviewEntity {
 
   factory ProfileOverviewModel.fake() {
     return const ProfileOverviewModel(
-      name: 'Mahmoud Bakir',
-      studentId: '11360',
+      name: 'Student',
+      studentId: '',
       sessionSubtitle:
           '2025 - 2026 • Bachelor of Management Sciences – Semester 5',
     );

@@ -42,6 +42,7 @@ class AttendanceState extends Equatable {
     this.status = AttendanceStatus.initial,
     this.overallPercent,
     this.classes = const <AttendanceClassItem>[],
+    this.sessions = const <AttendanceSessionEntity>[],
     this.actionStatus = AttendanceActionStatus.idle,
     this.actionSubject,
     this.feedbackMessage,
@@ -51,6 +52,7 @@ class AttendanceState extends Equatable {
   final AttendanceStatus status;
   final int? overallPercent;
   final List<AttendanceClassItem> classes;
+  final List<AttendanceSessionEntity> sessions;
   final AttendanceActionStatus actionStatus;
   final String? actionSubject;
   final String? feedbackMessage;
@@ -62,6 +64,7 @@ class AttendanceState extends Equatable {
     AttendanceStatus? status,
     int? overallPercent,
     List<AttendanceClassItem>? classes,
+    List<AttendanceSessionEntity>? sessions,
     AttendanceActionStatus? actionStatus,
     String? actionSubject,
     String? feedbackMessage,
@@ -72,6 +75,7 @@ class AttendanceState extends Equatable {
       status: status ?? this.status,
       overallPercent: overallPercent ?? this.overallPercent,
       classes: classes ?? this.classes,
+      sessions: sessions ?? this.sessions,
       actionStatus: actionStatus ?? this.actionStatus,
       actionSubject: actionSubject ?? this.actionSubject,
       feedbackMessage: clearFeedback
@@ -86,6 +90,7 @@ class AttendanceState extends Equatable {
     status,
     overallPercent,
     classes,
+    sessions,
     actionStatus,
     actionSubject,
     feedbackMessage,

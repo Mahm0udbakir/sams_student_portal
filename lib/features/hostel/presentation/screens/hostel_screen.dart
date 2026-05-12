@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routes/app_router.dart';
-import '../../../../core/data/repositories/fake_data_repository.dart';
 import '../../../../shared/bloc/student_bloc.dart';
 import '../../data/repositories/fake_hostel_repository.dart';
 import '../bloc/hostel_bloc.dart';
@@ -83,11 +82,9 @@ class HostelScreen extends StatelessWidget {
                       },
                       builder: (context, studentState) {
                         final name =
-                            studentState.studentName ??
-                            FakeDataRepository.studentName;
+                            studentState.studentName ?? 'Student';
                         final id =
-                            studentState.studentId ??
-                            FakeDataRepository.studentId;
+                            studentState.studentId ?? '';
 
                         return _HostelHeroHeader(name: name, id: id);
                       },

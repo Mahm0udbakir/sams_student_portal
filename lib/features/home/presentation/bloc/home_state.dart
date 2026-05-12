@@ -5,6 +5,7 @@ enum HomeStatus { initial, loading, success, failure }
 class HomeState extends Equatable {
   const HomeState({
     this.status = HomeStatus.initial,
+    this.announcementsLoading = false,
     this.studentName,
     this.studentId,
     this.overallAttendance,
@@ -17,6 +18,7 @@ class HomeState extends Equatable {
   });
 
   final HomeStatus status;
+  final bool announcementsLoading;
   final String? studentName;
   final String? studentId;
   final int? overallAttendance;
@@ -39,6 +41,7 @@ class HomeState extends Equatable {
 
   HomeState copyWith({
     HomeStatus? status,
+    bool? announcementsLoading,
     String? studentName,
     String? studentId,
     int? overallAttendance,
@@ -48,9 +51,11 @@ class HomeState extends Equatable {
     String? busStatusLabel,
     List<HomeAnnouncementEntity>? announcements,
     String? errorMessage,
+    bool clearError = false,
   }) {
     return HomeState(
       status: status ?? this.status,
+      announcementsLoading: announcementsLoading ?? this.announcementsLoading,
       studentName: studentName ?? this.studentName,
       studentId: studentId ?? this.studentId,
       overallAttendance: overallAttendance ?? this.overallAttendance,
@@ -59,13 +64,14 @@ class HomeState extends Equatable {
       busRouteLabel: busRouteLabel ?? this.busRouteLabel,
       busStatusLabel: busStatusLabel ?? this.busStatusLabel,
       announcements: announcements ?? this.announcements,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 
   @override
   List<Object?> get props => [
     status,
+    announcementsLoading,
     studentName,
     studentId,
     overallAttendance,

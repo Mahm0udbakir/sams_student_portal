@@ -1,37 +1,61 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/bloc/theme/theme_bloc.dart';
 import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'firebase_options.dart';
+import 'features/auth/data/repositories/firebase_auth_repository.dart';
+import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'shared/bloc/locale_bloc.dart';
 import 'shared/bloc/student_bloc.dart';
 
-void main() {
-  runApp(const SamsApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (_) {
+    // Local development can run without a committed .env file.
+  }
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  final authRepository = FirebaseAuthRepository();
+  final authCubit = AuthCubit(repository: authRepository);
+  await authCubit.bootstrap();
+
+  runApp(SamsApp(authCubit: authCubit));
 }
 
 class SamsApp extends StatelessWidget {
-  const SamsApp({super.key});
+  const SamsApp({super.key, required this.authCubit});
+
+  final AuthCubit authCubit;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ThemeBloc(),
-      child: const _SamsAppView(),
+      child: BlocProvider.value(
+        value: authCubit,
+        child: _SamsAppView(authCubit: authCubit),
+      ),
     );
   }
 }
 
 class _SamsAppView extends StatefulWidget {
-  const _SamsAppView();
+  const _SamsAppView({required this.authCubit});
+
+  final AuthCubit authCubit;
 
   @override
   State<_SamsAppView> createState() => _SamsAppViewState();
 }
 
 class _SamsAppViewState extends State<_SamsAppView> {
-  late final _router = AppRouter.createRouter();
+  late final _router = AppRouter.createRouter(widget.authCubit);
 
   @override
   Widget build(BuildContext context) {

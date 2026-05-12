@@ -15,8 +15,8 @@ class HomeDashboardModel extends HomeDashboardEntity {
 
   factory HomeDashboardModel.fake() {
     return HomeDashboardModel(
-      studentName: 'Mahmoud Bakir',
-      studentId: '11360',
+      studentName: 'Student',
+      studentId: '',
       attendancePercent: 75,
       attendanceSubtitle:
           'Bachelor of Management Sciences – Semester 5 • Current term',
