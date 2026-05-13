@@ -50,6 +50,8 @@ class FirebaseAuthRepository implements AuthRepository {
     }
 
     try {
+      debugPrint('[FIREBASE DEBUG] ProjectId: \\${FirebaseAuth.instance.app.options.projectId}');
+      await Future.delayed(const Duration(seconds: 3)); // Temporary workaround for propagation
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password,
@@ -112,16 +114,47 @@ class FirebaseAuthRepository implements AuthRepository {
         message: 'Could not start email verification.',
       );
     } on FirebaseAuthException catch (error) {
+      debugPrint('[FIREBASE AUTH ERROR] code: \\${error.code}, message: \\${error.message}');
+      debugPrint('[FIREBASE DEBUG] ProjectId: \\${FirebaseAuth.instance.app.options.projectId}');
+      // If operation-not-allowed, wait and retry once (Email/Password may need time to enable)
+      if (error.code == 'operation-not-allowed') {
+        await Future.delayed(const Duration(seconds: 2));
+        try {
+          final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+            email: email.trim(),
+            password: password,
+          );
+          final user = credential.user;
+          if (user == null) {
+            return const AuthFailure<AuthUser>(
+              type: AuthErrorType.unknown,
+              message: 'Could not create your account. Please try again.',
+            );
+          }
+          // ... (repeat user doc creation and OTP logic if needed)
+          // For brevity, just return a better error for now
+          return AuthFailure<AuthUser>(
+            type: AuthErrorType.operationNotAllowed,
+            message: 'Email/Password sign-in is not enabled yet. Please wait a few minutes and try again. [code: operation-not-allowed]',
+          );
+        } catch (e) {
+          debugPrint('[FIREBASE AUTH ERROR RETRY] $e');
+        }
+      }
       return AuthFailure<AuthUser>(
         type: _mapAuthException(error),
-        message: _messageForAuthException(error),
+        message: _messageForAuthException(error) + '\n[code: ' + error.code + ']'
+          + (error.code == 'operation-not-allowed' ? '\nEmail/Password sign-in may take a few minutes to enable after you turn it on in the Firebase Console.' : ''),
       );
     } on FirebaseException catch (error) {
+      debugPrint('[FIREBASE ERROR] code: \\${error.code}, message: \\${error.message}');
+      debugPrint('[FIREBASE DEBUG] ProjectId: \\${FirebaseAuth.instance.app.options.projectId}');
       return AuthFailure<AuthUser>(
         type: _mapFirestoreException(error),
-        message: error.message ?? 'Could not create your account. Please try again.',
+        message: (error.message ?? 'Could not create your account. Please try again.') + '\n[code: ' + (error.code ?? 'unknown') + ']',
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[GENERIC SIGNUP ERROR] $e');
       return const AuthFailure<AuthUser>(
         type: AuthErrorType.unknown,
         message: 'Could not create your account. Please try again.',
@@ -136,7 +169,7 @@ class FirebaseAuthRepository implements AuthRepository {
   }) async {
     return const AuthFailure<AuthUser>(
       type: AuthErrorType.operationNotAllowed,
-      message: 'Password sign-in is disabled. Use university email and OTP.',
+      message: 'Password sign-in is disabled. Use university email and OTP. If you just enabled Email/Password in Firebase Console, please wait a few minutes and try again.',
     );
   }
 

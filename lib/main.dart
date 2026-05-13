@@ -22,6 +22,9 @@ Future<void> main() async {
   }
   await loadEnvSafe(); // Loads .env safely for all platforms
   try {
+    await Firebase.app().delete(); // Force re-init if already initialized
+  } catch (_) {}
+  try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   } catch (e) {
     runApp(MaterialApp(
