@@ -1,54 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="SAMS - Sadat Academy Student Portal: access attendance, messages, QR scan, help desk, bus tracking, hostel services, and student profile in one place.">
+  <meta name="description" content="SAMS - Sadat Academy Student Portal">
   <meta name="theme-color" content="#063454">
-  <meta name="robots" content="index, follow">
 
-  <!-- Open Graph / Social sharing -->
-  <meta property="og:type" content="website">
+  <!-- Open Graph / Social -->
   <meta property="og:title" content="SAMS - Sadat Academy Student Portal">
-  <meta property="og:description" content="Official student portal for Sadat Academy (SAMS) with attendance, messages, QR scan, help desk, and campus services.">
+  <meta property="og:description" content="Official student portal for Sadat Academy">
   <meta property="og:image" content="icons/Icon-512.png">
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="SAMS - Sadat Academy Student Portal">
-  <meta name="twitter:description" content="Official student portal for Sadat Academy (SAMS) with attendance, messages, QR scan, help desk, and campus services.">
-  <meta name="twitter:image" content="icons/Icon-512.png">
-
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="SAMS - Sadat Academy Student Portal">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/Icon-192.png"/>
-  <link rel="shortcut icon" href="icons/Icon-192.png"/>
 
   <title>SAMS - Sadat Academy Student Portal</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
+  <script>
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxGHlkhGD10q2yevB5Xb9zlqbkrS7Db9g",
+      authDomain: "sams-portal-2026-bakir.firebaseapp.com",
+      projectId: "sams-portal-2026-bakir",
+      storageBucket: "sams-portal-2026-bakir.firebasestorage.app",
+      messagingSenderId: "514020824962",
+      appId: "1:514020824962:web:03603c90bf853c1737619b"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
