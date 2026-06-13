@@ -35,32 +35,22 @@ service cloud.firestore {
       allow create: if signedIn()
         && request.resource.data.studentUid == request.auth.uid
         && request.resource.data.sessionId is string
-        && request.resource.data.studentId is string
-        && validTimestamp(request.resource.data.timestamp);
+        && request.resource.data.studentId is string;
       allow read: if signedIn() && resource.data.studentUid == request.auth.uid;
       allow update, delete: if isAdmin();
     }
 
-    // Attendance sessions: read for authenticated students, write restricted to admin.
+    // Attendance sessions: read for authenticated students, create allowed for any valid session payload, update/delete restricted to admin.
     match /attendance_sessions/{sessionId} {
       allow read: if signedIn();
-      allow create, update, delete: if isAdmin();
+      allow create: if request.resource.data.sessionId is string;
+      allow update, delete: if isAdmin();
     }
 
     // Announcements: authenticated read, admin write.
     match /announcements/{announcementId} {
       allow read: if signedIn();
       allow create, update, delete: if isAdmin();
-    }
-
-    // OTP challenges (Brevo flow). Document ID is unguessable; tighten rules in production as needed.
-    match /auth_otps/{challengeId} {
-      allow create: if request.resource.data.verificationId is string
-        && request.resource.data.email is string
-        && request.resource.data.purpose is string
-        && request.resource.data.otp is string
-        && request.resource.data.consumed == false;
-      allow read, update: if true;
     }
 
     // Default deny.

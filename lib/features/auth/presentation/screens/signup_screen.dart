@@ -22,15 +22,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -42,7 +39,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       firstName: _firstNameController.text,
       lastName: _lastNameController.text,
       email: _emailController.text.trim(),
-      password: _passwordController.text,
+      password: '',
     );
   }
 
@@ -110,19 +107,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
           body: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset(
-                  'assets/images/auth_hero.jpg',
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [SamsUiTokens.brandBlue, SamsUiTokens.primary],
-                      ),
-                    ),
+                child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [SamsUiTokens.brandBlue, SamsUiTokens.primary],
                   ),
                 ),
+              ),
               ),
               Positioned.fill(
                 child: Container(
@@ -176,7 +169,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             const SizedBox(height: 4),
                             const Text(
-                              'Create your password, then verify your email with the OTP we send you.',
+                              'Create your account, then verify your email with the OTP we send you.',
                               style: TextStyle(
                                 color: SamsUiTokens.textSecondary,
                                 fontSize: 13,
@@ -238,37 +231,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 ),
                               ),
                               validator: _validateUniversityEmail,
-                            ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _passwordController,
-                              obscureText: _obscurePassword,
-                              decoration: InputDecoration(
-                                labelText: 'Password',
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    SamsUiTokens.radiusMd,
-                                  ),
-                                ),
-                                suffixIcon: IconButton(
-                                  onPressed: () => setState(
-                                    () => _obscurePassword = !_obscurePassword,
-                                  ),
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                  ),
-                                ),
-                              ),
-                              validator: (value) {
-                                if ((value ?? '').length < 6) {
-                                  return 'Password must be at least 6 characters';
-                                }
-                                return null;
-                              },
                             ),
                             const SizedBox(height: 16),
                             SizedBox(

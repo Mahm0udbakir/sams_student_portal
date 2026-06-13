@@ -14,7 +14,7 @@ class CurrentUserService {
   final FirebaseFirestore _firestore;
 
   Future<AuthUser?> loadCurrentUser() async {
-    final firebaseUser = _firebaseAuth.currentUser;
+    final firebaseUser = await _ensureAuthUser();
     if (firebaseUser == null) {
       return null;
     }
@@ -30,6 +30,21 @@ class CurrentUserService {
       return _buildFallbackUser(firebaseUser);
     } catch (_) {
       return _buildFallbackUser(firebaseUser);
+    }
+  }
+
+  Future<User?> _ensureAuthUser() async {
+    final firebaseUser = _firebaseAuth.currentUser;
+    if (firebaseUser != null) {
+      return firebaseUser;
+    }
+
+    try {
+      return await _firebaseAuth.authStateChanges()
+          .firstWhere((user) => user != null)
+          .timeout(const Duration(seconds: 2));
+    } catch (_) {
+      return null;
     }
   }
 

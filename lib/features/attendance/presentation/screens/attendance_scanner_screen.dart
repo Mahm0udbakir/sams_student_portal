@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-class AttendanceScannerScreen extends StatelessWidget {
+class AttendanceScannerScreen extends StatefulWidget {
   const AttendanceScannerScreen({super.key, this.courseTitle});
 
   /// Course the student chose before opening the camera (shown for context only).
   final String? courseTitle;
 
   @override
+  State<AttendanceScannerScreen> createState() => _AttendanceScannerScreenState();
+}
+
+class _AttendanceScannerScreenState extends State<AttendanceScannerScreen> {
+  bool _hasScanned = false;
+
+  @override
   Widget build(BuildContext context) {
-    final title = courseTitle == null || courseTitle!.trim().isEmpty
+    final title = widget.courseTitle == null || widget.courseTitle!.trim().isEmpty
         ? 'Scan attendance'
-        : 'Scan: ${courseTitle!.trim()}';
+        : 'Scan: ${widget.courseTitle!.trim()}';
 
     return Material(
       color: Colors.black,
@@ -28,11 +35,17 @@ class AttendanceScannerScreen extends StatelessWidget {
         ),
         body: MobileScanner(
           onDetect: (capture) {
+            if (_hasScanned) return;
             final barcodes = capture.barcodes;
             if (barcodes.isNotEmpty) {
-              final code = barcodes.first.rawValue ?? '';
+              final barcode = barcodes.first;
+              final code = (barcode.rawValue ?? barcode.displayValue ?? '').trim();
               if (code.isNotEmpty) {
-                Navigator.of(context).pop(code);
+                _hasScanned = true;
+                debugPrint('Attendance QR scanned: $code');
+                if (mounted) {
+                  Navigator.of(context).maybePop(code);
+                }
               }
             }
           },

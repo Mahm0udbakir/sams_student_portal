@@ -14,14 +14,49 @@ import '../../../../shared/widgets/shimmer_widget.dart';
 import '../../../../shared/widgets/sams_state_views.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  Future<void> _refreshHome(BuildContext context) async {
-    final bloc = context.read<HomeBloc>();
-    bloc.add(const HomeRequested());
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with RouteAware {
+  late final HomeBloc _bloc;
+  ModalRoute<dynamic>? _modalRoute;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = HomeBloc(
+      repository: AppRuntime.homeRepositoryOverride ?? FirestoreHomeRepository(),
+    )..add(HomeRequested());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (_modalRoute != route) {
+      if (_modalRoute != null) {
+        AppRouter.routeObserver.unsubscribe(this);
+      }
+      _modalRoute = route;
+      if (_modalRoute != null) {
+        AppRouter.routeObserver.subscribe(this, _modalRoute!);
+      }
+    }
+  }
+
+  @override
+  void didPopNext() {
+    _bloc.add(HomeRequested());
+  }
+
+  Future<void> _refreshHome() async {
+    _bloc.add(HomeRequested());
     try {
-      await bloc.stream
+      await _bloc.stream
           .firstWhere(
             (state) =>
                 !state.announcementsLoading &&
@@ -33,11 +68,18 @@ class HomeScreen extends StatelessWidget {
   }
 
   @override
+  void dispose() {
+    if (_modalRoute != null) {
+      AppRouter.routeObserver.unsubscribe(this);
+    }
+    _bloc.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => HomeBloc(
-        repository: AppRuntime.homeRepositoryOverride ?? FirestoreHomeRepository(),
-      )..add(const HomeRequested()),
+    return BlocProvider.value(
+      value: _bloc,
       child: BlocBuilder<HomeBloc, HomeState>(
         buildWhen: (previous, current) {
           return previous.status != current.status ||
@@ -72,7 +114,7 @@ class HomeScreen extends StatelessWidget {
                     'Failed to load home dashboard. Please try again.',
                 retryLabel: 'Retry',
                 onRetry: () =>
-                    context.read<HomeBloc>().add(const HomeRequested()),
+                  context.read<HomeBloc>().add(HomeRequested()),
               ),
             );
           }
@@ -93,7 +135,7 @@ class HomeScreen extends StatelessWidget {
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             appBar: const SamsAppBar(title: 'Home'),
             body: RefreshIndicator(
-              onRefresh: () => _refreshHome(context),
+              onRefresh: _refreshHome,
               color: SamsUiTokens.primary,
               child: SafeArea(
                 child: Center(
@@ -139,7 +181,7 @@ class HomeScreen extends StatelessWidget {
                                     child: SamsLocaleText(
                                       'No attendance records yet',
                                       style: TextStyle(
-                                        color: Colors.white.withOpacity(0.92),
+                                        color: Colors.white.withValues(alpha: 0.92),
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14.2,
                                       ),
@@ -165,7 +207,7 @@ class HomeScreen extends StatelessWidget {
                                                 Container(
                                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                                   decoration: BoxDecoration(
-                                                    color: Colors.white.withOpacity(0.13),
+                                                    color: Colors.white.withValues(alpha: 0.13),
                                                     borderRadius: BorderRadius.circular(12),
                                                   ),
                                                   child: SamsLocaleText(
@@ -266,7 +308,7 @@ class HomeScreen extends StatelessWidget {
                                     'You are all caught up. New updates from SAMS will appear here.',
                                 actionLabel: 'Refresh Updates',
                                 onAction: () => context.read<HomeBloc>().add(
-                                  const HomeRequested(),
+                                  HomeRequested(),
                                 ),
                               ),
                             )
@@ -953,6 +995,7 @@ class _AttendanceMeta extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _AttendanceMetaSection extends StatelessWidget {
   const _AttendanceMetaSection({
     required this.label,

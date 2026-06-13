@@ -96,7 +96,20 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
   Future<AttendanceOverviewEntity> getAttendanceOverview() async {
     final user = await _currentUserService.loadCurrentUser();
     if (user == null) {
-      throw StateError('No signed-in user');
+      return AttendanceOverviewModel(
+        overallPercent: 0,
+        subjects: PortalCourses.curriculum
+            .map(
+              (name) => AttendanceSubjectModel(
+                subject: name,
+                percentage: 0,
+                attendedCount: 0,
+                scheduledSessionCount: 12,
+                scanDates: const [],
+              ),
+            )
+            .toList(growable: false),
+      );
     }
 
     final sessionsSnap = await _firestore.collection(sessionsCollection).get();
@@ -148,12 +161,13 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
       }
     }
 
+    const defaultScheduledSessions = 12;
     final subjects = <AttendanceSubjectModel>[];
     for (final course in PortalCourses.curriculum) {
       final total = totalBySubject[course] ?? 0;
+      final scheduled = total > 0 ? total : defaultScheduledSessions;
       final attended = attendedBySubject[course] ?? 0;
-      final denominator = total > 0 ? total : (attended > 0 ? attended : 1);
-      final percentage = ((attended / denominator) * 100).round().clamp(0, 100);
+      final percentage = ((attended / scheduled) * 100).round().clamp(0, 100);
       final dates = scanDatesBySubject[course] ?? [];
       dates.sort((a, b) => b.compareTo(a));
       subjects.add(
@@ -161,7 +175,7 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
           subject: course,
           percentage: percentage,
           attendedCount: attended,
-          scheduledSessionCount: total,
+          scheduledSessionCount: scheduled,
           scanDates: List<DateTime>.unmodifiable(dates),
         ),
       );
@@ -217,7 +231,9 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
   }) async {
     final user = await _currentUserService.loadCurrentUser();
     if (user == null) {
-      throw StateError('No signed-in user');
+      throw const AttendanceScanException(
+        'No signed-in user. Please sign in and try again.',
+      );
     }
 
     final trimmedSession = sessionId.trim();
@@ -226,54 +242,96 @@ class FirestoreAttendanceRepository implements AttendanceRepository {
     }
 
     final subject = courseSubject.trim();
-    final recordId = '${user.uid}_${trimmedSession}_$subject';
-    final recordDoc = _firestore.collection(recordsCollection).doc(recordId);
-    final existing = await recordDoc.get();
-    if (existing.exists) {
-      throw const AttendanceDuplicateScanException();
-    }
 
-    await recordDoc.set({
-      'sessionId': trimmedSession,
-      'subject': subject,
-      'studentUid': user.uid,
-      'studentId': user.studentId,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+    try {
+      await _firestore.collection(recordsCollection).add({
+        'sessionId': trimmedSession,
+        'subject': subject,
+        'studentUid': user.uid,
+        'studentId': user.studentId,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseException catch (error) {
+      throw AttendanceScanException(
+        'Failed to record attendance: ${error.message ?? 'Firestore write error.'}',
+      );
+    }
   }
 
   @override
   Stream<AttendanceOverviewEntity> watchAttendanceOverview() async* {
     final user = await _currentUserService.loadCurrentUser();
+    final fallbackOverview = AttendanceOverviewModel(
+      overallPercent: 0,
+      subjects: PortalCourses.curriculum
+          .map(
+            (name) => AttendanceSubjectModel(
+              subject: name,
+              percentage: 0,
+              attendedCount: 0,
+              scheduledSessionCount: 12,
+              scanDates: const [],
+            ),
+          )
+          .toList(growable: false),
+    );
+
     if (user == null) {
-      throw StateError('No signed-in user');
+      yield fallbackOverview;
+      return;
     }
 
     final controller = StreamController<AttendanceOverviewEntity>();
 
-    final sessionsSub = _firestore.collection(sessionsCollection).snapshots().listen((_) async {
-      try {
-        if (!controller.isClosed) {
-          controller.add(await getAttendanceOverview());
+    final sessionsSub = _firestore.collection(sessionsCollection).snapshots().listen(
+      (_) async {
+        try {
+          if (!controller.isClosed) {
+            controller.add(await getAttendanceOverview());
+          }
+        } catch (_) {
+          if (!controller.isClosed) {
+            controller.add(fallbackOverview);
+          }
         }
-      } catch (_) {}
-    });
+      },
+      onError: (_) {
+        if (!controller.isClosed) {
+          controller.add(fallbackOverview);
+        }
+      },
+    );
 
     final recordsSub = _firestore
         .collection(recordsCollection)
         .where('studentUid', isEqualTo: user.uid)
         .snapshots()
-        .listen((_) async {
-      try {
-        if (!controller.isClosed) {
-          controller.add(await getAttendanceOverview());
+        .listen(
+      (_) async {
+        try {
+          if (!controller.isClosed) {
+            controller.add(await getAttendanceOverview());
+          }
+        } catch (_) {
+          if (!controller.isClosed) {
+            controller.add(fallbackOverview);
+          }
         }
-      } catch (_) {}
-    });
+      },
+      onError: (_) {
+        if (!controller.isClosed) {
+          controller.add(fallbackOverview);
+        }
+      },
+    );
 
     try {
       controller.add(await getAttendanceOverview());
-    } catch (_) {}
+    } catch (_) {
+      if (!controller.isClosed) {
+        controller.add(fallbackOverview);
+      }
+    }
 
     controller.onCancel = () async {
       await sessionsSub.cancel();

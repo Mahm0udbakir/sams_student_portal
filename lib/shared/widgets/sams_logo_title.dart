@@ -21,17 +21,10 @@ class SamsLogoTitle extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Image.asset(
-          'assets/images/sams_logo.png',
-          width: logoSize,
-          height: logoSize,
-          fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
-          errorBuilder: (_, __, ___) => Icon(
-            Icons.shield_rounded,
-            size: 22,
-            color: fallbackIconColor ?? SamsUiTokens.primary,
-          ),
+        Icon(
+          Icons.shield_rounded,
+          size: logoSize,
+          color: fallbackIconColor ?? SamsUiTokens.primary,
         ),
         const SizedBox(width: 8),
         SamsLocaleText(title, style: textStyle),

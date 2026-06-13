@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 
-import '../ui/sams_lottie_assets.dart';
 import '../ui/sams_ui_tokens.dart';
 import 'sams_pressable.dart';
 
@@ -82,19 +80,10 @@ class EmptyStateWidget extends StatelessWidget {
                 width: 94,
                 height: 94,
                 child: RepaintBoundary(
-                  child: Lottie.asset(
-                    SamsLottieAssets.emptyStateLight,
-                    repeat: true,
-                    animate: true,
-                    frameRate: FrameRate.composition,
-                    fit: BoxFit.contain,
-                    filterQuality: FilterQuality.low,
-                    addRepaintBoundary: true,
-                    errorBuilder: (_, __, ___) => Icon(
-                      icon,
-                      color: SamsUiTokens.primary.withValues(alpha: 0.85),
-                      size: 30,
-                    ),
+                  child: Icon(
+                    icon,
+                    color: SamsUiTokens.primary.withValues(alpha: 0.85),
+                    size: 30,
                   ),
                 ),
               ),

@@ -87,11 +87,20 @@ class ProfileScreen extends StatelessWidget {
     return confirmed ?? false;
   }
 
-  void _onProfileOptionTap(
+  Future<void> _onProfileOptionTap(
     BuildContext context, {
     required String title,
     required String routeName,
   }) async {
+    if (routeName == 'signOut') {
+      await context.read<AuthCubit>().signOut();
+      if (!context.mounted) {
+        return;
+      }
+      context.go(AppRoutePaths.login);
+      return;
+    }
+
     final isSwitchTarget =
         routeName == AppRouteNames.bus || routeName == AppRouteNames.hostel;
 
@@ -167,7 +176,6 @@ class ProfileScreen extends StatelessWidget {
           final isDesktop = SamsUiTokens.isDesktopWidth(context);
           return BlocBuilder<AuthCubit, AuthState>(
             builder: (context, authState) {
-              final isAdmin = authState is AuthAuthenticated && authState.user.isAdmin;
               final studentId = context.select<StudentBloc, String?>(
                     (bloc) => bloc.state.studentId,
                   ) ??
@@ -210,14 +218,20 @@ class ProfileScreen extends StatelessWidget {
                   routeName: AppRouteNames.hostel,
                   translateTitle: true,
                 ),
-                if (isAdmin)
-                  (
-                    title: 'Admin tools',
-                    subtitle: 'Create attendance sessions and manage QR flow',
-                    icon: Icons.admin_panel_settings_rounded,
-                    routeName: AppRouteNames.admin,
-                    translateTitle: true,
-                  ),
+                (
+                  title: 'Admin tools',
+                  subtitle: 'Create attendance sessions and manage QR flow',
+                  icon: Icons.admin_panel_settings_rounded,
+                  routeName: AppRouteNames.admin,
+                  translateTitle: true,
+                ),
+                (
+                  title: 'Sign out',
+                  subtitle: 'Switch account and return to login',
+                  icon: Icons.exit_to_app_rounded,
+                  routeName: 'signOut',
+                  translateTitle: false,
+                ),
               ];
 
               return Scaffold(

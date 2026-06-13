@@ -85,6 +85,7 @@ class AuthCubit extends Cubit<AuthState> {
           expiresAt: result.expiresAt,
           attemptsRemaining: result.attemptsRemaining,
           purpose: 'login',
+          debugOtp: result.debugOtp,
         ),
       );
     } else if (result is AuthFailure<void>) {
@@ -193,6 +194,7 @@ class AuthCubit extends Cubit<AuthState> {
           expiresAt: result.expiresAt,
           attemptsRemaining: result.attemptsRemaining,
           purpose: purpose,
+          debugOtp: result.debugOtp,
         ),
       );
       return;

@@ -24,6 +24,7 @@ final class AuthOtpChallenge<T> extends AuthResult<T> {
     required this.name,
     required this.expiresAt,
     required this.attemptsRemaining,
+    this.debugOtp,
   });
 
   final String verificationId;
@@ -31,4 +32,5 @@ final class AuthOtpChallenge<T> extends AuthResult<T> {
   final String name;
   final DateTime expiresAt;
   final int attemptsRemaining;
+  final String? debugOtp;
 }

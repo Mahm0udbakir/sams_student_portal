@@ -141,6 +141,28 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+                          if (challenge?.debugOtp != null) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF7FBFE),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: SamsUiTokens.primary.withValues(alpha: 0.14),
+                                ),
+                              ),
+                              child: Text(
+                                'Debug OTP: ${challenge!.debugOtp}',
+                                style: const TextStyle(
+                                  color: Color(0xFF0A4A77),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
                         const SizedBox(height: 16),
                         SizedBox(
                           width: double.infinity,

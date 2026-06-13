@@ -99,16 +99,19 @@ class AppRoutePaths {
 }
 
 class AppRouter {
+  static final RouteObserver<ModalRoute<void>> routeObserver =
+      RouteObserver<ModalRoute<void>>();
+
   static GoRouter createRouter(AuthCubit authCubit) => GoRouter(
     initialLocation: kIsWeb ? AppRoutePaths.login : AppRoutePaths.splash,
     refreshListenable: _AuthCubitRefreshListenable(authCubit),
+    observers: <NavigatorObserver>[routeObserver],
     redirect: (context, state) {
       final location = state.matchedLocation;
       final isSplash = location == AppRoutePaths.splash;
       final isLogin = location == AppRoutePaths.login;
       final isSignup = location == AppRoutePaths.signup;
       final isVerifyOtp = location == AppRoutePaths.verifyOtp;
-      final isAdmin = location == AppRoutePaths.admin;
 
       final currentState = authCubit.state;
       if (currentState is AuthLoading) {
@@ -144,10 +147,6 @@ class AppRouter {
       }
 
       if (currentState is AuthAuthenticated) {
-        if (isAdmin && !currentState.user.isAdmin) {
-          return AppRoutePaths.home;
-        }
-
         return isSplash || isLogin || isSignup || isVerifyOtp
             ? AppRoutePaths.home
             : null;

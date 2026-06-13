@@ -66,19 +66,15 @@ class _LoginScreenState extends State<LoginScreen> {
           body: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset(
-                  'assets/images/auth_hero.jpg',
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [SamsUiTokens.primary, Color(0xFF0A4F81)],
-                      ),
-                    ),
+                child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [SamsUiTokens.primary, Color(0xFF0A4F81)],
                   ),
                 ),
+              ),
               ),
               Positioned.fill(
                 child: Container(

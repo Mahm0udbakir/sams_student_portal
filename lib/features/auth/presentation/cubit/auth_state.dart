@@ -30,6 +30,7 @@ final class AuthOtpRequired extends AuthState {
     required this.expiresAt,
     required this.attemptsRemaining,
     this.purpose = 'signup',
+    this.debugOtp,
   });
 
   final String verificationId;
@@ -38,6 +39,7 @@ final class AuthOtpRequired extends AuthState {
   final DateTime expiresAt;
   final int attemptsRemaining;
   final String purpose;
+  final String? debugOtp;
 
   @override
   List<Object?> get props => [
@@ -47,6 +49,7 @@ final class AuthOtpRequired extends AuthState {
     expiresAt,
     attemptsRemaining,
     purpose,
+    debugOtp,
   ];
 }
 

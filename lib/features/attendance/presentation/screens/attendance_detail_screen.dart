@@ -13,7 +13,6 @@ import '../../../../shared/widgets/sams_pressable.dart';
 import '../../../../shared/widgets/sams_state_views.dart';
 import '../../../../shared/widgets/shimmer_widget.dart';
 import '../../data/repositories/firestore_attendance_repository.dart';
-import '../../domain/entities/attendance_session_entity.dart';
 import '../bloc/attendance_bloc.dart';
 import 'attendance_scanner_screen.dart';
 
@@ -129,20 +128,6 @@ class AttendanceDetailScreen extends StatelessWidget {
                       ),
                       padding: SamsUiTokens.pageInsets(context, top: 14, bottom: 24),
                       children: [
-                        if (state.sessions.isNotEmpty) ...[
-                          _SectionTitle(
-                            title: 'Active sessions',
-                            subtitle: 'Open QR sessions from your instructors',
-                          ),
-                          const SizedBox(height: 10),
-                          ...state.sessions.map(
-                            (session) => Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: _ActiveSessionCard(session: session),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                        ],
                         _OverallAttendanceHero(percentage: overall),
                         const SizedBox(height: 14),
                         const _AttendanceLegend(),
@@ -628,80 +613,6 @@ class _CourseAttendanceCard extends StatelessWidget {
   }
 }
 
-class _ActiveSessionCard extends StatelessWidget {
-  const _ActiveSessionCard({required this.session});
-
-  final AttendanceSessionEntity session;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(SamsUiTokens.radiusLg),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.75)),
-        boxShadow: SamsUiTokens.cardShadow,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: SamsUiTokens.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.qr_code_2_rounded, color: SamsUiTokens.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SamsLocaleText(
-                  session.subject,
-                  style: TextStyle(
-                    color: cs.onSurface,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                SamsLocaleText(
-                  '${session.room} · ${session.sessionId}',
-                  style: TextStyle(
-                    color: cs.onSurfaceVariant,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: session.isActive
-                  ? const Color(0xFFE9F8EF)
-                  : cs.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              session.isActive ? 'Open' : 'Closed',
-              style: TextStyle(
-                color: session.isActive ? const Color(0xFF0E8F54) : cs.onSurfaceVariant,
-                fontSize: 11.5,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _AttendanceVisual {
   const _AttendanceVisual({required this.background, required this.accent});

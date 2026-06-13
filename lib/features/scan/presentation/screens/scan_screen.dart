@@ -1,11 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 
 import '../../../../core/constants/portal_courses.dart';
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/services/camera_permission_service.dart';
-import '../../../../shared/ui/sams_lottie_assets.dart';
+import '../../../../core/services/current_user_service.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
 import '../../../../shared/widgets/modern_snackbar.dart';
 import '../../../../shared/widgets/sams_app_bar.dart';
@@ -25,7 +25,25 @@ class ScanScreen extends StatefulWidget {
 
 class _ScanScreenState extends State<ScanScreen> {
   final _repository = FirestoreAttendanceRepository();
+  final _currentUserService = CurrentUserService();
   bool _recording = false;
+
+  Future<bool> _checkSignedIn() async {
+    final user = await _currentUserService.loadCurrentUser();
+    if (user == null) {
+      if (!mounted) return false;
+      ModernSnackbars.show(
+        context,
+        message: 'Please sign in before scanning attendance.',
+        type: ModernSnackbarType.info,
+      );
+      if (mounted) {
+        context.goNamed(AppRouteNames.login);
+      }
+      return false;
+    }
+    return true;
+  }
 
   Future<void> _showRecordedDialog(String courseName) async {
     final colorScheme = Theme.of(context).colorScheme;
@@ -88,20 +106,11 @@ class _ScanScreenState extends State<ScanScreen> {
                         child: SizedBox(
                           width: 100,
                           height: 100,
-                          child: RepaintBoundary(
-                            child: Lottie.asset(
-                              SamsLottieAssets.successCheckLight,
-                              repeat: false,
-                              animate: true,
-                              frameRate: FrameRate.composition,
-                              fit: BoxFit.contain,
-                              filterQuality: FilterQuality.low,
-                              addRepaintBoundary: true,
-                              errorBuilder: (_, __, ___) => const Icon(
-                                Icons.check_circle_rounded,
-                                color: SamsUiTokens.success,
-                                size: 44,
-                              ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.check_circle_rounded,
+                              color: SamsUiTokens.success,
+                              size: 44,
                             ),
                           ),
                         ),
@@ -173,6 +182,10 @@ class _ScanScreenState extends State<ScanScreen> {
   Future<void> _onCourseSelected(String course) async {
     if (_recording) return;
 
+    if (!await _checkSignedIn()) {
+      return;
+    }
+
     final granted = await CameraPermissionService().ensureCameraPermission();
     if (!mounted) return;
     if (!granted) {
@@ -209,11 +222,37 @@ class _ScanScreenState extends State<ScanScreen> {
       if (mounted) {
         ModernSnackbars.show(context, message: e.message, type: ModernSnackbarType.error);
       }
-    } catch (_) {
+    } on FirebaseException catch (e) {
       if (mounted) {
         ModernSnackbars.show(
           context,
-          message: 'Could not record attendance. Please try again.',
+          message: 'Could not record attendance: ${e.message ?? e.code}',
+          type: ModernSnackbarType.error,
+        );
+      }
+    } on StateError catch (e) {
+      if (mounted) {
+        ModernSnackbars.show(
+          context,
+          message: 'Could not record attendance: ${e.message}',
+          type: ModernSnackbarType.error,
+        );
+      }
+    } on ArgumentError catch (e) {
+      if (mounted) {
+        ModernSnackbars.show(
+          context,
+          message: e.message,
+          type: ModernSnackbarType.error,
+        );
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Attendance scan error: $error');
+      debugPrint('$stackTrace');
+      if (mounted) {
+        ModernSnackbars.show(
+          context,
+          message: 'Could not record attendance: ${error.toString()}',
           type: ModernSnackbarType.error,
         );
       }

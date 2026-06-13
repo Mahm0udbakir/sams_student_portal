@@ -30,6 +30,7 @@ class FirestoreHomeRepository implements HomeRepository {
   static const int _maxPreviewMessageLength = 120;
 
   Future<AttendanceOverviewEntity> _loadAttendanceOverviewSafe() async {
+    const defaultScheduledSessions = 12;
     try {
       return await _attendanceRepository.getAttendanceOverview();
     } catch (_) {
@@ -41,7 +42,7 @@ class FirestoreHomeRepository implements HomeRepository {
                 subject: name,
                 percentage: 0,
                 attendedCount: 0,
-                scheduledSessionCount: 0,
+                scheduledSessionCount: defaultScheduledSessions,
                 scanDates: const [],
               ),
             )

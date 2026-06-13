@@ -3,12 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 
 import '../../../../core/routes/app_router.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
-import '../../../../shared/ui/sams_lottie_assets.dart';
 import '../../../../shared/ui/sams_ui_tokens.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -169,15 +167,10 @@ class _SplashScreenState extends State<SplashScreen> {
                                 ),
                               ],
                             ),
-                            child: Image.asset(
-                              'assets/images/sams_logo.png',
-                              fit: BoxFit.contain,
-                              filterQuality: FilterQuality.high,
-                              errorBuilder: (_, __, ___) => const Icon(
-                                Icons.school_rounded,
-                                size: 110,
-                                color: SamsUiTokens.primary,
-                              ),
+                            child: const Icon(
+                              Icons.school_rounded,
+                              size: 110,
+                              color: SamsUiTokens.primary,
                             ),
                           ),
                           const SizedBox(height: 28),
@@ -199,20 +192,11 @@ class _SplashScreenState extends State<SplashScreen> {
                               width: 112,
                               height: 112,
                               child: RepaintBoundary(
-                                child: Lottie.asset(
-                                  SamsLottieAssets.splashAcademicLight,
-                                  fit: BoxFit.contain,
-                                  repeat: true,
-                                  animate: true,
-                                  frameRate: FrameRate.composition,
-                                  filterQuality: FilterQuality.low,
-                                  addRepaintBoundary: true,
-                                  errorBuilder: (_, __, ___) => Icon(
-                                    Icons.auto_awesome_rounded,
-                                    size: 34,
-                                    color: Colors.white.withValues(alpha: 0.85),
-                                  ),
-                                ),
+                                child: Icon(
+                                Icons.auto_awesome_rounded,
+                                size: 34,
+                                color: Colors.white.withValues(alpha: 0.85),
+                              ),
                               ),
                             ),
                           ),
